@@ -6,7 +6,7 @@ By Saksham Chopra
 
 I began with a straightforward question: if a game produces a number every 30 seconds, could enough historical data reveal the next result?
 
-I collected and organized WinGo 30S records, examined streaks and clock patterns, worked through statistical diagnostics, and trained models. The work eventually covered 88,916 recorded rounds across 31 calendar dates. I used VS Code, Google Antigravity and ChatGPT as development and research assistants.
+I collected and organized WinGo 30S records, examined streaks and clock patterns, worked through statistical diagnostics, and trained models. The work eventually covered 88,916 recorded rounds across 31 calendar dates.
 
 The result is a public research archive—not a bot that guarantees the next number.
 
@@ -45,7 +45,7 @@ One saved VS Code experiment used 1,000 candidate features, 4,096 training examp
 
 Calling these inputs “1,000 patterns” would overstate what was learned. They were features to test, not 1,000 established predictive rules.
 
-An earlier ChatGPT-assisted analysis reported a one-step transition model at 10.40% on a different 17,762-example digit test. Its 95% interval was 9.96–10.86%, and its paired comparison with the observed baseline did not establish an advantage. Other reported models were also near the 10% reference rate.
+In an earlier analysis, I recorded a one-step transition model at 10.40% on a different 17,762-example digit test. Its 95% interval was 9.96–10.86%, and its paired comparison with the observed baseline did not establish an advantage. Other reported models were also near the 10% reference rate.
 
 There was a positive-looking result worth preserving: a recent-100 Big/Small frequency baseline scored **51.68%** in the VS Code backtest. I am not hiding it. But that historical data had already been explored, and many candidate approaches had been considered. It is an observation requiring a fresh, precommitted test—not a guarantee about future rounds. No new experiment was run for this publication.
 
@@ -89,4 +89,4 @@ The most useful outcome was learning to distinguish a pattern worth testing from
 
 **Read the research and reproduction instructions: https://github.com/choprasaksham2007-a11y/wingo-30s-lab**
 
-Research and curation: Saksham Chopra. Development, analysis and editorial assistance: Google Antigravity and ChatGPT. The archive identifies which results were checked locally, retained from earlier reports, hypothesized, or left unknown.
+The archive identifies which results were checked locally, retained from earlier reports, hypothesized, or left unknown.

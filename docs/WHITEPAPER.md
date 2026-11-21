@@ -64,7 +64,7 @@ A properly designed and implemented CSPRNG aims to prevent an efficient attacker
 
 ## 5. Existing empirical results
 
-### 5.1 Earlier ChatGPT snapshot
+### 5.1 Earlier 88,865-round snapshot
 
 The archived report describes 62,164 training examples, 8,880 validation examples and 17,762 test examples out of 88,806 usable samples. Features were historical digits/premiums and public clock/period components. Reported digit accuracies were 9.97% for the training-majority baseline, 9.82% for repeating the previous digit, 10.40% for a one-step transition model, 10.01% for a two-step model, 9.84% for a three-step model, 10.08% for a random forest and 10.17% for logistic regression.
 
@@ -83,7 +83,7 @@ The saved protocol uses 4,096 training rows, 1,500 selection rows and 5,000 late
 
 These saved intervals are descriptive binomial intervals, not corrections for repeated exploration or dependence. The recent-100 Big/Small baseline's 51.68% result (95% interval 50.29–53.06%) must be disclosed. Its nominal paired p-value against the training-prior baseline was 0.0168. That result is a candidate for a future precommitted test, not grounds for either a guaranteed edge or a claim that every method achieved exactly chance.
 
-### 5.3 Antigravity archive
+### 5.3 Statistical audit archive
 
 Saved diagnostics report digit chi-square 17.1254, nominal p=0.04679; empirical single-digit Shannon entropy 3.32178875 bits; lag-one correlation approximately -0.003575; and a lag-five random forest accuracy of 9.69%. The random forest used 20,000 training examples and the following 10,000 examples for evaluation. These outputs were preserved, not rerun.
 
@@ -97,7 +97,7 @@ The author's separate GitHub investigation concluded that the implementation use
 
 ## 7. Reproducibility, preservation and limitations
 
-The publication provides checksums, snapshot reconciliation, saved metrics and predictions for the VS Code experiment, archived Antigravity scripts and JSON outputs, guarded historical collection tools, and an offline validation wrapper. It does not imply that the old experiments were rerun or that every script is a standards-compliant statistical implementation.
+The publication provides checksums, snapshot reconciliation, saved metrics and predictions for the VS Code experiment, archived statistical audit scripts and JSON outputs, guarded historical collection tools, and an offline validation wrapper. It does not imply that the old experiments were rerun or that every script is a standards-compliant statistical implementation.
 
 All 12 saved VS Code model artifacts are preserved locally without deserialization. Three extraction `.pkl` files are serialized observations, not additional trained models. The initial public release excludes these binaries, original screenshots, account-specific captures, internal handoffs and downloaded third-party frontend code. Publication checks establish consistency of supplied files; they do not independently authenticate every recorded round against an operator ledger.
 
@@ -105,8 +105,8 @@ This archive supports a narrow conclusion: **the evaluated trained models did no
 
 ## References and research credits
 
-- Saksham Chopra's VS Code saved protocol, metrics and row-level predictions: [evidence](evidence/vscode/).
-- Google Antigravity-assisted dataset construction, statistical scripts and audit narratives: [evidence](evidence/antigravity/) and [provenance](DATA_PROVENANCE.md).
-- ChatGPT-assisted earlier analysis and collection tools: [archived analysis](evidence/chatgpt/premium_analysis_2026-11-11.md).
+- [Forecasting protocol, metrics and row-level predictions](evidence/vscode/).
+- [Statistical audit evidence](evidence/antigravity/) and [dataset provenance](DATA_PROVENANCE.md).
+- [Earlier premium and prediction analysis](evidence/chatgpt/premium_analysis_2026-11-11.md).
 - NIST, [SP 800-22 Rev. 1a](https://csrc.nist.gov/pubs/sp/800/22/r1/upd1/final), scope and limitations of statistical tests.
 - Microsoft, [RandomNumberGenerator.GetInt32](https://learn.microsoft.com/en-us/dotnet/api/system.security.cryptography.randomnumbergenerator.getint32), bounded cryptographic random-number API semantics.

@@ -1,8 +1,8 @@
 # Attribution, source boundaries and data
 
-The MIT license covers the author's original project code and writing in this repository, including publication adaptations. The project combines the author's VS Code research, Google Antigravity-assisted scripts/data preparation, and ChatGPT-assisted reports/collection tools. These assistants are credited for their contributions, not presented as independent scientific authorities.
+The MIT license covers the author's original project code and writing in this repository, including publication adaptations.
 
-The selected scripts came from the author's supplied local research files and ChatGPT evidence ZIP. No separate third-party copyright/license notice was found in those selected script headers. No downloaded frontend JavaScript, external GitHub project implementation, screenshots, dependency source tree or proprietary application binary is redistributed. This is a review of included material, not a claim about ownership of every excluded file in the author's workspace.
+The selected scripts came from Saksham Chopra's local research files and archived evidence bundle. No separate third-party copyright/license notice was found in those selected script headers. No downloaded frontend JavaScript, external GitHub project implementation, screenshots, dependency source tree or proprietary application binary is redistributed. This is a review of included material, not a claim about ownership of every excluded file in the author's workspace.
 
 Optional dependencies such as NumPy, pandas, SciPy, scikit-learn and requests retain their own licenses. They are installed separately and are not vendored here. The MIT license does not relicense those packages. Official NIST and Microsoft materials are linked and summarized; no standards document is redistributed.
 

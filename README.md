@@ -1,5 +1,7 @@
 # WinGo 30S Lab
 
+Research by **Saksham Chopra**.
+
 ![WinGo 30S Lab. Across five 1,000-round blocks, the model's Big/Small accuracy ranged from 45.9% to 52.0%. The recent-100 rule ranged from 51.2% to 52.7%.](docs/figures/wingo-lab-cover.png)
 
 **[Run the scorecard in Colab ↗](https://colab.research.google.com/github/choprasaksham2007-a11y/wingo-30s-lab/blob/main/examples/score-the-forecasts.ipynb)** · **[Download the VS Code project](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.1.0/colour-ai-workspace.zip)** · **[Get the data](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/tag/v1.0.0)** · **[Read the paper](docs/WHITEPAPER.md)**
@@ -21,7 +23,7 @@ Open the notebook and run both cells to score the saved digit, size and colour f
 
 ## How did the model score?
 
-The saved VS Code experiment used 1,000 candidate features. It trained on 4,096 examples, selected model settings on the next 1,500, then scored the following 5,000 with the settings fixed. The table gives the actual number of correct predictions. Its reference rates assume independent, uniformly distributed digits.
+The saved forecasting experiment used 1,000 candidate features. It trained on 4,096 examples, selected model settings on the next 1,500, then scored the following 5,000 with the settings fixed. The table gives the actual number of correct predictions. Its reference rates assume independent, uniformly distributed digits.
 
 | Prediction | Correct out of 5,000 | Accuracy | Reference rate |
 | --- | ---: | ---: | ---: |
@@ -41,11 +43,11 @@ At the worksheet time **00:00:00**, the first published premium was **71180**. I
 
 </details>
 
-## Where the evidence comes from
+## Explore the research
 
-- **VS Code** contains the training code, collectors, model checkpoints, live viewer and saved forecasts. [Browse the app](colour-ai/) · [Inspect the model inventory](models/README.md)
-- **ChatGPT, PRNG Seed Prediction.** [Did yesterday’s digit repeat at the same clock time?](docs/DATA_PROVENANCE.md#did-yesterdays-result-repeat-at-the-same-clock-time) The chat also contributed an earlier analysis of 88,865 observations. Matching its archived clock-time matrix to the current data identified 51 added rounds and 49 completed premiums. Every overlapping winning digit agreed. [Earlier report](docs/evidence/chatgpt/premium_analysis_2026-11-11.md) · [Snapshot reconciliation](docs/DATA_PROVENANCE.md)
-- **Antigravity** contains the earlier workbook revisions, image-based digit checks and statistical audits. The historical “110 dimensions” report included hardcoded verdicts and checks with unsuitable statistical assumptions. The archive preserves those distinctions and links back to the source. [Additional Antigravity material](antigravity/README.md) · [Audit corrections](docs/CLAIM_LEDGER.md)
+- **Models and forecasts.** Explore the training code, collectors and live viewer, or inspect the checkpoints behind the saved forecasts. [Browse the app](colour-ai/) · [Model inventory](models/README.md)
+- **Round history.** I compared an earlier snapshot of 88,865 rounds with the final dataset. I found 51 added rounds and 49 previously incomplete premiums. Every winning digit present in both snapshots agreed. [Compare the snapshots](docs/DATA_PROVENANCE.md) · [Same-time digit repeat analysis](docs/DATA_PROVENANCE.md#did-yesterdays-result-repeat-at-the-same-clock-time) · [Earlier report](docs/evidence/chatgpt/premium_analysis_2026-11-11.md)
+- **Audit trail.** Follow the workbook revisions and image-based digit checks. My review of the original 110-dimension audit identified hardcoded verdicts and tests whose assumptions did not fit the data. [Browse the audit archive](antigravity/README.md) · [Read the corrections](docs/CLAIM_LEDGER.md)
 
 The recorded API evidence describes how results were distributed. The author's separate investigation attributes generation to a .NET cryptographic RNG. The archive lacks independent confirmation of the deployed generator, and no seed was recovered. [Infrastructure evidence](docs/INFRASTRUCTURE.md)
 
@@ -59,6 +61,6 @@ python scripts/run_audit_suite.py
 
 [Full-data verification instructions](docs/METHODS.md) · [Dataset checksums](data/SHA256SUMS.txt) · [Workspace file manifest](colour-ai/WORKSPACE_FILES.csv)
 
-Research and curation by **Saksham Chopra**. [Long-form article](articles/medium_substack_post.md) · [LinkedIn draft](articles/linkedin_post.md) · [Citation](CITATION.cff) · [License](LICENSE) · [Data and third-party notices](THIRD_PARTY_NOTICES.md)
+[Long-form article](articles/medium_substack_post.md) · [LinkedIn draft](articles/linkedin_post.md) · [Citation](CITATION.cff) · [License](LICENSE) · [Data and third-party notices](THIRD_PARTY_NOTICES.md)
 
 If you use the dataset or notebook, star the repository to save it for your next experiment. If you find a discrepancy, include the period ID, the snapshot you used and the value you expected. [Report a data or scoring issue](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/issues)

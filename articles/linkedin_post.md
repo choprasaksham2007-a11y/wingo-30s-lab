@@ -17,6 +17,6 @@ My takeaway: statistical regularity, predictive accuracy and proof of a deployed
 
 Research: https://github.com/choprasaksham2007-a11y/wingo-30s-lab
 
-Research and curation by Saksham Chopra, with Google Antigravity and ChatGPT assistance.
+Research by Saksham Chopra.
 
 #DataScience #MachineLearning #Cybersecurity #ReproducibleResearch #OpenSource
