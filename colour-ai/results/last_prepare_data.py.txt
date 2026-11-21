@@ -1,0 +1,17 @@
+Rows loaded: 88865
+Live collector: 88865 rounds | also in workbook: 88865 | disagreements: 0
+Live collector: no new rounds beyond the workbook yet.
+Rows after adding live rounds: 88865
+Rows where Big/Small breaks the number rule: 0
+Colour values that differ from the rule (set from the number): 0
+Rows where the file time differs from the Period ID time: 0
+Days: 32 | Gaps: 1 | Missing rounds: 51 | Blocks: 2
+Block sizes: smallest 2632, median 44432, largest 86233, blocks under 20 rounds: 0
+
+ block_id  rounds      first_period       last_period          first_time           last_time
+        0   86233 20261011100052221 20261110100052053 2026-10-12 00:00:30 2026-11-10 22:36:30
+        1    2632 20261110100052105 20261111100051856 2026-11-10 23:02:30 2026-11-11 20:58:00
+
+Total clean rounds: 88865
+Saved: data\processed\rounds_30s_clean.csv
+Saved: data\processed\block_map_30s.csv

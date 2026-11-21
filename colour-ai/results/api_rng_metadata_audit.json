@@ -1,0 +1,32 @@
+{
+  "checked_utc": "2026-11-08T02:33:20.545337+00:00",
+  "url": "https://draw.ar-lottery01.com/WinGo/WinGo_30S/GetHistoryIssuePage.json",
+  "scope": "One ordinary unauthenticated request to the existing public history endpoint. Field names only.",
+  "http_status": 200,
+  "field_paths": [
+    "code",
+    "data",
+    "data.list",
+    "data.list[].color",
+    "data.list[].issueNumber",
+    "data.list[].number",
+    "data.list[].premium",
+    "data.list[].sum",
+    "data.pageNo",
+    "data.totalCount",
+    "data.totalPage",
+    "msg",
+    "msgCode",
+    "serviceTime"
+  ],
+  "possible_rng_metadata_fields": [],
+  "conclusion": "No seed, generator-state or commitment fields found in this response schema.",
+  "collected_history_checks": {
+    "rows": 7740,
+    "premium_present": 7740,
+    "premium_equals_number": 7740,
+    "sum_distinct_values": [
+      "0"
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "artifact_rows_verified": 5000,
+  "saved_model_forecasts_reproduced": 40,
+  "probabilities_and_report_hits_verified": true,
+  "recent_100_big_small_baseline": {
+    "rounds": 5000,
+    "correct": 2584,
+    "accuracy": 0.5168,
+    "log_loss": 0.6973599218563511,
+    "baseline_accuracy": 0.492,
+    "paired_p_vs_baseline": 0.01683364739600787,
+    "accuracy_95_range": [
+      0.5029412015384129,
+      0.5306330036762332
+    ],
+    "five_1000_round_blocks": [
+      0.515,
+      0.514,
+      0.512,
+      0.516,
+      0.527
+    ],
+    "mean_predicted_confidence": 0.5486122758715415
+  }
+}

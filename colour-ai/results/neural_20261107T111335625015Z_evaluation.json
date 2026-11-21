@@ -1,0 +1,28 @@
+{
+  "usable_rows": 10001,
+  "train_rows": 6000,
+  "validation_rows": 2000,
+  "test_rows": 2001,
+  "test_start": "20261030100050728",
+  "test_end": "20261107100051346",
+  "architecture": [
+    64,
+    32
+  ],
+  "epochs": 3,
+  "temperature": 16,
+  "accuracy": 0.09095452273863068,
+  "accuracy_95_percent_interval": [
+    0.0791271790820231,
+    0.1043494031695576
+  ],
+  "baseline_digit": 1,
+  "baseline_accuracy": 0.10044977511244378,
+  "log_loss": 2.303754710273937,
+  "uniform_log_loss": 2.302585092994046,
+  "baseline_log_loss": 2.302632509851826,
+  "p_above_chance": 0.9186076638864812,
+  "p_above_baseline": 0.8663851847658439,
+  "historical_advantage_detected": false,
+  "note": "Chronological holdout for this run; history has been explored before. Prospective live results are the decisive check. Final production network is refitted on all available rows; its live performance is not the holdout score."
+}

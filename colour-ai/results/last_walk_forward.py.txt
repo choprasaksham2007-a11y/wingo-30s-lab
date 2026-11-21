@@ -1,0 +1,28 @@
+Usable rounds: 88855 (first 5 rounds of every block are warm-up) | features: 47
+Walk-forward: 7 tests, each uses only EARLIER chunks for training. Tested rounds: 77748
+
+=== Target 1: Big or Small (tested on 77748 rounds, chance = 50%) ===
+model                        accuracy  95% range       balanced  p vs chance  p vs baseline
+Baseline: always majority       0.499  0.495 to 0.502     0.499       0.4622              -
+Rule: repeat last result        0.500  0.496 to 0.504     0.500       0.9971         0.6089
+Rule: opposite of last          0.500  0.496 to 0.504     0.500       0.9971         0.6009
+Logistic regression             0.504  0.501 to 0.508     0.504       0.0161         0.0220
+Random forest                   0.502  0.499 to 0.506     0.502       0.2438         0.1564
+Per-class hit rate (recall):
+  Baseline: always majority    Small: 0.141 | Big: 0.856
+  Rule: repeat last result     Small: 0.500 | Big: 0.500
+  Rule: opposite of last       Small: 0.500 | Big: 0.500
+  Logistic regression          Small: 0.486 | Big: 0.523
+  Random forest                Small: 0.466 | Big: 0.538
+-> With 77748 tested rounds, any score is uncertain by about +-0.4%.
+
+=== Target 2: the exact number 0-9 (tested on 77748 rounds, chance = 10%) ===
+model                        accuracy  95% range       balanced  p vs chance  p vs baseline
+Baseline: most common digit     0.101  0.099 to 0.103     0.100       0.3450              -
+Logistic regression             0.102  0.100 to 0.104     0.102       0.0605         0.5077
+Random forest                   0.102  0.099 to 0.104     0.101       0.1619         0.7373
+-> With 77748 tested rounds, any score is uncertain by about +-0.2%.
+
+=== Verdict ===
+Models compared with their baseline: 6 -> a model only 'wins' if it scores higher AND p vs baseline < 0.0083
+No model beat its baseline. No usable signal found in this data.

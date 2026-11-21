@@ -1,0 +1,82 @@
+Rounds: 88865 | Blocks: 2 | Days: 32
+
+=== All tests, in order ===
+
+[A Fairness]
+ A1 | p = 0.0489 | Digits 0-9 equally common                    | lowest digit 2 (8646), highest 5 (9072)
+ A2 | p = 0.8457 | Big share = 50%                              | share 0.500
+ A3 | p = 0.4811 | Odd/Green share = 50%                        | share 0.501
+ A4 | p = 0.0148 | Violet share = 20%                           | share 0.203
+ A5 | p = 0.0874 | Colour classes (G, R, G+V, R+V)              | counts [35466, 35335, 9072, 8992]
+
+[B Past vs next]
+ B1 | p = 0.7246 | Big: last result vs next                     | next=1 after 1: 0.500, after 0: 0.501
+ B2 | p = 0.0001 | Odd/Green: last result vs next               | next=1 after 1: 0.495, after 0: 0.508
+ B3 | p = 0.9032 | Violet: last result vs next                  | next=1 after 1: 0.204, after 0: 0.203
+ B4 | p = 0.7231 | Big: streak (runs) test                      | z = 0.35
+ B5 | p = 0.0001 | Odd/Green: streak (runs) test                | z = 3.92
+ B6 | p = 0.8843 | Violet: streak (runs) test                   | z = -0.15
+ B7 | p = 0.2962 | Big: streak of 3 continues?                  | continued 11229/22301 = 0.504
+ B8 | p = 0.4505 | Odd/Green: streak of 3 continues?            | continued 10764/21640 = 0.497
+ B9 | p = 0.1186 | Big: link at lag 1-30                        | best lag 13, r = +0.010, fixed for 30 tries
+B10 | p = 0.0027 | Odd/Green: link at lag 1-30                  | best lag 1, r = -0.013, fixed for 30 tries
+B11 | p = 0.6950 | Violet: link at lag 1-30                     | best lag 28, r = -0.008, fixed for 30 tries
+
+[C Numbers]
+ C1 | p = 0.2245 | Digit transition table (lag 1)               | 
+ C2 | p = 0.3616 | Digit transition table (lag 2)               | 
+ C3 | p = 0.1170 | Same digit k rounds later (k 1-60)           | best k 10: 0.097 (chance 0.100), fixed for 60 tries
+ C4 | p = 0.0003 | Overdue digit comes next?                    | hit 8561/88820 = 0.096
+ C5 | p = 0.4402 | Hot digit (last 20 rounds) comes next?       | hit 5792/58487 = 0.099
+ C6 | p = 1.0000 | Repeated 4-number sequences                  | seen 78859, shuffled average 78860.4
+ C7 | p = 0.0100 | Waiting time between same digit              | 88845 waiting times (shuffle test)
+ C8 | p = 0.0062 | Next = previous + k (mod 10)                 | 
+ C9 | p = 0.0005 | Next = (last two digits added) mod 10        | hit 8578/88861 = 0.097
+
+[D Balance/waves]
+ D1 | p = 0.4705 | Big: balance in 10-round windows             | 8886 windows
+ D2 | p = 0.4315 | Big: balance in 20-round windows             | 4442 windows
+ D3 | p = 0.6579 | Odd/Green: balance in 10-round windows       | 8886 windows
+ D4 | p = 0.3040 | Violet: balance in 20-round windows          | 4442 windows
+ D5 | p = 0.8131 | Big: hidden wave (FFT)                       | strongest every 11.1 rounds (block 86233)
+ D6 | p = 0.5310 | Odd/Green: hidden wave (FFT)                 | strongest every 3.9 rounds (block 86233)
+ D7 | p = 0.3444 | Violet: hidden wave (FFT)                    | strongest every 63.8 rounds (block 86233)
+
+[E Clock/ID]
+ E1 | p = 0.6462 | Hour of day vs Big                           | 24 hours
+ E2 | p = 0.8774 | Hour of day vs Odd/Green                     | 
+ E3 | p = 0.4735 | Hour of day vs Violet                        | 
+ E4 | p = 0.6254 | Part of day vs digit                         | 
+ E5 | p = 0.0445 | Odd/even round vs Big                        | 
+ E6 | p = 0.5598 | Last ID digit vs digit                       | 
+ E7 | p = 0.3280 | Last ID digit vs Big                         | 
+ E8 | p = 1.0000 | Round counter mod m vs Big (m 3-60)          | best m = 18
+ E9 | p = 1.0000 | Round counter mod m vs Odd (m 3-60)          | best m = 23
+E10 | p = 1.0000 | Round counter mod m vs digit (m 3-12)        | best m = 6
+E11 | p = 0.3477 | Minute of hour vs Big                        | 
+
+[F Multi-day]
+ F1 | p = 0.2486 | Same time every day: digit                   | matched 8700/85985 (chance 0.1)
+ F2 | p = 0.0707 | Same time every day: Big/Small               | matched 42727/85985 (chance 0.5)
+ F3 | p = 0.2854 | Same time every week: digit                  | matched 6786/68705 (chance 0.1)
+ F4 | p = 0.1668 | Same first 20 rounds each day                | matched 970/9300
+ F5 | p = 0.5535 | Day-to-day drift in Big                      | 32 days
+ F6 | p = 0.8541 | Weekday vs Big                               | 7 weekdays
+
+=== Not run ===
+ G1 | Link to other game modes                     | needs 1-min data collected at the same time
+ G2 | Crowd effect (bet volume)                    | needs data we cannot get
+
+=== Summary ===
+Tests run: 49
+Bar for 'interesting' (Bonferroni): p < 0.00102
+Tests with p < 0.05: 10  (luck alone gives about 2.5)
+
+5 lowest p-values:
+  p = 0.0001 | B5 Odd/Green: streak (runs) test | LOOK CLOSER
+  p = 0.0001 | B2 Odd/Green: last result vs next | LOOK CLOSER
+  p = 0.0003 | C4 Overdue digit comes next? | LOOK CLOSER
+  p = 0.0005 | C9 Next = (last two digits added) mod 10 | LOOK CLOSER
+  p = 0.0027 | B10 Odd/Green: link at lag 1-30 | probably luck
+
+Verdict: some tests passed the bar. They must repeat on FRESH data before we believe them.

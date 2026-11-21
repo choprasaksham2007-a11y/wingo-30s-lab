@@ -10,6 +10,9 @@ The current dataset is complete across its recorded interval. Earlier analyses u
 
 ## Start here
 
+- [Original Colour AI workspace](colour-ai/README.md) and [complete project ZIP with all 12 saved models](https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis/releases/download/v1.1.0/colour-ai-workspace.zip).
+- [Full v19 datasets and workbook](https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis/releases/tag/v1.0.0).
+
 - [Full whitepaper](docs/WHITEPAPER.md): research questions, mathematical arguments, findings and limitations.
 - [Methods and reproduction](docs/METHODS.md): offline validation and optional archived-script replay.
 - [Data provenance](docs/DATA_PROVENANCE.md): the 88,865 → 88,916 reconciliation.
@@ -109,6 +112,6 @@ The default command checks integrity and summarizes saved evaluations. It does n
 
 Research and curation: **Saksham Chopra**. The archive combines the author's VS Code experiments, Google Antigravity-assisted analysis and dataset preparation, and ChatGPT-assisted analysis and publication engineering. AI assistance does not independently validate a claim.
 
-Original project code and writing are provided under [MIT](LICENSE). [Third-party notices](THIRD_PARTY_NOTICES.md) describe dependencies, source boundaries, and dataset rights. The archive does not include third-party frontend bundles, credentials, private captures, or model binaries. All 12 saved model artifacts remain preserved locally and are identified by hash.
+Original project code and writing are provided under [MIT](LICENSE). [Third-party notices](THIRD_PARTY_NOTICES.md) describe dependencies, source boundaries, and dataset rights. The v1.1.0 workspace ZIP includes all 12 saved model files. Its [manifest](colour-ai/WORKSPACE_FILES.csv) identifies the distributed bytes, and the [original model inventory](models/manifest.csv) records the source hashes.
 
 Use [CITATION.cff](CITATION.cff) to cite this release. Articles are provided as drafts for publication on [Medium/Substack](articles/medium_substack_post.md) and [LinkedIn](articles/linkedin_post.md).

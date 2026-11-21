@@ -1,0 +1,5 @@
+{
+  "report": "results/thousand_20261108T023304793710Z/report.json",
+  "predictions": "results/thousand_20261108T023304793710Z/test_predictions_5000.csv",
+  "model": "models/thousand_20261108T023304793710Z.joblib"
+}

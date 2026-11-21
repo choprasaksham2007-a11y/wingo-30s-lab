@@ -1,0 +1,59 @@
+{
+  "run_id": "categories_20261108T020744903096Z",
+  "usable_rows": 10548,
+  "test_rows": 2110,
+  "lookback": 60,
+  "selection_context_losses": {
+    "60": 0.961605128022392,
+    "100": 0.970121107367472
+  },
+  "test_start": "20261030100052096",
+  "test_end": "20261107100052332",
+  "evaluation": {
+    "size": {
+      "test_accuracy": 0.4962085308056872,
+      "baseline_accuracy": 0.4867298578199052,
+      "log_loss": 0.6931931918803987,
+      "architecture": [
+        128,
+        64,
+        32
+      ],
+      "epochs": 2,
+      "temperature": 32,
+      "recent_100_accuracy": 0.5251184834123223,
+      "recent_100_log_loss": 0.6985827075756862
+    },
+    "colour": {
+      "test_accuracy": 0.4042654028436019,
+      "baseline_accuracy": 0.385781990521327,
+      "log_loss": 1.2145829854128198,
+      "architecture": [
+        128,
+        64,
+        32
+      ],
+      "epochs": 4,
+      "temperature": 1,
+      "recent_100_accuracy": 0.4146919431279621,
+      "recent_100_log_loss": 1.212755086331584,
+      "red_green_accuracy": 0.5113744075829384,
+      "red_green_baseline_accuracy": 0.4843601895734597
+    },
+    "digit": {
+      "test_accuracy": 0.0947867298578199,
+      "baseline_accuracy": 0.10426540284360189,
+      "log_loss": 2.30265707595307,
+      "architecture": [
+        128,
+        64,
+        32
+      ],
+      "epochs": 9,
+      "temperature": 32,
+      "recent_100_accuracy": 0.1018957345971564,
+      "recent_100_log_loss": 2.3536918894729504
+    }
+  },
+  "note": "Historical data has been explored before. Live performance is scored before online updates. Recent-100 frequencies use up to 100 consecutive preceding observations. Violet overlaps Red/Green. No guaranteed accuracy."
+}

@@ -1,0 +1,36 @@
+{
+  "run_id": "categories_20261107T115239029718Z",
+  "usable_rows": 10079,
+  "test_rows": 2016,
+  "test_start": "20261030100050791",
+  "test_end": "20261107100051424",
+  "evaluation": {
+    "size": {
+      "test_accuracy": 0.4915674603174603,
+      "baseline_accuracy": 0.4885912698412698,
+      "log_loss": 0.694576679790334,
+      "architecture": [
+        128,
+        64,
+        32
+      ],
+      "epochs": 5,
+      "temperature": 2
+    },
+    "colour": {
+      "test_accuracy": 0.3878968253968254,
+      "baseline_accuracy": 0.38492063492063494,
+      "log_loss": 1.2278348929280263,
+      "architecture": [
+        128,
+        64,
+        32
+      ],
+      "epochs": 4,
+      "temperature": 1,
+      "red_green_accuracy": 0.4990079365079365,
+      "red_green_baseline_accuracy": 0.49107142857142855
+    }
+  },
+  "note": "Historical data has been explored before. Live performance is scored before online updates. Violet overlaps Red/Green; exact-colour accuracy is distinct from Red/Green accuracy."
+}

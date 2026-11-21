@@ -1,0 +1,16 @@
+{
+  "run_id": "thousand_20261108T023304793710Z",
+  "features": 1000,
+  "feature_version": "thousand-features-v1",
+  "training_rows": 4096,
+  "selection_rows": 1500,
+  "test_rows": 5000,
+  "training_last": "20261025100051173",
+  "selection_first": "20261025100051174",
+  "selection_last": "20261026100051340",
+  "test_first": "20261026100051341",
+  "test_last": "20261108100050305",
+  "source_sha256": "95cc151e5382226c367c8d287a33b12ff64475a3dcee0824a54030466affc7f2",
+  "protocol": "Train only earlier rows; select architectures, calibration and mixture weights on the following 1,500 rows. Freeze weights for all 5,000 final test rounds. Past observed test outcomes may enter later input histories. No test-driven model selection. Gaps reset histories; at least 20 preceding consecutive observations required.",
+  "limitations": "These historical records were explored in earlier project work. Results are an exploratory chronological backtest, not a fresh prospective trial. Features are correlated candidates, not 1,000 established patterns."
+}
