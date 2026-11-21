@@ -1,0 +1,15 @@
+import openpyxl
+
+excel_path = r"project_reports\inputs\input_9f7c60764d.xlsx"
+wb = openpyxl.load_workbook(excel_path)
+
+with open(r"extraction\orig_structure.txt", "w", encoding="utf-8") as out_f:
+    for name in wb.sheetnames:
+        ws = wb[name]
+        out_f.write(f"\n================ SHEET: {name} ================\n")
+        out_f.write(f"Dimensions: {ws.dimensions}, max_row: {ws.max_row}, max_col: {ws.max_column}\n")
+        rows = list(ws.iter_rows(values_only=True))
+        for r_idx, r in enumerate(rows[:15]):
+            out_f.write(f"Row {r_idx+1}: {r}\n")
+
+print("Saved orig_structure.txt")

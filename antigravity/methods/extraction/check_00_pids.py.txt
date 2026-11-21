@@ -1,0 +1,18 @@
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+
+img_00 = cv2.imread(r"extraction\extracted_zip\WhatsApp Image 2026-10-23 at 09.34.00.jpeg")
+
+async def main():
+    pid_strip = img_00[580:1350, 45:280]
+    res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+    for line in res.lines:
+        txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0")
+        w0 = line.words[0]
+        y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+        y_full = 580 + y_rel
+        print(f"y_full={y_full:.1f}: {txt}")
+
+asyncio.run(main())

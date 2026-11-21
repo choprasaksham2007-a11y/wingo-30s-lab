@@ -1,0 +1,13 @@
+import pandas as pd
+
+raw_df = pd.read_csv(r"extraction\output\colour_raw_data.csv", dtype={'period_id': str})
+print("RAW DATA HEAD:")
+print(raw_df[['row_no', 'period_id', 'timestamp', 'number', 'big_small', 'colour']].head(5))
+print("\nRAW DATA TAIL:")
+print(raw_df[['row_no', 'period_id', 'timestamp', 'number', 'big_small', 'colour']].tail(5))
+
+ml_df = pd.read_csv(r"extraction\output\colour_ml_ready.csv", dtype={'period_id': str})
+print("\nML READY HEAD:")
+print(ml_df[['period_id', 'previous_1_number', 'previous_1_colour', 'previous_5_number', 'previous_5_colour', 'target_number', 'target_colour']].head(5))
+print("\nML READY TAIL:")
+print(ml_df[['period_id', 'previous_1_number', 'previous_1_colour', 'previous_5_number', 'previous_5_colour', 'target_number', 'target_colour']].tail(5))

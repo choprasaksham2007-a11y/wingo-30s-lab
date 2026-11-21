@@ -1,0 +1,17 @@
+import openpyxl
+
+wb = openpyxl.load_workbook(r'project_reports\Colour_Prediction_Dataset_v15.xlsx', data_only=True)
+print("Sheet names in v15:")
+for s in wb.sheetnames:
+    ws = wb[s]
+    print(f"  {s}: {ws.max_row} rows, {ws.max_column} cols")
+
+print("\nUser_Provided contents:")
+ws_up = wb['User_Provided']
+for r in ws_up.iter_rows(values_only=True):
+    print(" ", r)
+
+print("\nChange_Log contents:")
+ws_cl = wb['Change_Log']
+for r in ws_cl.iter_rows(values_only=True):
+    print(" ", r)

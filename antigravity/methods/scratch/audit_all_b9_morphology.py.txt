@@ -1,0 +1,50 @@
+import json, os, cv2, numpy as np, sys
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b9_dir = r"extraction\extracted_zip_batch9"
+with open(r"extraction\raw_obs_batch9.json", "r") as f:
+    obs = json.load(f)
+
+new_pids = sorted([p for p in obs.keys() if int(p[-5:]) >= 51840])
+print(f"Auditing all {len(new_pids)} new rounds in Batch 9...")
+
+six_pcts, eight_pcts = [], []
+two_bls, four_bls = [], []
+
+for pid in new_pids:
+    items = obs[pid]
+    it = items[0]
+    fname = it['file']
+    yc = it['yc']
+    im = cv2.imread(os.path.join(b9_dir, fname))
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords = np.argwhere(r_mask > 0)
+    if len(coords) < 15: continue
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+    h, w = glyph.shape
+    top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+    tr_fill = cv2.countNonZero(top_right_box)
+    box_area = top_right_box.shape[0] * top_right_box.shape[1]
+    pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+    bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+    
+    d = it['digit']
+    if d == 6: six_pcts.append(pct)
+    elif d == 8: eight_pcts.append(pct)
+    elif d == 2: two_bls.append(bot_left)
+    elif d == 4: four_bls.append(bot_left)
+
+print(f"\nBatch 9 6s (n={len(six_pcts)}): Mean={np.mean(six_pcts):.1f}%, Min={np.min(six_pcts):.1f}%, Max={np.max(six_pcts):.1f}%")
+print(f"Batch 9 8s (n={len(eight_pcts)}): Mean={np.mean(eight_pcts):.1f}%, Min={np.min(eight_pcts):.1f}%, Max={np.max(eight_pcts):.1f}%")
+sep_6_8 = np.min(eight_pcts) - np.max(six_pcts)
+print(f"Separation margin (6 vs 8): {sep_6_8:.1f}%")
+
+print(f"\nBatch 9 4s (n={len(four_bls)}): Mean={np.mean(four_bls):.1f} px, Min={np.min(four_bls)} px, Max={np.max(four_bls)} px")
+print(f"Batch 9 2s (n={len(two_bls)}): Mean={np.mean(two_bls):.1f} px, Min={np.min(two_bls)} px, Max={np.max(two_bls)} px")
+sep_2_4 = np.min(two_bls) - np.max(four_bls)
+print(f"Separation margin (2 vs 4): {sep_2_4} px")

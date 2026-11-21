@@ -1,0 +1,144 @@
+import os
+import glob
+import json
+import cv2
+import asyncio
+import numpy as np
+from PIL import Image
+import winocr
+import openpyxl
+
+excel_path = r"project_reports\Colour_Prediction_Dataset.xlsx"
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+ws = wb["Raw_Data"]
+
+raw_map = {}
+for r in ws.iter_rows(min_row=2, values_only=True):
+    raw_map[int(r[0])] = {
+        "seq": int(r[0]),
+        "pid": str(r[1]),
+        "ts": str(r[2]),
+        "num": int(r[3]),
+        "col": str(r[4]),
+        "size": str(r[5])
+    }
+
+near_seqs = [527, 529, 597, 599, 646, 648, 884, 886, 964, 966]
+distributed_seqs = [480, 500, 540, 570, 615, 660, 700, 730, 760, 800, 840, 920, 940, 990, 1020, 1050, 1115, 1150, 1195, 1240]
+spot_seqs = sorted(near_seqs + distributed_seqs)
+
+target_pids = {raw_map[s]["pid"]: raw_map[s] for s in spot_seqs}
+
+zip_dir = r"extraction\extracted_zip"
+files = sorted(glob.glob(os.path.join(zip_dir, "*.jpeg")))
+
+print(f"Mapping {len(spot_seqs)} spot-check rows to screenshots...")
+
+async def map_spot_sources():
+    pid_to_sources = {}
+    for f in files:
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        pid_strip = im[580:1350, 45:280]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        for line in res.lines:
+            txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+            for pid in target_pids:
+                if pid in txt:
+                    if pid not in pid_to_sources:
+                        w0 = line.words[0]
+                        y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                        y_full = 580 + y_rel
+                        pid_to_sources[pid] = {
+                            "file": fname,
+                            "y_full": y_full,
+                            "line_txt": txt
+                        }
+    return pid_to_sources
+
+pid_to_sources = asyncio.run(map_spot_sources())
+
+results = []
+diff_numbers = 0
+unverified_count = 0
+
+for seq in spot_seqs:
+    rec = raw_map[seq]
+    pid = rec["pid"]
+    expected_num = rec["num"]
+    expected_size = rec["size"]
+    expected_col = rec["col"]
+    
+    if pid not in pid_to_sources:
+        print(f"[UNVERIFIED] Seq {seq:4d} | PID {pid} not found in screenshots!")
+        unverified_count += 1
+        results.append({
+            "seq": seq, "pid": pid, "status": "unverified",
+            "expected": rec, "screenshot_found": False
+        })
+        continue
+        
+    src = pid_to_sources[pid]
+    fname = src["file"]
+    yc = int(round(src["y_full"]))
+    img = cv2.imread(os.path.join(zip_dir, fname))
+    
+    # 1. Number crop (x: 340 to 390, y: yc-22 to yc+22)
+    num_crop = img[yc-22:yc+22, 340:390]
+    
+    # 2. Size text crop (x: 430 to 520, y: yc-22 to yc+22)
+    size_crop = img[yc-22:yc+22, 430:520]
+    
+    # 3. Dot crop (x: 600 to 675, y: yc-22 to yc+22)
+    dot_crop = img[yc-22:yc+22, 600:675]
+    
+    # Evaluate colors
+    hsv_num = cv2.cvtColor(num_crop, cv2.COLOR_BGR2HSV)
+    g_num = cv2.countNonZero(cv2.inRange(hsv_num, np.array([35, 50, 50]), np.array([85, 255, 255])))
+    r_num = cv2.countNonZero(cv2.inRange(hsv_num, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv_num, np.array([170, 70, 70]), np.array([180, 255, 255])))
+    v_num = cv2.countNonZero(cv2.inRange(hsv_num, np.array([125, 40, 40]), np.array([165, 255, 255])))
+    
+    hsv_dot = cv2.cvtColor(dot_crop, cv2.COLOR_BGR2HSV)
+    g_dot = cv2.countNonZero(cv2.inRange(hsv_dot, np.array([35, 50, 50]), np.array([85, 255, 255])))
+    r_dot = cv2.countNonZero(cv2.inRange(hsv_dot, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv_dot, np.array([170, 70, 70]), np.array([180, 255, 255])))
+    v_dot = cv2.countNonZero(cv2.inRange(hsv_dot, np.array([125, 40, 40]), np.array([165, 255, 255])))
+    
+    # Check visual color of number
+    if expected_num == 0:
+        expected_glyph_col = "Red+Violet"
+        glyph_match = (r_num > 100 and v_num > 100)
+    elif expected_num == 5:
+        expected_glyph_col = "Green+Violet"
+        glyph_match = (g_num > 100 and v_num > 100)
+    elif expected_num in [1, 3, 7, 9]:
+        expected_glyph_col = "Green"
+        glyph_match = (g_num > 150 and r_num < 50)
+    else:
+        expected_glyph_col = "Red"
+        glyph_match = (r_num > 150 and g_num < 50)
+        
+    res_entry = {
+        "seq": seq,
+        "pid": pid,
+        "number": expected_num,
+        "size": expected_size,
+        "colour": expected_col,
+        "screenshot": fname,
+        "num_pixels": {"g": g_num, "r": r_num, "v": v_num},
+        "dot_pixels": {"g": g_dot, "r": r_dot, "v": v_dot},
+        "glyph_colour": expected_glyph_col,
+        "glyph_match": glyph_match,
+        "verified": True
+    }
+    results.append(res_entry)
+    print(f"Seq {seq:4d} | PID {pid} | Num: {expected_num} | Size: {expected_size} | Col: {expected_col} | Glyph: {expected_glyph_col} (G={g_num}, R={r_num}, V={v_num}) | Screenshot: {fname}")
+
+with open(r"extraction\spot_check_30_results.json", "w") as out_f:
+    json.dump({
+        "total_checked": len(spot_seqs),
+        "unverified": unverified_count,
+        "number_differences": diff_numbers,
+        "details": results
+    }, out_f, indent=2)
+
+print(f"\n[DONE] Checked {len(results)} rows. Unverified: {unverified_count}, Number differences: {diff_numbers}")

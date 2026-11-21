@@ -1,0 +1,30 @@
+import cv2, os, numpy as np, sys
+
+sys.path.append(r"scratch")
+from extract_batch9_full import classify_glyph
+
+fname = "WhatsApp Image 2026-10-24 at 22.29.35 (1).jpeg"
+im_path = os.path.join(r"extraction\extracted_zip_batch9", fname)
+im = cv2.imread(im_path)
+
+# Let's check yc from 1245 to 1255
+for yc in range(1245, 1256):
+    d, col, sz, note = classify_glyph(im, yc, "Big")
+    print(f"yc={yc}: digit={d}, col={col}, sz={sz}, note={note}")
+
+# Also print ASCII art of the glyph
+crop = im[1251-22:1251+22, 320:385]
+hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+
+is_green = cv2.countNonZero(g_mask) > cv2.countNonZero(r_mask)
+mask = g_mask if is_green else r_mask
+coords = np.argwhere(mask > 0)
+min_y, min_x = coords.min(axis=0)
+max_y, max_x = coords.max(axis=0)
+glyph = mask[min_y:max_y+1, min_x:max_x+1]
+
+print(f"\nColor is {'Green' if is_green else 'Red'}, shape: {glyph.shape}")
+for row in glyph:
+    print("".join(["#" if p > 0 else "." for p in row]))

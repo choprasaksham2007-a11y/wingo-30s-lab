@@ -1,0 +1,53 @@
+import glob, os, cv2, asyncio, winocr
+from PIL import Image
+from collections import defaultdict
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+files = sorted(glob.glob(os.path.join(batch3_dir, "*.jpeg")))
+
+async def scan_batch3():
+    all_pids = set()
+    file_pids = {}
+    non_game = []
+    
+    for f in files:
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        # Check top clock
+        top_crop = im[0:80, 0:200]
+        res_top = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(top_crop, cv2.COLOR_BGR2RGB)))
+        clock_txt = " ".join([w.text for l in res_top.lines for w in l.words])
+        
+        # Check PIDs
+        pid_strip = im[500:1450, 20:300]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        p_list = []
+        for line in res.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for i in range(len(txt)-16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith('202610'):
+                    p_list.append(chunk)
+                    all_pids.add(chunk)
+        if len(p_list) == 0:
+            non_game.append((fname, clock_txt))
+        else:
+            file_pids[fname] = (clock_txt, p_list)
+            
+    return file_pids, all_pids, non_game
+
+file_pids, all_pids, non_game = asyncio.run(scan_batch3())
+print(f"Total files: {len(files)}")
+print(f"Game files: {len(file_pids)}, Non-game files: {len(non_game)}")
+for ng in non_game:
+    print(f"  Non-game: {ng[0]} (Clock: {ng[1]})")
+
+s_pids = sorted(list(all_pids))
+print(f"\nTotal distinct Period IDs in batch 3: {len(s_pids)}")
+if s_pids:
+    print(f"Earliest PID: {s_pids[0]}")
+    print(f"Latest PID:   {s_pids[-1]}")
+    
+    # Check prefixes
+    prefixes = set(p[:12] for p in s_pids)
+    print(f"Distinct prefixes: {prefixes}")

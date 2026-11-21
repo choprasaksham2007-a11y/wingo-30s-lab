@@ -1,0 +1,170 @@
+import os
+import glob
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+import numpy as np
+import json
+from collections import defaultdict, Counter
+from datetime import datetime, timedelta
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+def get_timestamp(pid: str) -> str:
+    # Anchor: 52278 = 2026-10-24 00:29:00 (exact user-confirmed anchor)
+    anchor = datetime(2026, 10, 24, 0, 29, 0)
+    suffix = int(pid[-5:])
+    diff = suffix - 52278
+    dt = anchor + timedelta(seconds=diff * 30)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+def is_top_right_closed(num_crop):
+    hsv = cv2.cvtColor(num_crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    return cv2.countNonZero(r_mask[5:15, 22:32]) > 30
+
+def classify_digit_refined(num_crop, bs_val):
+    scores = {}
+    for digit, tpl in templates.items():
+        res = cv2.matchTemplate(num_crop, tpl, cv2.TM_CCOEFF_NORMED)
+        scores[int(digit)] = float(cv2.minMaxLoc(res)[1])
+        
+    hsv = cv2.cvtColor(num_crop, cv2.COLOR_BGR2HSV)
+    g_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255])))
+    r_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255])))
+    v_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255])))
+    
+    if v_cnt > 80:
+        if r_cnt > 80:
+            return 0, "Red+Violet", "Small", scores[0]
+        else:
+            return 5, "Green+Violet", "Big", scores[5]
+            
+    is_green = (g_cnt > 150 and r_cnt < 80)
+    is_red = (r_cnt > 150 and g_cnt < 80)
+    
+    if is_green:
+        if bs_val == "Small":
+            best_d = 1 if scores[1] > scores[3] else 3
+            return best_d, "Green", "Small", scores[best_d]
+        elif bs_val == "Big":
+            best_d = 7 if scores[7] > scores[9] else 9
+            return best_d, "Green", "Big", scores[best_d]
+        else:
+            cand = [1, 3, 7, 9]
+            best_d = max(cand, key=lambda d: scores[d])
+            sz = "Small" if best_d in [1, 3] else "Big"
+            return best_d, "Green", sz, scores[best_d]
+            
+    if is_red:
+        if bs_val == "Small":
+            best_d = 2 if scores[2] > scores[4] else 4
+            return best_d, "Red", "Small", scores[best_d]
+        elif bs_val == "Big":
+            if is_top_right_closed(num_crop):
+                return 8, "Red", "Big", scores[8]
+            else:
+                return 6, "Red", "Big", scores[6]
+        else:
+            cand = [2, 4, 6, 8]
+            best_d = max(cand, key=lambda d: scores[d])
+            if best_d in [6, 8]:
+                best_d = 8 if is_top_right_closed(num_crop) else 6
+            sz = "Small" if best_d in [2, 4] else "Big"
+            return best_d, "Red", sz, scores[best_d]
+            
+    best_d = max(scores.keys(), key=lambda d: scores[d])
+    sz = "Small" if best_d <= 4 else "Big"
+    if best_d == 0: col = "Red+Violet"
+    elif best_d == 5: col = "Green+Violet"
+    elif best_d in [1, 3, 7, 9]: col = "Green"
+    else: col = "Red"
+    return best_d, col, sz, scores[best_d]
+
+async def process_batch3():
+    files = sorted(glob.glob(os.path.join(batch3_dir, "*.jpeg")))
+    obs_by_pid = defaultdict(list)
+    
+    for f in files:
+        fname = os.path.basename(f)
+        img = cv2.imread(f)
+        pid_strip = img[500:1450, 20:300]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        
+        bs_strip = img[500:1450, 440:550]
+        res_bs = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB)))
+        
+        bs_lines = []
+        for l in res_bs.lines:
+            txt = " ".join([w.text.strip() for w in l.words])
+            if "Big" in txt or "Small" in txt or "sma" in txt.lower():
+                val = "Small" if ("Small" in txt or "sma" in txt.lower()) else "Big"
+                y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+                bs_lines.append((y_c, val))
+                
+        for line in res_pid.lines:
+            txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+            for i in range(len(txt) - 16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith("202610231000"):
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    yc = int(round(500 + y_rel))
+                    
+                    best_bs = None
+                    min_dist = 999.0
+                    for bs_y, bs_val in bs_lines:
+                        dist = abs(bs_y - y_rel)
+                        if dist < min_dist and dist < 35:
+                            min_dist = dist
+                            best_bs = bs_val
+                            
+                    num_crop = img[yc-20:yc+20, 345:385]
+                    d, col, sz, conf = classify_digit_refined(num_crop, best_bs)
+                    
+                    obs_by_pid[chunk].append({
+                        "file": fname,
+                        "yc": yc,
+                        "digit": d,
+                        "col": col,
+                        "size": sz,
+                        "bs_ocr": best_bs,
+                        "conf": round(conf, 3)
+                    })
+                    break
+                    
+    return obs_by_pid
+
+obs_by_pid = asyncio.run(process_batch3())
+print(f"Extracted observations for {len(obs_by_pid)} distinct Period IDs in Batch 3.")
+
+reconciled = {}
+for pid in sorted(obs_by_pid.keys()):
+    obs = obs_by_pid[pid]
+    digits = [o["digit"] for o in obs]
+    best_d = Counter(digits).most_common(1)[0][0]
+    
+    sz = "Small" if best_d <= 4 else "Big"
+    if best_d == 0: col = "Red+Violet"
+    elif best_d == 5: col = "Green+Violet"
+    elif best_d in [1, 3, 7, 9]: col = "Green"
+    else: col = "Red"
+    
+    ts = get_timestamp(pid)
+    
+    reconciled[pid] = {
+        "period_id": pid,
+        "timestamp": ts,
+        "number": best_d,
+        "colour": col,
+        "size": sz,
+        "source_count": len(obs),
+        "sources": [o["file"] for o in obs]
+    }
+
+print(f"Successfully processed {len(reconciled)} Period IDs in Batch 3.")
+with open(r"extraction\reconciled_batch3.json", "w") as f:
+    json.dump(reconciled, f, indent=2)
+print("Saved reconciled_batch3.json successfully.")

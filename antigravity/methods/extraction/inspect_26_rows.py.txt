@@ -1,0 +1,39 @@
+import openpyxl
+
+excel_path = r"project_reports\Colour_Prediction_Dataset.xlsx"
+wb = openpyxl.load_workbook(excel_path)
+print("Sheet names:", wb.sheetnames)
+
+ws_raw = wb["Raw_Data"]
+headers = [c.value for c in ws_raw[1]]
+print("Raw_Data headers:", headers)
+
+seq_idx = headers.index("sequence_no")
+pid_idx = headers.index("Period ID")
+ts_idx = headers.index("timestamp")
+num_idx = headers.index("number")
+col_idx = headers.index("colour")
+size_idx = headers.index("size")
+
+target_seqs = [528, 598, 647, 677, 695, 696, 716, 773, 876, 885, 895, 905, 915, 955, 965, 975, 985, 1006, 1026, 1036, 1095, 1105, 1123, 1163, 1222, 1232]
+
+print(f"\nChecking the 26 target sequence numbers:")
+found_rows = {}
+for row in ws_raw.iter_rows(min_row=2, values_only=True):
+    seq = row[seq_idx]
+    if seq in target_seqs:
+        found_rows[seq] = {
+            "seq": seq,
+            "period_id": row[pid_idx],
+            "timestamp": row[ts_idx],
+            "number": row[num_idx],
+            "colour": row[col_idx],
+            "size": row[size_idx]
+        }
+
+for seq in target_seqs:
+    r = found_rows.get(seq)
+    if r:
+        print(f"Seq {r['seq']:4d} | PID: {r['period_id']} | Time: {r['timestamp']} | Num: {r['number']} | Col: {r['colour']:12s} | Size: {r['size']}")
+    else:
+        print(f"Seq {seq:4d} NOT FOUND")

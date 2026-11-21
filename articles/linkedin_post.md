@@ -15,7 +15,7 @@ I’m sharing the whitepaper, dataset release files, saved evaluation evidence, 
 
 My takeaway: statistical regularity, predictive accuracy and proof of a deployed generator are three different claims. Credible research keeps them separate.
 
-Research: https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis
+Research: https://github.com/choprasaksham2007-a11y/wingo-30s-lab
 
 Research and curation by Saksham Chopra, with Google Antigravity and ChatGPT assistance.
 

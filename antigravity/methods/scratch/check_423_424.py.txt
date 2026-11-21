@@ -1,0 +1,14 @@
+import openpyxl
+
+wb_corr = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_corrected.xlsx", data_only=True)
+ws_corr = wb_corr['Raw_Data']
+
+for r in [423 + 1, 424 + 1]:
+    row = [ws_corr.cell(row=r, column=c).value for c in range(1, 9)]
+    print("Corrected row:", row)
+
+wb_v3 = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v3.xlsx", data_only=True)
+ws_v3 = wb_v3['Raw_Data']
+for r in [423 + 1, 424 + 1]:
+    row = [ws_v3.cell(row=r, column=c).value for c in range(1, 9)]
+    print("V3 row:", row)

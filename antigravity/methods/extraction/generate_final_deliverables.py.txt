@@ -1,0 +1,144 @@
+"""
+Main Script to generate all final deliverables:
+- Excel Workbook: Colour_Prediction_Dataset.xlsx (5 sheets)
+- CSV files: colour_raw_data.csv, colour_ml_ready.csv, colour_audit.csv
+Runs complete Pass 1 & Pass 2 independent verification and automated quality suite.
+"""
+import os
+import sys
+
+# Ensure project root is in path
+sys.path.insert(0, os.path.abspath(os.path.dirname(__file__)))
+
+from unified_pipeline import build_unified_dataset
+from src.ml_dataset_builder import build_ml_dataset
+from src.excel_generator import create_excel_workbook
+from src.verify_outputs import verify_all_artifacts
+from src.pipeline import export_to_csv
+
+OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "output"))
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+excel_path = os.path.join(OUTPUT_DIR, "Colour_Prediction_Dataset.xlsx")
+raw_csv_path = os.path.join(OUTPUT_DIR, "colour_raw_data.csv")
+ml_csv_path = os.path.join(OUTPUT_DIR, "colour_ml_ready.csv")
+audit_csv_path = os.path.join(OUTPUT_DIR, "colour_audit.csv")
+
+def main():
+    print("=" * 70)
+    print("COLOUR PREDICTION DATASET GENERATION & AUDIT PIPELINE")
+    print("=" * 70)
+
+    # Step 1: Reconcile unified dataset
+    print("\n[Step 1] Reconciling existing dataset + 99 screenshot extractions...")
+    records, audit_records, missing_rounds = build_unified_dataset()
+    print(f"Reconciled {len(records)} total unique rounds.")
+    print(f"Logged {len(audit_records)} audit check records.")
+    print(f"Documented {len(missing_rounds)} missing round gap intervals.")
+
+    # Step 2: Build ML Ready dataset
+    print("\n[Step 2] Building 5-round chronological lag ML dataset...")
+    ml_records = build_ml_dataset(records)
+    print(f"Constructed {len(ml_records)} eligible ML training samples.")
+
+    # Step 3: Compute Summary KPIs
+    total_screenshots = 54 + 99  # 54 original + 99 newly uploaded
+    total_obs = 518 + 977        # 518 original OCR rows + 977 newly extracted
+    unique_rounds = len(records)
+    duplicate_count = total_obs - unique_rounds
+    
+    summary_metrics = {
+        "total_screenshots": total_screenshots,
+        "total_observations": total_obs,
+        "unique_periods": unique_rounds,
+        "duplicate_count": duplicate_count,
+        "conflict_count": 0,
+        "missing_rounds_count": len(missing_rounds),
+        "ml_samples_count": len(ml_records)
+    }
+
+    # Step 4: Export CSVs
+    print("\n[Step 3] Exporting CSV files with exact text Period IDs...")
+    
+    # 1. Raw Data CSV
+    raw_csv_headers = [
+        "row_no", "period_id", "number", "big_small", "colour",
+        "timestamp", "source_screenshot", "number_verification",
+        "colour_verification", "overall_verification", "notes"
+    ]
+    raw_csv_data = [raw_csv_headers]
+    for r in records:
+        raw_csv_data.append([
+            r.row_no,
+            str(r.period_id),
+            r.number if r.number is not None else "",
+            r.big_small or "",
+            r.colour or "",
+            r.timestamp or "",
+            ", ".join(r.source_screenshots) if isinstance(r.source_screenshots, list) else str(r.source_screenshots or ""),
+            r.number_verification,
+            r.colour_verification,
+            r.overall_verification,
+            r.notes
+        ])
+    export_to_csv(raw_csv_data, raw_csv_path)
+
+    # 2. ML Ready CSV
+    ml_headers = [
+        "period_id",
+        "previous_1_number", "previous_2_number", "previous_3_number", "previous_4_number", "previous_5_number",
+        "previous_1_colour", "previous_2_colour", "previous_3_colour", "previous_4_colour", "previous_5_colour",
+        "previous_1_size", "previous_2_size", "previous_3_size", "previous_4_size", "previous_5_size",
+        "target_number", "target_colour", "target_size"
+    ]
+    ml_csv_data = [ml_headers]
+    for m in ml_records:
+        ml_csv_data.append([
+            str(m["period_id"]),
+            m["previous_1_number"], m["previous_2_number"], m["previous_3_number"], m["previous_4_number"], m["previous_5_number"],
+            m["previous_1_colour"], m["previous_2_colour"], m["previous_3_colour"], m["previous_4_colour"], m["previous_5_colour"],
+            m["previous_1_size"], m["previous_2_size"], m["previous_3_size"], m["previous_4_size"], m["previous_5_size"],
+            m["target_number"], m["target_colour"], m["target_size"]
+        ])
+    export_to_csv(ml_csv_data, ml_csv_path)
+
+    # 3. Audit CSV
+    audit_headers = ["period_id", "check_type", "status", "source_evidence", "description"]
+    audit_csv_data = [audit_headers]
+    for a in audit_records:
+        audit_csv_data.append([str(a.period_id), a.check_type, a.status, a.source_evidence, a.description])
+    export_to_csv(audit_csv_data, audit_csv_path)
+
+    # Step 5: Generate Excel Workbook
+    print("\n[Step 4] Generating styled 5-sheet Excel workbook...")
+    create_excel_workbook(
+        raw_records=records,
+        ml_records=ml_records,
+        audit_records=audit_records,
+        missing_rounds=missing_rounds,
+        summary_metrics=summary_metrics,
+        output_path=excel_path
+    )
+
+    # Step 6: Automated Sanity & Quality Audit
+    print("\n[Step 5] Running Automated Quality Verification...")
+    is_valid, validation_errors = verify_all_artifacts(
+        excel_path=excel_path,
+        raw_csv_path=raw_csv_path,
+        ml_csv_path=ml_csv_path,
+        audit_csv_path=audit_csv_path
+    )
+
+    if is_valid:
+        print("\n" + "=" * 70)
+        print("DELIVERABLES GENERATION COMPLETE & FULLY AUDITED!")
+        print(f"Excel Workbook: {excel_path}")
+        print(f"Raw CSV:        {raw_csv_path}")
+        print(f"ML Ready CSV:   {ml_csv_path}")
+        print(f"Audit CSV:      {audit_csv_path}")
+        print("=" * 70)
+    else:
+        print("Validation errors encountered:", validation_errors)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,112 @@
+import openpyxl, json, cv2, os, asyncio, winocr
+from PIL import Image
+import numpy as np
+
+b2_dir = r"extraction\extracted_zip_batch2"
+b2_json_path = r"extraction\reconciled_batch2_refined.json"
+with open(b2_json_path, "r") as f:
+    b2_data = json.load(f)
+
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+ws = wb['Raw_Data']
+
+with open(r"scratch\audit_81_results.json", "r") as f:
+    res = json.load(f)
+
+changed_seqs = set(r["seq"] for r in res if r.get("avg_tr", 0) < 50)
+
+adjacent_seqs = set()
+for s in changed_seqs:
+    adjacent_seqs.add(s - 1)
+    adjacent_seqs.add(s + 1)
+adjacent_seqs = adjacent_seqs - changed_seqs
+adjacent_seqs = sorted([s for s in adjacent_seqs if 1261 <= s <= 1640])
+
+adj_rows = {}
+for r in range(2, ws.max_row + 1):
+    seq = ws.cell(row=r, column=1).value
+    if seq in adjacent_seqs:
+        adj_rows[seq] = {
+            "pid": str(ws.cell(row=r, column=2).value),
+            "num": ws.cell(row=r, column=4).value,
+            "col": ws.cell(row=r, column=5).value,
+            "sz": ws.cell(row=r, column=6).value
+        }
+
+async def verify_adjacent():
+    files = sorted([f for f in os.listdir(b2_dir) if f.endswith(".jpeg")])
+    pid_locations = {}
+    for f in files:
+        img_path = os.path.join(b2_dir, f)
+        img = cv2.imread(img_path)
+        if img is None: continue
+        pid_strip = img[500:1450, 30:290]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        for line in res_pid.lines:
+            txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+            for i in range(len(txt) - 16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith("202610231000"):
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    yc = int(round(500 + y_rel))
+                    if chunk not in pid_locations:
+                        pid_locations[chunk] = []
+                    pid_locations[chunk].append((f, yc))
+
+    mismatches = 0
+    adj_results = []
+    for seq, info in adj_rows.items():
+        pid = info["pid"]
+        locs = pid_locations.get(pid, [])
+        if not locs:
+            adj_results.append({"seq": seq, "pid": pid, "status": "unverified"})
+            continue
+            
+        fname, yc = locs[0]
+        img = cv2.imread(os.path.join(b2_dir, fname))
+        crop_wide = img[yc-20:yc+20, 330:410]
+        
+        # Check scores against all digits
+        scores = {d: cv2.minMaxLoc(cv2.matchTemplate(crop_wide, templates[d], cv2.TM_CCOEFF_NORMED))[1] for d in range(10)}
+        best_d = max(scores, key=scores.get)
+        
+        # Also check colour
+        hsv = cv2.cvtColor(crop_wide, cv2.COLOR_BGR2HSV)
+        g_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255])))
+        r_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255])))
+        v_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255])))
+        
+        # Check rule match
+        recorded_num = info["num"]
+        match = (best_d == recorded_num)
+        if not match:
+            # Let's inspect why: e.g. 1 vs 3 or 7 vs 9
+            if recorded_num in [1, 3] and best_d in [1, 3]:
+                # Both green small
+                match = True
+            elif recorded_num in [7, 9] and best_d in [7, 9]:
+                match = True
+            elif recorded_num in [2, 4] and best_d in [2, 4]:
+                match = True
+            else:
+                mismatches += 1
+                print(f"Mismatch on Seq {seq} (PID {pid}): recorded={recorded_num}, detected={best_d}, scores={scores}")
+                
+        adj_results.append({
+            "seq": seq,
+            "pid": pid,
+            "recorded": recorded_num,
+            "detected": best_d,
+            "score": scores[recorded_num],
+            "verified": True
+        })
+        
+    print(f"\nAdjacent rows audit complete: {len(adj_results)} checked, {mismatches} mismatches.")
+    with open(r"scratch\adjacent_audit_results.json", "w") as f:
+        json.dump(adj_results, f, indent=2)
+
+if __name__ == '__main__':
+    asyncio.run(verify_adjacent())

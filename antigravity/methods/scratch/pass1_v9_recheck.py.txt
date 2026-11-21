@@ -1,0 +1,368 @@
+import openpyxl, csv, hashlib, json, sys, os
+from collections import Counter
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_v9.xlsx"
+raw_csv_path = r"project_reports\colour_raw_data_v9.csv"
+ml_csv_path = r"project_reports\colour_ml_ready_v9.csv"
+
+dl_excel_path = r"input\Colour_Prediction_Dataset_v9.xlsx"
+dl_raw_csv_path = r"input\colour_raw_data_v9.csv"
+dl_ml_csv_path = r"input\colour_ml_ready_v9.csv"
+
+print("="*80)
+print("PASS 1: EXHAUSTIVE MATHEMATICAL & PROGRAMMATIC INTEGRITY RECHECK (V9)")
+print("="*80)
+
+pass1_errors = []
+
+# 1. SHA-256 File Hash Synchronization Check
+print("\n--- 1. SHA-256 File Synchronization Check ---")
+def get_sha256(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        while chunk := f.read(65536):
+            h.update(chunk)
+    return h.hexdigest()
+
+files_to_check = [
+    ("Excel Workbook", excel_path, dl_excel_path),
+    ("Raw Data CSV", raw_csv_path, dl_raw_csv_path),
+    ("ML Ready CSV", ml_csv_path, dl_ml_csv_path),
+]
+
+for label, p1, p2 in files_to_check:
+    h1 = get_sha256(p1)
+    h2 = get_sha256(p2)
+    s1 = os.path.getsize(p1)
+    s2 = os.path.getsize(p2)
+    if h1 != h2 or s1 != s2:
+        pass1_errors.append(f"Hash/Size mismatch for {label}: {p1} vs {p2}")
+        print(f"FAILED: {label} mismatch!")
+    else:
+        print(f"PASSED: {label} ({s1:,} bytes) SHA-256 match: {h1[:16]}...")
+
+# 2. Workbook Sheet Inventory
+print("\n--- 2. Workbook Sheet Inventory & Architecture ---")
+wb = openpyxl.load_workbook(excel_path, data_only=False)
+expected_sheets = [
+    "Raw_Data", "ML_Ready", "Missing_Rounds", "Summary", "Read_Me",
+    "Audit", "ID_Audit", "User_Provided", "Change_Log", "Audit_8_Rounds"
+]
+actual_sheets = wb.sheetnames
+print(f"Sheets present ({len(actual_sheets)}): {actual_sheets}")
+for es in expected_sheets:
+    if es not in actual_sheets:
+        pass1_errors.append(f"Missing sheet: {es}")
+        print(f"FAILED: Missing sheet {es}")
+if len(actual_sheets) != len(expected_sheets):
+    pass1_errors.append(f"Unexpected sheets count: {len(actual_sheets)} vs {len(expected_sheets)}")
+
+# 3. Raw_Data Exhaustive Row-by-Row Check (3,736 rows)
+print("\n--- 3. Raw_Data Row-by-Row Exhaustive Check ---")
+ws_raw = wb['Raw_Data']
+total_raw_rows = ws_raw.max_row - 1
+print(f"Total rows in Raw_Data: {total_raw_rows}")
+if total_raw_rows != 3736:
+    pass1_errors.append(f"Raw_Data total rows {total_raw_rows} != 3736")
+
+raw_records = []
+pid_set = set()
+digit_counts = Counter()
+colour_counts = Counter()
+size_counts = Counter()
+
+def check_rules(num, col, sz):
+    if num == 0:
+        return col == "Red+Violet" and sz == "Small"
+    elif num == 5:
+        return col == "Green+Violet" and sz == "Big"
+    elif num in [1, 3]:
+        return col == "Green" and sz == "Small"
+    elif num in [7, 9]:
+        return col == "Green" and sz == "Big"
+    elif num in [2, 4]:
+        return col == "Red" and sz == "Small"
+    elif num in [6, 8]:
+        return col == "Red" and sz == "Big"
+    return False
+
+for r in range(2, ws_raw.max_row + 1):
+    seq_cell = ws_raw.cell(row=r, column=1)
+    pid_cell = ws_raw.cell(row=r, column=2)
+    ts_cell = ws_raw.cell(row=r, column=3)
+    num_cell = ws_raw.cell(row=r, column=4)
+    col_cell = ws_raw.cell(row=r, column=5)
+    sz_cell = ws_raw.cell(row=r, column=6)
+    orig_col_cell = ws_raw.cell(row=r, column=7)
+    note_cell = ws_raw.cell(row=r, column=8)
+    
+    seq = seq_cell.value
+    pid = str(pid_cell.value)
+    ts_str = str(ts_cell.value)
+    num = num_cell.value
+    col = str(col_cell.value)
+    sz = str(sz_cell.value)
+    orig_col = str(orig_col_cell.value)
+    note = str(note_cell.value)
+    
+    # Check sequence monotonicity
+    expected_seq = r - 1
+    if seq != expected_seq:
+        pass1_errors.append(f"Row {r}: Sequence {seq} != {expected_seq}")
+        
+    # Check Period ID text formatting
+    if pid_cell.number_format != "@":
+        pass1_errors.append(f"Row {r}: PID cell number_format is '{pid_cell.number_format}', expected '@'")
+    if len(pid) != 17:
+        pass1_errors.append(f"Row {r}: PID '{pid}' length {len(pid)} != 17")
+    if not pid.isdigit():
+        pass1_errors.append(f"Row {r}: PID '{pid}' contains non-digits")
+    if "E+" in pid or "e+" in pid or "." in pid:
+        pass1_errors.append(f"Row {r}: PID '{pid}' has scientific/float format")
+        
+    if pid in pid_set:
+        pass1_errors.append(f"Row {r}: Duplicate PID '{pid}'")
+    pid_set.add(pid)
+    
+    # Check number range
+    if num not in range(10):
+        pass1_errors.append(f"Row {r}: Number {num} not in 0..9")
+        
+    # Check deterministic game rules
+    if not check_rules(num, col, sz):
+        pass1_errors.append(f"Row {r} (Seq {seq}, PID {pid}): Rule violation! num={num}, col='{col}', sz='{sz}'")
+        
+    # Check timestamp parse
+    try:
+        dt = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+    except Exception as e:
+        pass1_errors.append(f"Row {r}: Invalid timestamp format '{ts_str}'")
+        dt = None
+        
+    digit_counts[num] += 1
+    colour_counts[col] += 1
+    size_counts[sz] += 1
+    
+    raw_records.append({
+        'row': r, 'seq': seq, 'pid': pid, 'ts_str': ts_str, 'dt': dt,
+        'num': num, 'col': col, 'sz': sz, 'orig_col': orig_col, 'note': note
+    })
+
+print(f"Checked {len(raw_records)} rows in Raw_Data.")
+print(f"Unique Period IDs: {len(pid_set)} (expected 3736)")
+print(f"Digit counts: {dict(sorted(digit_counts.items()))}")
+print(f"Colour counts: {dict(colour_counts)}")
+print(f"Size counts: {dict(size_counts)}")
+
+# 4. Check Block and Step Continuity in Raw_Data
+print("\n--- 4. Chronology, Step & Block Continuity ---")
+def get_day_round(pid):
+    suffix = int(pid[-5:]) - 50000
+    day = pid[:8]
+    return day, suffix
+
+blocks = []
+cur_block = [raw_records[0]]
+
+for i in range(1, len(raw_records)):
+    prev = raw_records[i-1]
+    curr = raw_records[i]
+    
+    prev_day, prev_rnd = get_day_round(prev['pid'])
+    curr_day, curr_rnd = get_day_round(curr['pid'])
+    
+    is_step = False
+    if prev_day == curr_day and curr_rnd == prev_rnd + 1:
+        is_step = True
+    elif prev_rnd == 2880 and curr_rnd == 1:
+        is_step = True
+        
+    if is_step:
+        dt_diff = (curr['dt'] - prev['dt']).total_seconds()
+        if dt_diff != 30.0:
+            pass1_errors.append(f"Intra-block step error between Seq {prev['seq']} and {curr['seq']}: dt_diff={dt_diff}s != 30.0s")
+        cur_block.append(curr)
+    else:
+        blocks.append(cur_block)
+        cur_block = [curr]
+blocks.append(cur_block)
+
+print(f"Total blocks discovered: {len(blocks)} (expected 18)")
+if len(blocks) != 18:
+    pass1_errors.append(f"Blocks count {len(blocks)} != 18")
+
+# Verify Gaps
+gaps = []
+total_missing = 0
+for i in range(len(blocks) - 1):
+    b1 = blocks[i]
+    b2 = blocks[i+1]
+    last_r = b1[-1]
+    next_r = b2[0]
+    
+    d1, r1 = get_day_round(last_r['pid'])
+    d2, r2 = get_day_round(next_r['pid'])
+    
+    if d1 == d2:
+        missing = r2 - r1 - 1
+    else:
+        missing = (2880 - r1) + (r2 - 1)
+        
+    sec_diff = (next_r['dt'] - last_r['dt']).total_seconds()
+    expected_sec = (missing + 1) * 30
+    if sec_diff != expected_sec:
+        pass1_errors.append(f"Gap {i+1} time duration mismatch: {sec_diff}s != {expected_sec}s")
+    total_missing += missing
+    gaps.append({
+        'gap_idx': i + 1,
+        'prec_pid': last_r['pid'],
+        'prec_time': last_r['ts_str'],
+        'res_pid': next_r['pid'],
+        'res_time': next_r['ts_str'],
+        'missing_rounds': missing
+    })
+
+print(f"Total gaps: {len(gaps)} (expected 17)")
+print(f"Total missing rounds: {total_missing} (expected 2282)")
+if total_missing != 2282:
+    pass1_errors.append(f"Total missing rounds {total_missing} != 2282")
+
+# Compare with Missing_Rounds sheet
+ws_gaps = wb['Missing_Rounds']
+gaps_sheet_rows = ws_gaps.max_row - 1
+print(f"Missing_Rounds sheet rows: {gaps_sheet_rows} (expected 17)")
+if gaps_sheet_rows != 17:
+    pass1_errors.append(f"Missing_Rounds sheet rows {gaps_sheet_rows} != 17")
+for idx, g in enumerate(gaps, start=2):
+    prec_pid_val = str(ws_gaps.cell(row=idx, column=2).value)
+    res_pid_val = str(ws_gaps.cell(row=idx, column=4).value)
+    missing_val = int(ws_gaps.cell(row=idx, column=6).value)
+    if prec_pid_val != g['prec_pid'] or res_pid_val != g['res_pid'] or missing_val != g['missing_rounds']:
+        pass1_errors.append(f"Gap {idx-1} sheet mismatch: ({prec_pid_val}, {res_pid_val}, {missing_val}) vs ({g['prec_pid']}, {g['res_pid']}, {g['missing_rounds']})")
+
+# 5. Check ML_Ready Sheet (3,646 samples)
+print("\n--- 5. ML_Ready Exhaustive Sample & Lag Check ---")
+ws_ml = wb['ML_Ready']
+total_ml_rows = ws_ml.max_row - 1
+print(f"Total rows in ML_Ready: {total_ml_rows} (expected 3646)")
+if total_ml_rows != 3646:
+    pass1_errors.append(f"ML_Ready total rows {total_ml_rows} != 3646")
+
+raw_by_seq = {r['seq']: r for r in raw_records}
+raw_by_pid = {r['pid']: r for r in raw_records}
+
+block_of_seq = {}
+for b_idx, b in enumerate(blocks, start=1):
+    for r in b:
+        block_of_seq[r['seq']] = b_idx
+
+gap_crossings = 0
+prev_target_record = None
+prev_block_id = None
+
+for r in range(2, ws_ml.max_row + 1):
+    sample_seq = ws_ml.cell(row=r, column=1).value
+    tgt_pid = str(ws_ml.cell(row=r, column=2).value)
+    tgt_ts = str(ws_ml.cell(row=r, column=3).value)
+    tgt_num = ws_ml.cell(row=r, column=4).value
+    tgt_col = str(ws_ml.cell(row=r, column=5).value)
+    tgt_sz = str(ws_ml.cell(row=r, column=6).value)
+    
+    p1_num = ws_ml.cell(row=r, column=7).value
+    p1_col = str(ws_ml.cell(row=r, column=8).value)
+    p1_sz = str(ws_ml.cell(row=r, column=9).value)
+    
+    p2_num = ws_ml.cell(row=r, column=10).value
+    p2_col = str(ws_ml.cell(row=r, column=11).value)
+    p2_sz = str(ws_ml.cell(row=r, column=12).value)
+    
+    p3_num = ws_ml.cell(row=r, column=13).value
+    p3_col = str(ws_ml.cell(row=r, column=14).value)
+    p3_sz = str(ws_ml.cell(row=r, column=15).value)
+    
+    p4_num = ws_ml.cell(row=r, column=16).value
+    p4_col = str(ws_ml.cell(row=r, column=17).value)
+    p4_sz = str(ws_ml.cell(row=r, column=18).value)
+    
+    p5_num = ws_ml.cell(row=r, column=19).value
+    p5_col = str(ws_ml.cell(row=r, column=20).value)
+    p5_sz = str(ws_ml.cell(row=r, column=21).value)
+    
+    b_id = ws_ml.cell(row=r, column=22).value
+    
+    # 1. Target check
+    if tgt_pid not in raw_by_pid:
+        pass1_errors.append(f"ML Row {r}: Target PID {tgt_pid} not found in Raw_Data")
+        continue
+    raw_tgt = raw_by_pid[tgt_pid]
+    tgt_seq = raw_tgt['seq']
+    
+    if (tgt_num, tgt_col, tgt_sz, tgt_ts) != (raw_tgt['num'], raw_tgt['col'], raw_tgt['sz'], raw_tgt['ts_str']):
+        pass1_errors.append(f"ML Row {r}: Target mismatch with Raw_Data")
+        
+    if b_id != block_of_seq[tgt_seq]:
+        pass1_errors.append(f"ML Row {r}: block_id {b_id} != expected {block_of_seq[tgt_seq]}")
+        
+    # 2. Lag checks and Zero Gap Crossing
+    lags = [
+        (1, p1_num, p1_col, p1_sz),
+        (2, p2_num, p2_col, p2_sz),
+        (3, p3_num, p3_col, p3_sz),
+        (4, p4_num, p4_col, p4_sz),
+        (5, p5_num, p5_col, p5_sz)
+    ]
+    for lag_idx, l_num, l_col, l_sz in lags:
+        src_seq = tgt_seq - lag_idx
+        if src_seq < 1 or block_of_seq[src_seq] != b_id:
+            gap_crossings += 1
+            pass1_errors.append(f"ML Row {r}: Gap crossing detected on lag {lag_idx}! Target seq {tgt_seq} (block {b_id}) vs src seq {src_seq} (block {block_of_seq.get(src_seq)})")
+        else:
+            raw_src = raw_by_seq[src_seq]
+            if (l_num, l_col, l_sz) != (raw_src['num'], raw_src['col'], raw_src['sz']):
+                pass1_errors.append(f"ML Row {r}: Lag {lag_idx} value mismatch with Raw_Data seq {src_seq}")
+                
+    # 3. Markov chain intra-block shift
+    if prev_block_id == b_id and prev_target_record is not None:
+        if (p1_num, p1_col, p1_sz) != (prev_target_record['num'], prev_target_record['col'], prev_target_record['sz']):
+            pass1_errors.append(f"ML Row {r}: Lag-1 does not equal previous target within same block {b_id}")
+            
+    prev_target_record = raw_tgt
+    prev_block_id = b_id
+
+print(f"ML_Ready checks completed. Total gap crossings: {gap_crossings} (expected 0)")
+if gap_crossings != 0:
+    pass1_errors.append(f"Total gap crossings {gap_crossings} != 0")
+
+# 6. CSV Parity Check
+print("\n--- 6. Raw & ML CSV Data Parity Check ---")
+with open(raw_csv_path, 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    csv_raw_rows = list(reader)
+print(f"Raw CSV lines: {len(csv_raw_rows)} (1 header + {len(csv_raw_rows)-1} rows)")
+if len(csv_raw_rows) - 1 != 3736:
+    pass1_errors.append(f"Raw CSV rows {len(csv_raw_rows)-1} != 3736")
+for r_idx in range(1, len(csv_raw_rows)):
+    row = csv_raw_rows[r_idx]
+    rec = raw_records[r_idx - 1]
+    if (int(row[0]), row[1], row[2], int(row[3]), row[4], row[5]) != (rec['seq'], rec['pid'], rec['ts_str'], rec['num'], rec['col'], rec['sz']):
+        pass1_errors.append(f"Raw CSV row {r_idx} mismatch with Raw_Data")
+
+with open(ml_csv_path, 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    csv_ml_rows = list(reader)
+print(f"ML CSV lines: {len(csv_ml_rows)} (1 header + {len(csv_ml_rows)-1} rows)")
+if len(csv_ml_rows) - 1 != 3646:
+    pass1_errors.append(f"ML CSV rows {len(csv_ml_rows)-1} != 3646")
+
+# Summary of Pass 1
+print("\n" + "="*80)
+print(f"PASS 1 SUMMARY: TOTAL ERRORS ENCOUNTERED = {len(pass1_errors)}")
+print("="*80)
+if pass1_errors:
+    for e in pass1_errors[:20]:
+        print("  ERROR:", e)
+else:
+    print("ALL PASS 1 TESTS PASSED PERFECTLY (100% SUCCESS, 0 ERRORS)!")

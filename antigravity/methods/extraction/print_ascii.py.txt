@@ -1,0 +1,17 @@
+import cv2
+import numpy as np
+
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+def to_ascii(im, title):
+    print(f"\n--- {title} ---")
+    gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    h, w = gray.shape
+    # downsample to 20x15
+    small = cv2.resize(gray, (20, 20))
+    for row in small:
+        line = "".join(["#" if val < 200 else "." for val in row])
+        print(line)
+
+to_ascii(templates[6], "Template 6")
+to_ascii(templates[8], "Template 8")

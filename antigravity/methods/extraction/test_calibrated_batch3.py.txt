@@ -1,0 +1,53 @@
+import cv2, os, glob, numpy as np, asyncio, winocr
+from PIL import Image
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+# Let's test on WhatsApp Image 2026-10-24 at 00.27.08.jpeg
+f = os.path.join(batch3_dir, "WhatsApp Image 2026-10-24 at 00.27.08.jpeg")
+im = cv2.imread(f)
+
+# OCR period strip
+pid_strip = im[500:1450, 20:300]
+res_pid = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))))
+
+bs_strip = im[500:1450, 420:520]
+res_bs = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB))))
+bs_items = []
+for l in res_bs.lines:
+    txt = " ".join([w.text.strip() for w in l.words])
+    if "Big" in txt or "Small" in txt or "sma" in txt.lower():
+        val = "Small" if ("Small" in txt or "sma" in txt.lower()) else "Big"
+        y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+        bs_items.append((y_c, val))
+
+for line in res_pid.lines:
+    txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+    if len(txt) >= 17 and '202610231000' in txt:
+        pid = [txt[i:i+17] for i in range(len(txt)-16) if txt[i:i+17].startswith('202610231000')][0]
+        w0 = line.words[0]
+        y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+        yc = int(round(500 + y_rel))
+        
+        # Calibrated crop: x: 322 to 362
+        num_crop = im[yc-20:yc+20, 322:362]
+        
+        scores = {}
+        for d, tpl in templates.items():
+            res = cv2.matchTemplate(num_crop, tpl, cv2.TM_CCOEFF_NORMED)
+            scores[int(d)] = round(float(cv2.minMaxLoc(res)[1]), 3)
+            
+        best_d = max(scores.keys(), key=lambda d: scores[d])
+        top2 = sorted(scores.items(), key=lambda x: -x[1])[:2]
+        
+        # Match size
+        best_bs = None
+        min_d = 999.0
+        for b_y, b_val in bs_items:
+            dist = abs(b_y - y_rel)
+            if dist < min_d and dist < 35:
+                min_d = dist
+                best_bs = b_val
+                
+        print(f"PID {pid} at yc={yc}: Best Digit={best_d} (Top2: {top2}) | Size OCR={best_bs}")

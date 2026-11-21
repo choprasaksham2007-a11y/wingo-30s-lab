@@ -1,0 +1,142 @@
+import cv2, os, glob, numpy as np, asyncio, winocr
+from PIL import Image
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+
+# Let's inspect the 10 spot-check rows identified by Agent 2:
+# Agent 2 found:
+# Seq 1641 (PID 51773): screenshot glyph is 7
+# Seq 1642 (PID 51774): screenshot glyph is 5
+# Seq 1645 (PID 51777): screenshot glyph is 9
+# Seq 1647 (PID 51779): screenshot glyph is 0
+# Seq 1649 (PID 51781): screenshot glyph is 0
+# Seq 2009 (PID 52141): screenshot glyph is 2
+# Seq 2135 (PID 52268): screenshot glyph is 5
+
+# Let's write the robust classifier:
+def classify_glyph_robust(im, yc, bs_val):
+    # Crop row around number column: y in yc-22..yc+22, x in 320..365
+    crop = im[yc-22:yc+22, 320:365]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    
+    # 1. Colors
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    # Check 0 and 5
+    if v_cnt > 60:
+        if g_cnt > 60:
+            return 5, "Green+Violet", "Big"
+        else:
+            return 0, "Red+Violet", "Small"
+            
+    # Check non-white bounding box of the glyph inside crop
+    # Color mask = g_mask | r_mask
+    c_mask = g_mask | r_mask
+    coords = np.argwhere(c_mask > 0)
+    if len(coords) < 30:
+        return None, "Unknown", bs_val
+        
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    h = max_y - min_y + 1
+    w = max_x - min_x + 1
+    aspect = w / float(h)
+    
+    glyph_mask = c_mask[min_y:max_y+1, min_x:max_x+1]
+    
+    is_green = (g_cnt > r_cnt)
+    
+    if is_green:
+        # Green digits: {1, 3} (Small) or {7, 9} (Big)
+        if bs_val == "Small":
+            # 1 vs 3: 1 is very narrow (aspect < 0.45), 3 is wide (aspect > 0.5)
+            if aspect < 0.45:
+                return 1, "Green", "Small"
+            else:
+                return 3, "Green", "Small"
+        elif bs_val == "Big":
+            # 7 vs 9: 9 has a closed loop on top, 7 is open on top-left and bottom
+            # In 9, top half has a hole (closed loop), top half fill ratio is higher or has center hole
+            # Let's check fill ratio in top half:
+            top_half = glyph_mask[:h//2, :]
+            # in 9, top-left has vertical stroke. In 7, top-left is empty except the very top bar!
+            top_left_fill = cv2.countNonZero(glyph_mask[h//6:h//2, :w//3])
+            if top_left_fill > 10:
+                return 9, "Green", "Big"
+            else:
+                return 7, "Green", "Big"
+        else:
+            # Fallback if bs_val missing:
+            if aspect < 0.45:
+                return 1, "Green", "Small"
+            # check top loop
+            top_left_fill = cv2.countNonZero(glyph_mask[h//6:h//2, :w//3])
+            if top_left_fill > 10:
+                return 9, "Green", "Big"
+            else:
+                return 7, "Green", "Big"
+    else:
+        # Red digits: {2, 4} (Small) or {6, 8} (Big)
+        if bs_val == "Small":
+            # 2 vs 4: 4 has a vertical right bar and crossbar, 2 has bottom horizontal bar
+            # Check bottom-right of 4 vs 2: 2 has bottom-left and bottom-right. 4 only has vertical bar.
+            bottom_bar = cv2.countNonZero(glyph_mask[int(h*0.8):, :w//2])
+            if bottom_bar > 12:
+                return 2, "Red", "Small"
+            else:
+                return 4, "Red", "Small"
+        elif bs_val == "Big":
+            # 6 vs 8: 8 has closed top-right loop, 6 is open at top-right
+            top_right = cv2.countNonZero(glyph_mask[h//6:h//2, int(w*0.6):])
+            if top_right > 15:
+                return 8, "Red", "Big"
+            else:
+                return 6, "Red", "Big"
+        else:
+            bottom_bar = cv2.countNonZero(glyph_mask[int(h*0.8):, :w//2])
+            if bottom_bar > 12:
+                return 2, "Red", "Small"
+            else:
+                return 4, "Red", "Small"
+
+# Let's test on WhatsApp Image 2026-10-24 at 00.27.08.jpeg
+f = os.path.join(batch3_dir, "WhatsApp Image 2026-10-24 at 00.27.08.jpeg")
+im = cv2.imread(f)
+
+pid_strip = im[500:1450, 20:300]
+res_pid = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))))
+
+bs_strip = im[500:1450, 420:520]
+res_bs = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB))))
+bs_items = []
+for l in res_bs.lines:
+    txt = " ".join([w.text.strip() for w in l.words])
+    if "Big" in txt or "Small" in txt or "sma" in txt.lower():
+        val = "Small" if ("Small" in txt or "sma" in txt.lower()) else "Big"
+        y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+        bs_items.append((y_c, val))
+
+for line in res_pid.lines:
+    txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+    if len(txt) >= 17 and '202610231000' in txt:
+        pid = [txt[i:i+17] for i in range(len(txt)-16) if txt[i:i+17].startswith('202610231000')][0]
+        w0 = line.words[0]
+        y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+        yc = int(round(500 + y_rel))
+        
+        best_bs = None
+        min_d = 999.0
+        for b_y, b_val in bs_items:
+            dist = abs(b_y - y_rel)
+            if dist < min_d and dist < 35:
+                min_d = dist
+                best_bs = b_val
+                
+        d, col, sz = classify_glyph_robust(im, yc, best_bs)
+        print(f"PID {pid}: Digit={d}, Colour={col}, Size={sz} (BS_OCR={best_bs})")

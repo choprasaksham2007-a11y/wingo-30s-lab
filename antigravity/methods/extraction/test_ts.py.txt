@@ -1,0 +1,32 @@
+from datetime import datetime, timedelta
+
+def get_timestamp_for_period(pid: str) -> str:
+    pid = str(pid).strip()
+    date_part = pid[:8]
+    suffix = int(pid[-5:])
+    
+    anchor_23 = datetime(2026, 10, 23, 9, 37, 0)
+    
+    if date_part == "20261023":
+        diff = 50494 - suffix
+        dt = anchor_23 - timedelta(seconds=diff * 30)
+    elif date_part == "20261022":
+        # 50001 on 20261023 is 493 rounds before 50494
+        dt_50001 = anchor_23 - timedelta(seconds=(50494 - 50001) * 30) # 05:30:30
+        # 52880 on 20261022 is 1 round (30s) before 50001
+        dt_52880 = dt_50001 - timedelta(seconds=30) # 05:30:00
+        diff_22 = 52880 - suffix
+        dt = dt_52880 - timedelta(seconds=diff_22 * 30)
+    else:
+        # Generic fallback
+        return ""
+        
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+# Test key anchor points
+print("50494:", get_timestamp_for_period("20261023100050494"))
+print("50438:", get_timestamp_for_period("20261023100050438"))
+print("50001:", get_timestamp_for_period("20261023100050001"))
+print("52880:", get_timestamp_for_period("20261022100052880"))
+print("52081:", get_timestamp_for_period("20261022100052081"))
+print("51582:", get_timestamp_for_period("20261022100051582"))

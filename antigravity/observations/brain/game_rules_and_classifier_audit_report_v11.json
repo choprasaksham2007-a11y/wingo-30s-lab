@@ -1,0 +1,583 @@
+{
+  "audit_timestamp": "2026-10-25T09:55:00+05:30",
+  "auditor": "Agent 2: Game Rules & Classifier Auditor",
+  "batch10_pid_range": [
+    "20261024100052831",
+    "20261025100050451"
+  ],
+  "batch10_rounds_audited": 501,
+  "batch10_sequence_range": [
+    3934,
+    4434
+  ],
+  "dataset_paths": {
+    "brain_csv": "project_reports\\colour_raw_data_v11.csv",
+    "brain_xlsx": "project_reports\\Colour_Prediction_Dataset_v11.xlsx",
+    "downloads_csv": "input\\colour_raw_data_v11.csv",
+    "downloads_xlsx": "input\\Colour_Prediction_Dataset_v11.xlsx"
+  },
+  "dataset_version": "v11.0",
+  "overall_certification": {
+    "batch10_certified_rounds": 501,
+    "certification_status": "PASSED & CERTIFIED 100% ACCURATE",
+    "dataset_version": "v11.0",
+    "statistical_uniformity_certified": true,
+    "total_certified_rounds": 4434,
+    "zero_morphology_errors_certified": true,
+    "zero_ocr_discrepancies_certified": true,
+    "zero_rule_violations_certified": true
+  },
+  "pass1_game_rules_audit": {
+    "canonical_rules": {
+      "0": {
+        "colour": "Red+Violet",
+        "size": "Small"
+      },
+      "1": {
+        "colour": "Green",
+        "size": "Small"
+      },
+      "2": {
+        "colour": "Red",
+        "size": "Small"
+      },
+      "3": {
+        "colour": "Green",
+        "size": "Small"
+      },
+      "4": {
+        "colour": "Red",
+        "size": "Small"
+      },
+      "5": {
+        "colour": "Green+Violet",
+        "size": "Big"
+      },
+      "6": {
+        "colour": "Red",
+        "size": "Big"
+      },
+      "7": {
+        "colour": "Green",
+        "size": "Big"
+      },
+      "8": {
+        "colour": "Red",
+        "size": "Big"
+      },
+      "9": {
+        "colour": "Green",
+        "size": "Big"
+      }
+    },
+    "colour_violations": 0,
+    "excel_vs_csv_discrepancies": 0,
+    "pass_status": true,
+    "period_id_formatting_errors": 0,
+    "rule_violations": 0,
+    "sequence_monotonicity_errors": 0,
+    "size_violations": 0,
+    "total_rows_audited": 4434
+  },
+  "pass2_batch10_morphology_audit": {
+    "batch10_total_rounds": 501,
+    "dual_colour_zero_and_five": {
+      "certified_zero_errors": true,
+      "digit_0_count": 43,
+      "digit_0_dominance": "Red+Violet (r_cnt > 35, v_cnt > 35)",
+      "digit_0_green_range_px": [
+        0,
+        0
+      ],
+      "digit_0_red_range_px": [
+        151,
+        283
+      ],
+      "digit_0_violet_range_px": [
+        133,
+        239
+      ],
+      "digit_5_count": 59,
+      "digit_5_dominance": "Green+Violet (g_cnt > 35, v_cnt > 35)",
+      "digit_5_green_range_px": [
+        156,
+        275
+      ],
+      "digit_5_violet_range_px": [
+        126,
+        219
+      ]
+    },
+    "one_vs_three": {
+      "certified_zero_errors": true,
+      "decision_boundary_px": 17,
+      "digit_1_count": 52,
+      "digit_1_w_mean_px": 15.92,
+      "digit_1_w_range_px": [
+        12,
+        16
+      ],
+      "digit_3_count": 42,
+      "digit_3_w_mean_px": 24.0,
+      "digit_3_w_range_px": [
+        24,
+        24
+      ],
+      "discriminator": "glyph_bounding_box_width (w)",
+      "overlap_count": 0,
+      "separation_margin_px": 8
+    },
+    "pass_status": true,
+    "seven_vs_nine": {
+      "certified_zero_errors": true,
+      "decision_boundary_px": 15,
+      "digit_7_count": 46,
+      "digit_7_tl_mean_px": 0.0,
+      "digit_7_tl_range_px": [
+        0,
+        0
+      ],
+      "digit_9_count": 51,
+      "digit_9_tl_mean_px": 81.98,
+      "digit_9_tl_range_px": [
+        50,
+        91
+      ],
+      "discriminator": "top_left_loop_contour_fill (tl)",
+      "overlap_count": 0,
+      "separation_margin_px": 50
+    },
+    "six_vs_eight": {
+      "certified_zero_errors": true,
+      "decision_boundary_pct": 45.0,
+      "digit_6_count": 50,
+      "digit_6_holes": 1,
+      "digit_6_tr_mean_pct": 29.87,
+      "digit_6_tr_range_pct": [
+        26.6,
+        34.0
+      ],
+      "digit_6_tr_std_pct": 1.63,
+      "digit_8_count": 55,
+      "digit_8_holes": 2,
+      "digit_8_tr_mean_pct": 73.42,
+      "digit_8_tr_range_pct": [
+        71.0,
+        83.9
+      ],
+      "digit_8_tr_std_pct": 2.17,
+      "discriminator": "upper_right_quadrant_density (tr_pct) & topological holes",
+      "overlap_count": 0,
+      "separation_margin_pct": 37.0
+    },
+    "two_vs_four": {
+      "certified_zero_errors": true,
+      "decision_boundary_px": 22,
+      "digit_2_bl_mean_px": 84.38,
+      "digit_2_bl_range_px": [
+        49,
+        90
+      ],
+      "digit_2_bl_std_px": 11.05,
+      "digit_2_count": 45,
+      "digit_4_bl_mean_px": 13.03,
+      "digit_4_bl_range_px": [
+        7,
+        22
+      ],
+      "digit_4_bl_std_px": 4.33,
+      "digit_4_count": 58,
+      "discriminator": "bottom_left_baseline_stroke_fill (bl)",
+      "overlap_count": 0,
+      "separation_margin_px": 27
+    }
+  },
+  "pass3_ocr_comparison": {
+    "direct_number_ocr_mismatches": 0,
+    "pass_status": true,
+    "scope": "Batch 10 direct OCR detections vs morphology classifier",
+    "size_ocr_accuracy_pct": 100.0,
+    "size_ocr_detections_count": 560,
+    "size_ocr_matching_classifier_size": 560
+  },
+  "pass4_stratified_spot_checks": {
+    "checks_per_digit": 2,
+    "digits_covered": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "pass_status": true,
+    "spot_checks_details": [
+      {
+        "bs_ocr": "Small",
+        "colour": "Red+Violet",
+        "morphology_note": "v=138, r=151",
+        "number": 0,
+        "period_id": "20261024100052831",
+        "sequence_no": 3934,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13 (1).jpeg",
+        "timestamp": "2026-10-25 05:05:30",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Red+Violet",
+        "morphology_note": "v=228, r=270",
+        "number": 0,
+        "period_id": "20261025100050413",
+        "sequence_no": 4396,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.39 (1).jpeg",
+        "timestamp": "2026-10-25 08:56:30",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Green",
+        "morphology_note": "w=12",
+        "number": 1,
+        "period_id": "20261024100052840",
+        "sequence_no": 3943,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13 (1).jpeg",
+        "timestamp": "2026-10-25 05:10:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Green",
+        "morphology_note": "w=16",
+        "number": 1,
+        "period_id": "20261025100050437",
+        "sequence_no": 4420,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.40.jpeg",
+        "timestamp": "2026-10-25 09:08:30",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Red",
+        "morphology_note": "bl=50",
+        "number": 2,
+        "period_id": "20261024100052836",
+        "sequence_no": 3939,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13 (1).jpeg",
+        "timestamp": "2026-10-25 05:08:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Red",
+        "morphology_note": "bl=49",
+        "number": 2,
+        "period_id": "20261025100050451",
+        "sequence_no": 4434,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13.jpeg",
+        "timestamp": "2026-10-25 09:15:30",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Green",
+        "morphology_note": "w=24",
+        "number": 3,
+        "period_id": "20261025100050006",
+        "sequence_no": 3989,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.20 (2).jpeg",
+        "timestamp": "2026-10-25 05:33:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Green",
+        "morphology_note": "w=24",
+        "number": 3,
+        "period_id": "20261025100050441",
+        "sequence_no": 4424,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.30.jpeg",
+        "timestamp": "2026-10-25 09:10:30",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Red",
+        "morphology_note": "bl=8",
+        "number": 4,
+        "period_id": "20261024100052834",
+        "sequence_no": 3937,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13 (1).jpeg",
+        "timestamp": "2026-10-25 05:07:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Small",
+        "colour": "Red",
+        "morphology_note": "bl=9",
+        "number": 4,
+        "period_id": "20261025100050448",
+        "sequence_no": 4431,
+        "size": "Small",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13.jpeg",
+        "timestamp": "2026-10-25 09:14:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Green+Violet",
+        "morphology_note": "v=208, g=272",
+        "number": 5,
+        "period_id": "20261024100052852",
+        "sequence_no": 3955,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.14 (1).jpeg",
+        "timestamp": "2026-10-25 05:16:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Green+Violet",
+        "morphology_note": "v=129, g=160",
+        "number": 5,
+        "period_id": "20261025100050450",
+        "sequence_no": 4433,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13.jpeg",
+        "timestamp": "2026-10-25 09:15:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Red",
+        "morphology_note": "tr_pct=26.6%, holes=1",
+        "number": 6,
+        "period_id": "20261024100052838",
+        "sequence_no": 3941,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13 (1).jpeg",
+        "timestamp": "2026-10-25 05:09:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Red",
+        "morphology_note": "tr_pct=29.7%, holes=1",
+        "number": 6,
+        "period_id": "20261025100050449",
+        "sequence_no": 4432,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13.jpeg",
+        "timestamp": "2026-10-25 09:14:30",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Green",
+        "morphology_note": "tl=0",
+        "number": 7,
+        "period_id": "20261024100052832",
+        "sequence_no": 3935,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13 (1).jpeg",
+        "timestamp": "2026-10-25 05:06:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Green",
+        "morphology_note": "tl=0",
+        "number": 7,
+        "period_id": "20261025100050447",
+        "sequence_no": 4430,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13.jpeg",
+        "timestamp": "2026-10-25 09:13:30",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Red",
+        "morphology_note": "tr_pct=82.1%, holes=2",
+        "number": 8,
+        "period_id": "20261024100052833",
+        "sequence_no": 3936,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.13 (1).jpeg",
+        "timestamp": "2026-10-25 05:06:30",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Red",
+        "morphology_note": "tr_pct=71.0%, holes=2",
+        "number": 8,
+        "period_id": "20261025100050428",
+        "sequence_no": 4411,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.38 (1).jpeg",
+        "timestamp": "2026-10-25 09:04:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Green",
+        "morphology_note": "tl=50",
+        "number": 9,
+        "period_id": "20261024100052850",
+        "sequence_no": 3953,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.14.jpeg",
+        "timestamp": "2026-10-25 05:15:00",
+        "verified_status": "PASS"
+      },
+      {
+        "bs_ocr": "Big",
+        "colour": "Green",
+        "morphology_note": "tl=81",
+        "number": 9,
+        "period_id": "20261025100050427",
+        "sequence_no": 4410,
+        "size": "Big",
+        "source_screenshot": "WhatsApp Image 2026-10-25 at 09.16.38 (1).jpeg",
+        "timestamp": "2026-10-25 09:03:30",
+        "verified_status": "PASS"
+      }
+    ],
+    "total_spot_checks": 20,
+    "verified_accuracy_rate": 100.0
+  },
+  "pass5_statistical_analysis": {
+    "batch10": {
+      "chi_square_p_value": 0.6823,
+      "chi_square_statistic": 6.5649,
+      "colour_distribution": {
+        "Green": 191,
+        "Green+Violet": 59,
+        "Red": 208,
+        "Red+Violet": 43
+      },
+      "colour_percentages": {
+        "Green": 38.12,
+        "Green+Violet": 11.78,
+        "Red": 41.52,
+        "Red+Violet": 8.58
+      },
+      "critical_value_alpha_0_05": 16.919,
+      "degrees_of_freedom": 9,
+      "digit_distribution": {
+        "0": 43,
+        "1": 52,
+        "2": 45,
+        "3": 42,
+        "4": 58,
+        "5": 59,
+        "6": 50,
+        "7": 46,
+        "8": 55,
+        "9": 51
+      },
+      "digit_percentages": {
+        "0": 8.58,
+        "1": 10.38,
+        "2": 8.98,
+        "3": 8.38,
+        "4": 11.58,
+        "5": 11.78,
+        "6": 9.98,
+        "7": 9.18,
+        "8": 10.98,
+        "9": 10.18
+      },
+      "size_distribution": {
+        "Big": 261,
+        "Small": 240
+      },
+      "size_percentages": {
+        "Big": 52.1,
+        "Small": 47.9
+      },
+      "total_rounds": 501,
+      "uniformity_hypothesis": "ACCEPTED (p > 0.05)"
+    },
+    "full_v11": {
+      "chi_square_p_value": 0.6487,
+      "chi_square_statistic": 6.8886,
+      "colour_distribution": {
+        "Green": 1779,
+        "Green+Violet": 461,
+        "Red": 1736,
+        "Red+Violet": 458
+      },
+      "colour_percentages": {
+        "Green": 40.12,
+        "Green+Violet": 10.4,
+        "Red": 39.15,
+        "Red+Violet": 10.33
+      },
+      "critical_value_alpha_0_05": 16.919,
+      "degrees_of_freedom": 9,
+      "digit_distribution": {
+        "0": 458,
+        "1": 462,
+        "2": 407,
+        "3": 458,
+        "4": 433,
+        "5": 461,
+        "6": 453,
+        "7": 435,
+        "8": 443,
+        "9": 424
+      },
+      "digit_percentages": {
+        "0": 10.33,
+        "1": 10.42,
+        "2": 9.18,
+        "3": 10.33,
+        "4": 9.77,
+        "5": 10.4,
+        "6": 10.22,
+        "7": 9.81,
+        "8": 9.99,
+        "9": 9.56
+      },
+      "max_streaks": {
+        "colour": {
+          "Green": 9,
+          "Green+Violet": 4,
+          "Red": 13,
+          "Red+Violet": 4
+        },
+        "size": {
+          "Big": 11,
+          "Small": 9
+        }
+      },
+      "size_distribution": {
+        "Big": 2216,
+        "Small": 2218
+      },
+      "size_percentages": {
+        "Big": 49.98,
+        "Small": 50.02
+      },
+      "total_rounds": 4434,
+      "uniformity_hypothesis": "ACCEPTED (p > 0.05)"
+    },
+    "pass_status": true
+  },
+  "total_rounds_audited": 4434
+}

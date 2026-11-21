@@ -1,6 +1,6 @@
 # Previously trained models
 
-The [v1.1.0 Colour AI workspace download](https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis/releases/download/v1.1.0/colour-ai-workspace.zip) includes all 12 saved model files. The inventory below describes the original v1.0.0 research release. See the [workspace manifest](../colour-ai/WORKSPACE_FILES.csv) for source and distributed hashes.
+The [v1.1.0 Colour AI workspace download](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.1.0/colour-ai-workspace.zip) includes all 12 saved model files. The inventory below describes the original v1.0.0 research release. See the [workspace manifest](../colour-ai/WORKSPACE_FILES.csv) for source and distributed hashes.
 
 **No model was retrained, tuned, deserialized or replaced while preparing this publication.** Twelve original VS Code `.joblib` files remain in their existing local locations. The [manifest](manifest.csv) records relative source names, sizes and SHA-256 hashes. Model binaries are excluded from the initial public release; the saved evidence needed to assess their reported outcomes is published separately.
 

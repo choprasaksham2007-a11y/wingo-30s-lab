@@ -1,0 +1,25 @@
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+
+img = cv2.imread(r'extraction\extracted_zip\WhatsApp Image 2026-10-23 at 09.33.27.jpeg')
+
+async def main():
+    for k in range(10):
+        yc = int(617 + k * 76.6)
+        num_crop = img[yc-25:yc+25, 340:400]
+        # Upscale 4x
+        upscaled = cv2.resize(num_crop, (240, 200), interpolation=cv2.INTER_CUBIC)
+        # Convert to grayscale and threshold
+        gray = cv2.cvtColor(upscaled, cv2.COLOR_BGR2GRAY)
+        _, thresh = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY_INV)
+        # Add border
+        padded = cv2.copyMakeBorder(thresh, 50, 50, 100, 100, cv2.BORDER_CONSTANT, value=0)
+        # Invert back so text is dark on white
+        inv = 255 - padded
+        pil_im = Image.fromarray(inv)
+        res = await winocr.recognize_pil(pil_im)
+        print(f"Row {k} upscaled OCR: '{res.text.strip()}'")
+
+asyncio.run(main())

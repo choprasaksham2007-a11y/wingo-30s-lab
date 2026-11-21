@@ -1,0 +1,19 @@
+import openpyxl
+import pandas as pd
+import numpy as np
+
+files = {
+    'v3': r'project_reports\Colour_Prediction_Dataset_v3.xlsx',
+    'corrected': r'project_reports\Colour_Prediction_Dataset_corrected.xlsx'
+}
+
+for label, filepath in files.items():
+    print(f"=== AUDITING {label}: {filepath} ===")
+    wb = openpyxl.load_workbook(filepath, data_only=True)
+    for sname in wb.sheetnames:
+        ws = wb[sname]
+        print(f"  Sheet: {sname}, max_row: {ws.max_row}, max_column: {ws.max_column}")
+        # print header
+        headers = [cell.value for cell in ws[1]] if ws.max_row >= 1 else []
+        print(f"    Headers: {headers[:15]}")
+    wb.close()

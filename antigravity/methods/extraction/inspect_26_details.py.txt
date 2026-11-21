@@ -1,0 +1,86 @@
+import cv2
+import json
+import numpy as np
+
+with open(r"extraction\target_26_sources.json") as f:
+    target_data = json.load(f)
+
+zip_dir = r"extraction\extracted_zip"
+
+results = []
+
+for pid, entry in sorted(target_data.items(), key=lambda x: x[1]["info"]["seq"]):
+    info = entry["info"]
+    sources = entry["sources"]
+    
+    seq = info["seq"]
+    current_num = info["number"]
+    current_col = info["colour"]
+    current_size = info["size"]
+    
+    row_analysis = {
+        "seq": seq,
+        "pid": pid,
+        "current_num": current_num,
+        "current_col": current_col,
+        "current_size": current_size,
+        "sources": [s["file"] for s in sources],
+        "visual_details": []
+    }
+    
+    for s in sources:
+        fname = s["file"]
+        y_full = s["y_full"]
+        yc = int(round(y_full))
+        img = cv2.imread(zip_dir + "\\" + fname)
+        
+        # 1. Number crop: x: 345 to 385, y: yc-20 to yc+20
+        num_crop = img[yc-20:yc+20, 345:385]
+        hsv_num = cv2.cvtColor(num_crop, cv2.COLOR_BGR2HSV)
+        g_num = cv2.countNonZero(cv2.inRange(hsv_num, np.array([35, 50, 50]), np.array([85, 255, 255])))
+        r_num = cv2.countNonZero(cv2.inRange(hsv_num, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv_num, np.array([170, 70, 70]), np.array([180, 255, 255])))
+        v_num = cv2.countNonZero(cv2.inRange(hsv_num, np.array([125, 40, 40]), np.array([165, 255, 255])))
+        
+        # 2. Dot area crop: x: 600 to 675, y: yc-25 to yc+25
+        dot_crop = img[yc-25:yc+25, 600:675]
+        hsv_dot = cv2.cvtColor(dot_crop, cv2.COLOR_BGR2HSV)
+        g_dot = cv2.countNonZero(cv2.inRange(hsv_dot, np.array([35, 50, 50]), np.array([85, 255, 255])))
+        r_dot = cv2.countNonZero(cv2.inRange(hsv_dot, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv_dot, np.array([170, 70, 70]), np.array([180, 255, 255])))
+        v_dot = cv2.countNonZero(cv2.inRange(hsv_dot, np.array([125, 40, 40]), np.array([165, 255, 255])))
+        
+        # Check occlusion
+        # Floating lightning icon has red circle with yellow bolt, total red pixels > 600
+        # Floating dragon icon is reddish/orange, total red pixels > 600
+        is_occluded = (r_dot > 600 or (r_dot > 300 and g_dot < 50 and v_dot < 50))
+        
+        row_analysis["visual_details"].append({
+            "file": fname,
+            "yc": yc,
+            "num_colors": {"green": g_num, "red": r_num, "violet": v_num},
+            "dot_colors": {"green": g_dot, "red": r_dot, "violet": v_dot},
+            "is_occluded": is_occluded
+        })
+        
+    results.append(row_analysis)
+
+# Print detailed summary
+print("=" * 80)
+print(f"{'Seq':4s} | {'Period ID':17s} | {'Num':3s} | {'Size':5s} | {'Old Col':10s} | {'Observed Glyph Color':20s} | {'Dot Status':25s}")
+print("=" * 80)
+for r in results:
+    v = r["visual_details"][0]
+    num_c = v["num_colors"]
+    if num_c["violet"] > 100 and num_c["green"] > 100:
+        glyph_col = "Green+Violet"
+    elif num_c["green"] > 150:
+        glyph_col = "Green"
+    elif num_c["red"] > 150:
+        glyph_col = "Red"
+    else:
+        glyph_col = "Unknown"
+        
+    dot_status = "Covered by floating icon" if v["is_occluded"] else f"Dot visible (G={v['dot_colors']['green']}, R={v['dot_colors']['red']})"
+    print(f"{r['seq']:4d} | {r['pid']} | {r['current_num']:3d} | {r['current_size']:5s} | {r['current_col']:10s} | {glyph_col:20s} | {dot_status}")
+
+with open(r"extraction\detailed_26_inspection.json", "w") as out_j:
+    json.dump(results, out_j, indent=2)

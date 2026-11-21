@@ -1,0 +1,14 @@
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+import numpy as np
+
+# Let's inspect where PID 20261022100052089 is observed
+# Let's find which screenshots contain 20261022100052089
+import pickle
+with open(r"extraction\data\all_raw_observations.pkl", "rb") as pf:
+    all_obs = pickle.load(pf)
+
+sources = [o.source_screenshot for o in all_obs if o.period_id == "20261022100052089"]
+print("Sources for 52089:", sources)

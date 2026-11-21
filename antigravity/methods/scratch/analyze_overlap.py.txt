@@ -1,0 +1,57 @@
+import csv
+
+uploaded_csv = r'project_reports\inputs\input_8a9e44d71a.csv'
+v15_csv = r'project_reports\colour_raw_data_v15.csv'
+
+with open(v15_csv, 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    v15_header = next(reader)
+    v15_rows = list(reader)
+
+v15_pid_dict = {r[1]: r for r in v15_rows}
+v15_pids = set(v15_pid_dict.keys())
+print(f"Total rows in v15: {len(v15_rows)}")
+print(f"Unique PIDs in v15: {len(v15_pids)}")
+print(f"Last PID in v15: {v15_rows[-1][1]} at {v15_rows[-1][2]}")
+
+with open(uploaded_csv, 'r', encoding='utf-8', errors='replace') as f:
+    reader = csv.reader(f)
+    up_header = next(reader)
+    up_rows = list(reader)
+
+print(f"\nTotal rows in uploaded CSV: {len(up_rows)}")
+
+# Check for duplicates within uploaded CSV itself
+up_pids = [r[0].strip() for r in up_rows]
+print(f"Unique PIDs in uploaded CSV: {len(set(up_pids))}")
+if len(up_pids) != len(set(up_pids)):
+    print(f"WARNING: Duplicates found inside uploaded CSV itself! Count: {len(up_pids) - len(set(up_pids))}")
+
+# Check overlap with v15
+overlap_pids = [pid for pid in up_pids if pid in v15_pids]
+new_pids = [pid for pid in up_pids if pid not in v15_pids]
+
+print(f"Overlap PIDs with v15 (already ingested): {len(overlap_pids)}")
+print(f"New PIDs not in v15: {len(new_pids)}")
+
+# Check consistency of overlapping PIDs between uploaded CSV and v15
+mismatches = []
+up_dict = {r[0].strip(): r for r in up_rows}
+for pid in overlap_pids:
+    v15_r = v15_pid_dict[pid]
+    up_r = up_dict[pid]
+    # v15: [seq, pid, ts, num, col, size, col_orig, fix_note]
+    # up: ['issueNumber', 'issue_date', 'game_code', 'daily_round_num', 'number', 'size', 'color', 'primary_color', 'has_violet', 'parity', 'premium', 'sum', 'gap_from_prev', 'is_consecutive', 'api_serviceTime', 'fetched_at_ist', 'source_mode']
+    v15_num = str(int(v15_r[3]))
+    up_num = str(int(up_r[4]))
+    if v15_num != up_num:
+        mismatches.append((pid, v15_num, up_num))
+
+print(f"Mismatches in overlapping data numbers: {len(mismatches)}")
+if mismatches:
+    print(f"First 5 mismatches: {mismatches[:5]}")
+
+print(f"\nFirst 5 overlapping PIDs: {overlap_pids[:5]}")
+print(f"Last 5 overlapping PIDs: {overlap_pids[-5:]}")
+print(f"First 5 new PIDs: {new_pids[:5]}")
+print(f"Last 5 new PIDs: {new_pids[-5:]}")

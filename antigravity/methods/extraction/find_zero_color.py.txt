@@ -1,0 +1,26 @@
+import cv2
+import glob
+import os
+import numpy as np
+
+zip_dir = r"extraction\extracted_zip"
+files = sorted(glob.glob(os.path.join(zip_dir, "*.jpeg")))
+
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+for f in files:
+    img = cv2.imread(f)
+    for k in range(10):
+        yc = int(617 + k * 76.6)
+        num_crop = img[yc-20:yc+20, 345:385]
+        hsv = cv2.cvtColor(num_crop, cv2.COLOR_BGR2HSV)
+        r = cv2.countNonZero(cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255])))
+        v = cv2.countNonZero(cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255])))
+        # If both red and violet are strongly present in num_crop, it is digit 0!
+        # (Digit 5 has green and violet, not red and violet!)
+        if r > 150 and v > 150:
+            print(f"Found digit 0 in {os.path.basename(f)} row {k} (Red={r}, Violet={v})")
+            templates[0] = num_crop
+            np.save(r"extraction\digit_templates.npy", templates)
+            print("Successfully saved all 10 templates (0-9)!")
+            exit(0)

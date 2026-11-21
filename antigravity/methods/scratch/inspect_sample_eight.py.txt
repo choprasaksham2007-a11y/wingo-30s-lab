@@ -1,0 +1,27 @@
+import json, os, cv2, numpy as np
+
+b9_dir = r"extraction\extracted_zip_batch9"
+with open(r"extraction\raw_obs_batch9.json", "r") as f:
+    obs = json.load(f)
+
+new_pids = sorted([p for p in obs.keys() if int(p[-5:]) >= 51840])
+
+for pid in new_pids:
+    items = obs[pid]
+    it = items[0]
+    if it['digit'] == 8 and it['note'].startswith('tr_pct=7') or it['note'].startswith('tr_pct=8'):
+        print(f"Sample 8: PID {pid}, note={it['note']}")
+        fname = it['file']
+        yc = it['yc']
+        im = cv2.imread(os.path.join(b9_dir, fname))
+        crop = im[yc-22:yc+22, 320:385]
+        hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+        r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+        coords = np.argwhere(r_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        print(f"Shape: {glyph.shape}")
+        for row in glyph:
+            print("".join(["#" if p > 0 else "." for p in row]))
+        break

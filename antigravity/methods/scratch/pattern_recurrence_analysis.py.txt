@@ -1,0 +1,97 @@
+import numpy as np
+import pandas as pd
+from collections import defaultdict, Counter
+import math
+
+csv_path = r"project_reports\colour_raw_data_v19.csv"
+df = pd.read_csv(csv_path, dtype={"Period ID": str, "premium": str, "number": int, "size": str})
+print(f"Loaded {len(df)} rows.")
+
+numbers = df["number"].to_numpy()
+premiums = df["premium"].tolist()
+sizes = df["size"].tolist()
+N = len(numbers)
+
+# 1. Single Digit Recurrence (Distance between consecutive occurrences of the SAME digit)
+digit_intervals = defaultdict(list)
+last_seen = {}
+for i, num in enumerate(numbers):
+    if num in last_seen:
+        digit_intervals[num].append(i - last_seen[num])
+    last_seen[num] = i
+
+print("\n=== 1. SINGLE DIGIT RECURRENCE TIME (ROUNDS UNTIL SAME DIGIT REAPPEARS) ===")
+all_digit_intervals = []
+for d in range(10):
+    ivs = digit_intervals[d]
+    all_digit_intervals.extend(ivs)
+    print(f"Digit {d}: Mean return time = {np.mean(ivs):.2f} rounds (Median = {np.median(ivs):.1f}, Min = {np.min(ivs)}, Max = {np.max(ivs)})")
+
+print(f"\nOverall Single Digit Return Time across all 0-9: Mean = {np.mean(all_digit_intervals):.2f} rounds (Theoretical expected = 10.00 rounds)")
+print(f"Standard deviation: {np.std(all_digit_intervals):.2f} (Theoretical geometric std = sqrt((1-p)/p^2) = {math.sqrt(0.9/0.01):.2f})")
+
+# 2. Big / Small Sequences of Length k
+print("\n=== 2. BIG / SMALL PATTERN RECURRENCE ===")
+for k in [2, 3, 4, 5, 6, 8, 10]:
+    pattern_intervals = defaultdict(list)
+    last_seen_pat = {}
+    for i in range(len(sizes) - k + 1):
+        pat = tuple(sizes[i:i+k])
+        if pat in last_seen_pat:
+            pattern_intervals[pat].append(i - last_seen_pat[pat])
+        last_seen_pat[pat] = i
+    
+    # Calculate overall average interval for patterns of length k
+    all_ivs = []
+    for pat, ivs in pattern_intervals.items():
+        all_ivs.extend(ivs)
+    
+    theoretical = 2 ** k
+    print(f"Pattern length {k:2d} (e.g. {''.join(p[0] for p in list(pattern_intervals.keys())[0])}): Observed Mean = {np.mean(all_ivs):.2f} rounds | Theoretical = {theoretical} rounds (Std = {np.std(all_ivs):.2f})")
+
+# 3. 2-Digit and 3-Digit Number Sequences
+print("\n=== 3. MULTI-DIGIT EXACT PATTERN RECURRENCE ===")
+for k, exp_theory in [(2, 100), (3, 1000)]:
+    pattern_intervals = defaultdict(list)
+    last_seen_pat = {}
+    for i in range(len(numbers) - k + 1):
+        pat = tuple(numbers[i:i+k])
+        if pat in last_seen_pat:
+            pattern_intervals[pat].append(i - last_seen_pat[pat])
+        last_seen_pat[pat] = i
+    
+    all_ivs = []
+    for pat, ivs in pattern_intervals.items():
+        all_ivs.extend(ivs)
+    
+    print(f"Exact sequence of {k} digits: Observed Mean = {np.mean(all_ivs):.2f} rounds | Theoretical = {exp_theory} rounds")
+
+# 4. Exact 5-Digit Premium Collision Distance
+print("\n=== 4. EXACT 5-DIGIT PREMIUM COLLISION INTERVALS ===")
+prem_intervals = defaultdict(list)
+last_seen_prem = {}
+for i, prem in enumerate(premiums):
+    if prem in last_seen_prem:
+        prem_intervals[prem].append(i - last_seen_prem[prem])
+    last_seen_prem[prem] = i
+
+all_prem_ivs = []
+for p, ivs in prem_intervals.items():
+    all_prem_ivs.extend(ivs)
+
+print(f"Total repeated 5-digit premiums observed: {len(all_prem_ivs)}")
+print(f"Mean rounds between exact same 5-digit premium repeating: {np.mean(all_prem_ivs):.2f} rounds (~{np.mean(all_prem_ivs)*30/3600:.1f} hours)")
+print(f"Median: {np.median(all_prem_ivs):.1f} rounds | Min = {np.min(all_prem_ivs)} rounds | Max = {np.max(all_prem_ivs)} rounds")
+# Since premiums range from 10,000 to 99,999 (90,000 possible values), theoretical recurrence in uniform random is 90,000 rounds
+print(f"Theoretical expected recurrence for any specific 5-digit number: 90,000 rounds (~31.2 days)")
+
+# 5. Fixed Periodicity Check (Is there ANY fixed lag where repeats spike?)
+print("\n=== 5. CHECK FOR FIXED PERIODIC REPEATS (SPIKE DETECTION) ===")
+# Check lag 1 to 2880 (1 full day)
+match_rates = []
+for lag in [1, 2, 5, 10, 20, 30, 50, 100, 288, 720, 1440, 2880]:
+    matches = np.sum(numbers[:-lag] == numbers[lag:])
+    total_pairs = len(numbers) - lag
+    pct = matches / total_pairs * 100
+    z = (matches - total_pairs * 0.1) / math.sqrt(total_pairs * 0.1 * 0.9)
+    print(f"Lag {lag:4d} rounds (wait {lag*30/60:6.1f} mins): Match rate = {pct:.2f}% (Z = {z:+.2f})")

@@ -1,0 +1,32 @@
+import cv2, os, glob, json
+import numpy as np
+from PIL import Image
+
+batch4_dir = r"extraction\extracted_zip_batch4"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+# Let's inspect WhatsApp Image 2026-10-24 at 10.46.29.jpeg where we saw PID 50148 (which was 1) and PID 50146 (which was 1)
+im = cv2.imread(os.path.join(batch4_dir, "WhatsApp Image 2026-10-24 at 10.46.29.jpeg"))
+
+# For PID 50148, yc was 984
+crop_50148 = im[984-20:984+20, 315:375]
+# For PID 50146, yc was 1105
+crop_50146 = im[1105-20:1105+20, 315:375]
+
+cv2.imwrite(r"scratch\crop_50148.png", crop_50148)
+cv2.imwrite(r"scratch\crop_50146.png", crop_50146)
+
+# Let's check template scores on crop_50148
+for d in range(10):
+    res = cv2.matchTemplate(crop_50148, templates[d], cv2.TM_CCOEFF_NORMED)
+    print(f"50148 -> digit {d} score: {cv2.minMaxLoc(res)[1]:.3f}")
+
+# Let's check coordinates and aspect ratio:
+hsv = cv2.cvtColor(crop_50148, cv2.COLOR_BGR2HSV)
+g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+coords = np.argwhere(g_mask > 0)
+min_y, min_x = coords.min(axis=0)
+max_y, max_x = coords.max(axis=0)
+h = max_y - min_y + 1
+w = max_x - min_x + 1
+print(f"50148 g_mask: h={h}, w={w}, aspect={w/float(h):.3f}")

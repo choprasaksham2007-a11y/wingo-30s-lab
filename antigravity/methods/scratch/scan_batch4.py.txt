@@ -1,0 +1,40 @@
+import os, glob, cv2, asyncio
+from PIL import Image
+import winocr
+import numpy as np
+from collections import defaultdict
+
+batch4_dir = r"extraction\extracted_zip_batch4"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+async def scan_batch4_pids():
+    files = sorted(glob.glob(os.path.join(batch4_dir, "*.jpeg")))
+    print(f"Total files: {len(files)}")
+    
+    all_pids = set()
+    file_pids = defaultdict(list)
+    
+    for idx, f in enumerate(files):
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        pid_strip = im[500:1450, 20:300]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        
+        for line in res.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for i in range(len(txt)-16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith('202610241000'):
+                    all_pids.add(chunk)
+                    file_pids[fname].append(chunk)
+                    
+        if idx % 10 == 0:
+            print(f"Scanned {idx}/{len(files)} files, found {len(all_pids)} unique PIDs so far")
+            
+    print(f"Total unique PIDs found: {len(all_pids)}")
+    sorted_pids = sorted(list(all_pids), key=lambda x: int(x))
+    print(f"Min PID: {sorted_pids[0]}, Max PID: {sorted_pids[-1]}")
+    return sorted_pids, file_pids
+
+if __name__ == '__main__':
+    sorted_pids, file_pids = asyncio.run(scan_batch4_pids())

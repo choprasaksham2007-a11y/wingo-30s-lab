@@ -1,117 +1,51 @@
-# WinGo 30S: an empirical audit of prediction claims
+# WinGo 30S Lab
 
-**88,916 recorded rounds · 31 calendar dates · preserved experiments · reproducible evidence checks**
+Can the last 100 rounds tell you whether the next digit will be Big or Small? WinGo 30S produces a digit every 30 seconds. This archive lets you compare the recorded outcomes with forecasts made from earlier rounds. Across 5,000 historical test rounds, the model called Big or Small correctly **2,413 times (48.26%)**. A simple rule based on the previous 100 rounds scored **51.68%** on the same test.
 
-This repository consolidates Saksham Chopra's WinGo 30S research: historical draw data, statistical diagnostics, trained-model evaluation records, and observations about result distribution infrastructure. It documents what the existing experiments establish—and where the evidence stops.
+**[Download the complete VS Code project](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.1.0/colour-ai-workspace.zip)** · **[Get the Excel workbook](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.0.0/Colour_Prediction_Dataset_v19.xlsx)** · **[Read the whitepaper](docs/WHITEPAPER.md)**
 
-**The evaluated models did not establish a reliable predictive advantage. No generator seed was recovered.** This is a research archive, not a prediction service, a certification of the operator, or a proof that every possible attack fails.
+![The first eight recorded digits were 0, 6, 6, 0, 0, 5, 4 and 7. Each card shows its recorded size and colour.](docs/figures/opening-rounds.svg)
 
-The current dataset is complete across its recorded interval. Earlier analyses used different snapshots; their metrics are kept separate. No models were retrained and no game endpoints were contacted during publication preparation.
+The first record illustrates how the fields fit together. At the worksheet time **00:00:00**, the published premium was **71180**. Its last digit, **0**, makes the result **Small** and **Red + Violet**. All **88,916** completed records follow the last-digit rule. A forecaster has to make its pick before that round’s premium is available. [Inspect the first 1,000 rounds](data/sample_1000_rounds.csv)
 
-## Start here
+## Open the project
 
-- [Original Colour AI workspace](colour-ai/README.md) and [complete project ZIP with all 12 saved models](https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis/releases/download/v1.1.0/colour-ai-workspace.zip).
-- [Full v19 datasets and workbook](https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis/releases/tag/v1.0.0).
+| What you want to do | Where to start |
+| --- | --- |
+| Run the app in VS Code | [Download the workspace ZIP](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.1.0/colour-ai-workspace.zip), extract it and open the `colour-ai` folder. It contains all 12 saved models and the databases used by the viewer. |
+| Record new rounds or view a prediction | Follow the [collector and viewer instructions](colour-ai/README.md). The viewer shows the digit, Big/Small, colour and estimated confidence. |
+| Explore the complete dataset | [Raw CSV · 88,916 rounds](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.0.0/colour_raw_data_v19.csv) or [Excel workbook · 7 sheets](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.0.0/Colour_Prediction_Dataset_v19.xlsx). |
+| Work with historical features | [ML CSV · 88,911 examples](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.0.0/colour_ml_ready_v19.csv). Each target has five preceding rounds. |
 
-- [Full whitepaper](docs/WHITEPAPER.md): research questions, mathematical arguments, findings and limitations.
-- [Methods and reproduction](docs/METHODS.md): offline validation and optional archived-script replay.
-- [Data provenance](docs/DATA_PROVENANCE.md): the 88,865 → 88,916 reconciliation.
-- [Claim ledger](docs/CLAIM_LEDGER.md): corrections to the earlier “110-dimension” audit.
-- [Saved models](models/README.md), [infrastructure evidence](docs/INFRASTRUCTURE.md), and [publication articles](articles/).
+## How did the model score?
 
-## The data
+The saved VS Code experiment used 1,000 candidate features. It trained on 4,096 examples, selected model settings on the next 1,500, then scored the following 5,000 with the settings fixed. The table gives the actual number of correct predictions. Its reference rates assume independent, uniformly distributed digits.
 
-| Artifact | Records | Purpose |
-|---|---:|---|
-| `colour_raw_data_v19.csv` | 88,916 | Canonical completed rounds; nine columns |
-| `Colour_Prediction_Dataset_v19.xlsx` | 88,916 raw + 88,911 ML | Seven-sheet master workbook |
-| `colour_ml_ready_v19.csv` | 88,911 | Target plus five preceding rounds; 23 columns |
-| [Repository sample](data/sample_1000_rounds.csv) | 1,000 | First 1,000 chronological rounds; seven allowlisted columns |
-| `WinGo_same_time_every_day_legacy.csv` | 2,880 clock slots | Earlier comparison matrix containing 88,865 observations |
+| Prediction | Correct out of 5,000 | Accuracy | Reference rate |
+| --- | ---: | ---: | ---: |
+| Exact digit (0–9) | 438 | 8.76% | 10% |
+| Big or Small | 2,413 | 48.26% | 50% |
+| Primary colour (Red or Green) | 2,476 | 49.52% | 50% |
+| Full colour set, including Violet | 1,951 | 39.02% | 40% for the most common single class |
 
-Full datasets are packaged as release assets; the small sample is committed to Git. Match downloads against [SHA-256 checksums](data/SHA256SUMS.txt). The sample illustrates the format and is **not** a random or representative sample for estimating full-corpus statistics.
+The recent-100 Big/Small rule got **2,584** calls right, 171 more than the model. The researchers had already explored this history, so that result still needs a prospective test on fresh rounds. The evaluated models did not establish a reliable forecasting advantage. [Saved predictions](docs/evidence/vscode/thousand_test_predictions_5000.csv) · [Results and limitations](docs/RESULTS_AND_LIMITATIONS.md)
 
-Recorded timestamps run from **2026-10-12 00:00:00 to 2026-11-11 20:57:30**, without a gap in the current v19 data. These are the worksheet's clock values; their timezone is not independently established. Period IDs begin with a different date near some daily boundaries and must not be substituted for timestamps.
+## Where the evidence comes from
 
-## One digit determines the displayed categories
+- **VS Code** contains the training code, collectors, model checkpoints, live viewer and saved forecasts. [Browse the app](colour-ai/) · [Inspect the model inventory](models/README.md)
+- **ChatGPT** contributed an earlier analysis of 88,865 observations. Matching its archived clock-time matrix to the current data identified 51 added rounds and 49 completed premiums. Every overlapping winning digit agreed. [Earlier report](docs/evidence/chatgpt/premium_analysis_2026-11-11.md) · [Snapshot reconciliation](docs/DATA_PROVENANCE.md)
+- **Antigravity** contains the earlier workbook revisions, image-based digit checks and statistical audits. The historical “110 dimensions” report included hardcoded verdicts and checks with unsuitable statistical assumptions. The archive preserves those distinctions and links back to the source. [Additional Antigravity material](antigravity/README.md) · [Audit corrections](docs/CLAIM_LEDGER.md)
 
-| Digit | Size | Colour set |
-|---|---|---|
-| 0 | Small | Red + Violet |
-| 1, 3 | Small | Green |
-| 2, 4 | Small | Red |
-| 5 | Big | Green + Violet |
-| 6, 8 | Big | Red |
-| 7, 9 | Big | Green |
+The recorded API evidence describes how results were distributed. The author's separate investigation attributes generation to a .NET cryptographic RNG. The archive lacks independent confirmation of the deployed generator, and no seed was recovered. [Infrastructure evidence](docs/INFRASTRUCTURE.md)
 
-Under independent, uniform digits, exact-digit accuracy has a 10% reference rate; Big/Small and primary Red/Green have 50%. Violet membership has probability 20%. The **four exact colour sets** have probabilities 40%, 40%, 10%, 10%; Violet overlaps the primary colours. These are different prediction tasks.
+## Check the archive offline
 
-Every current full premium satisfies `int(premium) % 10 == number`. A premium is a **published result field**, not an identified RNG seed. If it is published after the draw, using it to predict that same draw is target leakage.
-
-## Existing prediction results
-
-| Source and target | Test rounds | Saved accuracy | Interpretation |
-|---|---:|---:|---|
-| VS Code, 1,000-feature model: exact digit | 5,000 | 8.76% | Below the 10% uniform reference |
-| Same model: Big/Small | 5,000 | 48.26% | No demonstrated advantage |
-| Same model: primary Red/Green | 5,000 | 49.52% | No demonstrated advantage |
-| Same model: four exact colour sets | 5,000 | 39.02% | Separate task; 40% best fixed-class reference |
-| Earlier ChatGPT report: 1-step transition | 17,762 | 10.40% | 95% interval 9.96–10.86%; no robust advantage established |
-| Earlier ChatGPT report: random forest | 17,762 | 10.08% | Historical report; not rerun for this release |
-| Antigravity saved random forest | 10,000 | 9.69% | Separate lag-five experiment |
-
-The VS Code recent-100 Big/Small baseline reached **51.68%** on its 5,000-round exploratory backtest. That positive-looking result is retained, rather than hidden. The data had already been explored; it is not a prospective demonstration of a persistent edge. See [complete interpretation](docs/RESULTS_AND_LIMITATIONS.md) and [saved artifacts](docs/evidence/vscode/).
-
-The “1,000 patterns” were **1,000 candidate input features**, not 1,000 discovered predictive laws. The publication does not infer that larger models, longer training, or more features guarantee 90% accuracy.
-
-## Architecture: observations and uncertainty
-
-```mermaid
-flowchart LR
-    G["Generator implementation: not independently established"]
-    P["Published result / premium"]
-    H["Historical API: Platsaas observations"]
-    E["Recorded HTTP responses: Cloudflare + OSS-style headers"]
-    D["Local v19 data: 88,916 rounds"]
-    A["Archived statistical and ML results"]
-    R["Public evidence package"]
-    G -. "unverified internal path" .-> P
-    P -. "reported distribution path" .-> H
-    P -. "reported distribution path" .-> E
-    H -->|"recorded collection provenance"| D
-    D --> R
-    A --> R
-```
-
-The author's separate GitHub investigation identified `.NET System.Security.Cryptography.RandomNumberGenerator` backed by an OS CSPRNG as the working implementation finding. This release attributes that finding to the author (**REPORTED**). The supplied publication artifacts do not independently link an auditable implementation to the deployed generator. Matching nameservers, JSON error styles, entropy estimates, and CDN headers cannot establish that link on their own.
-
-## Evidence status
-
-**VERIFIED** means reproduced from the supplied local artifacts during publication checks, with scope specified. **REPORTED** means retained from earlier research without rerunning the experiment. **HYPOTHESIS** means a plausible but unestablished explanation. **UNKNOWN** means the required evidence is absent. None of these labels amounts to certification of the live platform.
-
-The earlier “110-dimension” report is a research taxonomy, **not 110 independently validated cryptographic tests**. Some scripts set verdicts to constants, some use unsuitable bit encodings, and some saved outputs contradict the narrative. [The claim ledger](docs/CLAIM_LEDGER.md) documents these issues openly. Statistical tests cannot by themselves certify cryptographic security. [NIST SP 800-22](https://csrc.nist.gov/pubs/sp/800/22/r1/upd1/final)
-
-## Run the offline checks
-
-Python 3.11 or newer; the default command needs only the standard library:
+From the repository root, run the following with Python 3.11 or newer. The command checks the sample’s period sequence, timestamps and digit mappings, then verifies the historical evidence manifest. It uses the Python standard library.
 
 ```console
 python scripts/run_audit_suite.py
-python -m unittest discover -s tests -v
 ```
 
-To check the full release downloads:
+[Full-data verification instructions](docs/METHODS.md) · [Dataset checksums](data/SHA256SUMS.txt) · [Workspace file manifest](colour-ai/WORKSPACE_FILES.csv)
 
-```console
-python scripts/run_audit_suite.py --data data/colour_raw_data_v19.csv --ml data/colour_ml_ready_v19.csv
-```
-
-The default command checks integrity and summarizes saved evaluations. It does not retrain, deserialize weights, rerun statistical experiments, or contact a network. Archived analyses can be replayed explicitly; read [METHODS](docs/METHODS.md) first because their known defects are intentionally preserved for traceability.
-
-## Credits, licensing and citation
-
-Research and curation: **Saksham Chopra**. The archive combines the author's VS Code experiments, Google Antigravity-assisted analysis and dataset preparation, and ChatGPT-assisted analysis and publication engineering. AI assistance does not independently validate a claim.
-
-Original project code and writing are provided under [MIT](LICENSE). [Third-party notices](THIRD_PARTY_NOTICES.md) describe dependencies, source boundaries, and dataset rights. The v1.1.0 workspace ZIP includes all 12 saved model files. Its [manifest](colour-ai/WORKSPACE_FILES.csv) identifies the distributed bytes, and the [original model inventory](models/manifest.csv) records the source hashes.
-
-Use [CITATION.cff](CITATION.cff) to cite this release. Articles are provided as drafts for publication on [Medium/Substack](articles/medium_substack_post.md) and [LinkedIn](articles/linkedin_post.md).
+Research and curation by **Saksham Chopra**. [Long-form article](articles/medium_substack_post.md) · [LinkedIn draft](articles/linkedin_post.md) · [Citation](CITATION.cff) · [License](LICENSE) · [Data and third-party notices](THIRD_PARTY_NOTICES.md)

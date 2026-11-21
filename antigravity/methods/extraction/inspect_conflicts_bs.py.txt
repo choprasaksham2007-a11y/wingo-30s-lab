@@ -1,0 +1,20 @@
+import pickle
+
+with open(r"extraction\data\aligned_raw_observations.pkl", "rb") as pf:
+    all_obs = pickle.load(pf)
+
+conflict_pids = [
+    "20261022100052384",
+    "20261022100052326",
+    "20261022100052084",
+    "20261022100052098",
+    "20261022100052093",
+    "20261022100052090",
+    "20261022100052133"
+]
+
+for pid in conflict_pids:
+    print(f"\n--- PID {pid} ---")
+    for o in all_obs:
+        if o.period_id == pid:
+            print(f"File: {o.source_screenshot}, Num: {o.number} (conf {o.ocr_confidence}), Size: {o.big_small}, Col: {o.colour}")

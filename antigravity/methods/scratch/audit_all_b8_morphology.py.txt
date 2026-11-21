@@ -1,0 +1,87 @@
+import json, os, cv2, numpy as np, sys
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b8_dir = r"extraction\extracted_zip_batch8"
+with open(r"extraction\raw_obs_batch8.json", "r") as f:
+    obs = json.load(f)
+
+new_pids = sorted([p for p in obs.keys() if int(p[-5:]) >= 51519])
+print(f"Auditing all {len(new_pids)} new rounds in Batch 8...")
+
+digit_counts = {d: 0 for d in range(10)}
+
+for pid in new_pids:
+    items = obs[pid]
+    # Check 51836 specifically
+    if pid == "20261024100051836":
+        best_d = 6
+    else:
+        # majority vote
+        from collections import Counter
+        best_d = Counter([it['digit'] for it in items]).most_common(1)[0][0]
+    digit_counts[best_d] += 1
+
+print("\n--- Batch 8 New Rounds Digit Distribution ---")
+for d in range(10):
+    print(f"  Digit {d}: {digit_counts[d]}")
+print("Total new rounds:", sum(digit_counts.values()))
+
+# Audit all Big Red candidates (6 vs 8)
+print("\n--- Detailed Audit on Big Red (6 vs 8) ---")
+ambiguous_6_8 = []
+for pid in new_pids:
+    items = obs[pid]
+    it = items[0]
+    fname = it['file']
+    yc = it['yc']
+    im = cv2.imread(os.path.join(b8_dir, fname))
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords = np.argwhere(r_mask > 0)
+    if len(coords) < 15: continue
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+    h, w = glyph.shape
+    top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+    tr_fill = cv2.countNonZero(top_right_box)
+    box_area = top_right_box.shape[0] * top_right_box.shape[1]
+    pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+    
+    # Check if classified as Big Red
+    if it['size'] == 'Big' and it['col'] == 'Red':
+        if 28 <= pct <= 42:
+            ambiguous_6_8.append((pid, it['digit'], pct, fname))
+
+print(f"Ambiguous 6/8 cases (pct 28..42%): {len(ambiguous_6_8)}")
+for pid, d, pct, fn in ambiguous_6_8:
+    print(f"  PID {pid}: d={d}, pct={pct:.1f}%, file={fn}")
+
+# Audit all Small Red candidates (2 vs 4)
+print("\n--- Detailed Audit on Small Red (2 vs 4) ---")
+ambiguous_2_4 = []
+for pid in new_pids:
+    items = obs[pid]
+    it = items[0]
+    fname = it['file']
+    yc = it['yc']
+    im = cv2.imread(os.path.join(b8_dir, fname))
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords = np.argwhere(r_mask > 0)
+    if len(coords) < 15: continue
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+    h, w = glyph.shape
+    bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+    if it['size'] == 'Small' and it['col'] == 'Red':
+        if 18 <= bot_left <= 28:
+            ambiguous_2_4.append((pid, it['digit'], bot_left, fname))
+
+print(f"Ambiguous 2/4 cases (bl 18..28 px): {len(ambiguous_2_4)}")
+for pid, d, bl, fn in ambiguous_2_4:
+    print(f"  PID {pid}: d={d}, bl={bl}, file={fn}")

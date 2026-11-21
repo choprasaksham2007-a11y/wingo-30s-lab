@@ -1,0 +1,27 @@
+import csv
+
+uploaded_csv = r'project_reports\inputs\input_8a9e44d71a.csv'
+v15_csv = r'project_reports\colour_raw_data_v15.csv'
+
+with open(v15_csv, 'r', encoding='utf-8') as f:
+    v15_pids = set(r[1] for r in csv.reader(f))
+
+with open(uploaded_csv, 'r', encoding='utf-8', errors='replace') as f:
+    reader = csv.reader(f)
+    header = next(reader)
+    up_rows = list(reader)
+
+new_rows = [r for r in up_rows if r[0].strip() not in v15_pids]
+new_pids = [int(r[0].strip()[-5:]) - 50000 for r in new_rows]
+
+# Block 1 of new rows: 1004 to 1150
+b1 = new_pids[:147]
+print(f"Block 45: start={b1[0]}, end={b1[-1]}, count={len(b1)}, is_consecutive={b1 == list(range(1004, 1151))}")
+
+# Block 2 of new rows: 2157 to 2301
+b2 = new_pids[147:147+145]
+print(f"Block 46: start={b2[0]}, end={b2[-1]}, count={len(b2)}, is_consecutive={b2 == list(range(2157, 2302))}")
+
+# Block 3 of new rows: 2412 to 2463
+b3 = new_pids[147+145:]
+print(f"Block 47: start={b3[0]}, end={b3[-1]}, count={len(b3)}, is_consecutive={b3 == list(range(2412, 2464))}")

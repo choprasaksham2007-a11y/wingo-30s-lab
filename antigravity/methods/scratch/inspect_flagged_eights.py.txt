@@ -1,0 +1,8 @@
+import json
+
+with open(r"scratch\audit_81_results.json", "r") as f:
+    res = json.load(f)
+
+for r in res:
+    if r['seq'] in [1348, 1353, 1417, 1427, 1484, 1503, 1551, 1607, 1619, 1639]:
+        print(f"Seq {r['seq']} (PID {r['pid']}): avg_tr = {r.get('avg_tr')}, votes: {r.get('votes')}")

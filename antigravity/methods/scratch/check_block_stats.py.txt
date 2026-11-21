@@ -1,0 +1,57 @@
+import openpyxl, numpy as np
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_v8.xlsx"
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+ws_raw = wb['Raw_Data']
+
+rows = []
+for r in range(2, ws_raw.max_row+1):
+    rows.append({
+        'seq': ws_raw.cell(row=r, column=1).value,
+        'pid': str(ws_raw.cell(row=r, column=2).value),
+        'ts': str(ws_raw.cell(row=r, column=3).value),
+        'num': ws_raw.cell(row=r, column=4).value,
+        'col': ws_raw.cell(row=r, column=5).value,
+        'orig_col': ws_raw.cell(row=r, column=7).value,
+        'note': ws_raw.cell(row=r, column=8).value
+    })
+
+def get_day_round(pid):
+    suffix = int(pid[-5:]) - 50000
+    day = pid[:8]
+    return day, suffix
+
+blocks = []
+cur_block = [rows[0]]
+for i in range(1, len(rows)):
+    prev_day, prev_rnd = get_day_round(rows[i-1]['pid'])
+    curr_day, curr_rnd = get_day_round(rows[i]['pid'])
+    is_step = False
+    if prev_day == curr_day and curr_rnd == prev_rnd + 1:
+        is_step = True
+    elif prev_rnd == 2880 and curr_rnd == 1:
+        is_step = True
+    if is_step:
+        cur_block.append(rows[i])
+    else:
+        blocks.append(cur_block)
+        cur_block = [rows[i]]
+blocks.append(cur_block)
+
+block_sizes = [len(b) for b in blocks]
+print("Block sizes:", block_sizes)
+print("Smallest:", min(block_sizes))
+print("Median:", np.median(block_sizes))
+print("Largest:", max(block_sizes))
+print("Blocks under 20 rounds:", sum(1 for s in block_sizes if s < 20))
+
+# Find the block under 20 rounds:
+for idx, b in enumerate(blocks, start=1):
+    if len(b) < 20:
+        print(f"\nBlock under 20 rounds is Block {idx:02d}:")
+        print(f"  Count: {len(b)} rounds")
+        print(f"  Seq range: {b[0]['seq']} to {b[-1]['seq']}")
+        print(f"  PID range: {b[0]['pid']} to {b[-1]['pid']}")
+        print(f"  Time range: {b[0]['ts']} to {b[-1]['ts']}")
+        for r in b:
+            print(f"    Seq {r['seq']} | PID {r['pid']} | {r['ts']} | Num: {r['num']}, Col: {r['col']}, Orig: {r['orig_col']}")

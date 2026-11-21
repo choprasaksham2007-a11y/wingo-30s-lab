@@ -1,0 +1,136 @@
+import json, os, sys
+from collections import Counter, defaultdict
+import pandas as pd
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+raw_b10_path = r"extraction\raw_obs_batch10.json"
+v10_xlsx_path = r"project_reports\Colour_Prediction_Dataset_v10.xlsx"
+
+with open(raw_b10_path, "r") as f:
+    obs = json.load(f)
+
+v10_df = pd.read_excel(v10_xlsx_path, sheet_name='Raw_Data')
+v10_map = {}
+for _, row in v10_df.iterrows():
+    v10_map[str(row['Period ID'])] = {
+        'seq': row['sequence_no'],
+        'number': row['number'],
+        'colour': row['colour'],
+        'size': row['size'],
+        'timestamp': str(row['timestamp'])
+    }
+
+print(f"Total PIDs in Batch 10: {len(obs)}")
+pids_sorted = sorted(obs.keys())
+print(f"Batch 10 Range: {pids_sorted[0]} to {pids_sorted[-1]}")
+
+# 1. Internal conflict check
+internal_conflicts = []
+reconciled_b10 = {}
+digit_counter = Counter()
+
+for pid in pids_sorted:
+    items = obs[pid]
+    digits = [it['digit'] for it in items]
+    c = Counter(digits)
+    best_digit = c.most_common(1)[0][0]
+    
+    if len(c) > 1:
+        internal_conflicts.append((pid, dict(c), items))
+        
+    ocr_digits = [it['ocr_digit'] for it in items if it.get('ocr_digit') is not None]
+    c_ocr = Counter(ocr_digits)
+    
+    sz = "Small" if best_digit <= 4 else "Big"
+    if best_digit == 0: col = "Red+Violet"
+    elif best_digit == 5: col = "Green+Violet"
+    elif best_digit in [1, 3, 7, 9]: col = "Green"
+    else: col = "Red"
+    
+    digit_counter[best_digit] += 1
+    
+    reconciled_b10[pid] = {
+        'pid': pid,
+        'number': best_digit,
+        'colour': col,
+        'size': sz,
+        'sources': list(set(it['file'] for it in items)),
+        'obs_count': len(items),
+        'digit_votes': dict(c),
+        'ocr_votes': dict(c_ocr)
+    }
+
+print(f"Internal conflicts in Batch 10: {len(internal_conflicts)}")
+for pid, c, items in internal_conflicts:
+    print(f"  Conflict on {pid}: votes={c}")
+    for it in items:
+        print(f"    {it['file']}: d={it['digit']}, bs={it['bs_ocr']}, ocr={it.get('ocr_digit')}, note={it['note']}")
+
+# 2. Overlap check with v10 dataset
+overlap_pids = [p for p in pids_sorted if p in v10_map]
+new_pids = [p for p in pids_sorted if p not in v10_map]
+
+print(f"\nOverlap PIDs with v10: {len(overlap_pids)}")
+if overlap_pids:
+    print(f"  Overlap range: {overlap_pids[0]} to {overlap_pids[-1]}")
+
+print(f"New PIDs in Batch 10: {len(new_pids)} (from {new_pids[0]} to {new_pids[-1]})")
+
+overlap_mismatches = []
+for p in overlap_pids:
+    v10_val = v10_map[p]['number']
+    b10_val = reconciled_b10[p]['number']
+    if v10_val != b10_val:
+        overlap_mismatches.append((p, v10_map[p], reconciled_b10[p]))
+
+print(f"Overlap mismatches between v10 and Batch 10: {len(overlap_mismatches)}")
+for p, v10_info, b10_info in overlap_mismatches:
+    print(f"  PID {p}: v10 had {v10_info['number']} ({v10_info['colour']}, {v10_info['size']}) vs b10 extracted {b10_info['number']} ({b10_info['colour']}, {b10_info['size']})")
+
+# 3. Step from v10 last round
+v10_last_pid = str(v10_df.iloc[-1]['Period ID'])
+v10_last_ts = str(v10_df.iloc[-1]['timestamp'])
+print(f"\nLast v10 round: {v10_last_pid} at {v10_last_ts}")
+print(f"First Batch 10 round: {pids_sorted[0]}")
+
+# 4. Check continuity within new PIDs
+pids_24 = [p for p in pids_sorted if p.startswith('20261024')]
+pids_25 = [p for p in pids_sorted if p.startswith('20261025')]
+print(f"\nBatch 10 Date Breakdown:")
+print(f"  2026-10-24: {len(pids_24)} rounds ({pids_24[0]} to {pids_24[-1]})")
+print(f"  2026-10-25: {len(pids_25)} rounds ({pids_25[0]} to {pids_25[-1]})")
+
+# Check continuity in 20261024
+suf_24 = [int(p[-5:]) for p in pids_24]
+gaps_24 = []
+for i in range(len(suf_24)-1):
+    diff = suf_24[i+1] - suf_24[i]
+    if diff != 1:
+        gaps_24.append((suf_24[i], suf_24[i+1], diff - 1))
+print(f"Gaps within Batch 10 (2026-10-24 portion): {len(gaps_24)}")
+
+# Check transition from 20261024 to 20261025
+last_24 = suf_24[-1]
+first_25 = int(pids_25[0][-5:])
+print(f"Boundary transition: 2026-10-24 last={last_24} -> 2026-10-25 first={first_25}")
+if last_24 == 52880 and first_25 == 50001:
+    print("  -> SEAMLESS CONTINUITY ACROSS MIDNIGHT UTC! (Round 2880 -> Round 1, exactly 30s step)")
+else:
+    print(f"  -> Gap at midnight boundary: last_24={last_24}, first_25={first_25}")
+
+# Check continuity in 20261025
+suf_25 = [int(p[-5:]) for p in pids_25]
+gaps_25 = []
+for i in range(len(suf_25)-1):
+    diff = suf_25[i+1] - suf_25[i]
+    if diff != 1:
+        gaps_25.append((suf_25[i], suf_25[i+1], diff - 1))
+print(f"Gaps within Batch 10 (2026-10-25 portion): {len(gaps_25)}")
+for g in gaps_25:
+    print(f"  Gap between {g[0]} and {g[1]}: missing {g[2]} rounds")
+
+print("\nDigit distribution across all Batch 10 rounds:")
+for d in range(10):
+    print(f"  Digit {d}: {digit_counter[d]}")

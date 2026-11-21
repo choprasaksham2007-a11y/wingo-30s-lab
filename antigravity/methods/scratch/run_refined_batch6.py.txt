@@ -1,0 +1,219 @@
+import os, glob, cv2, asyncio, json, sys
+import numpy as np
+from PIL import Image
+import winocr
+from collections import defaultdict, Counter
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b6_dir = r"extraction\extracted_zip_batch6"
+
+def get_b6_timestamp(pid: str) -> str:
+    # Anchor 3: 20261024100050638 -> 2026-10-24 10:49:00
+    anchor = datetime(2026, 10, 24, 10, 49, 0)
+    suffix = int(pid[-5:])
+    diff = suffix - 50638
+    dt = anchor + timedelta(seconds=diff * 30)
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+def classify_row_refined(im, yc, bs_val):
+    crop = im[yc-20:yc+20, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    # 1. Dual-color 0 and 5
+    if v_cnt > 35:
+        if g_cnt > 35:
+            return 5, "Green+Violet", "Big", f"v={v_cnt}, g={g_cnt}"
+        else:
+            return 0, "Red+Violet", "Small", f"v={v_cnt}, r={r_cnt}"
+            
+    is_green = (g_cnt > r_cnt)
+    
+    if is_green:
+        coords = np.argwhere(g_mask > 0)
+        if len(coords) < 15:
+            return None, "Green", bs_val, "noise"
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = g_mask[min_y:max_y+1, min_x:max_x+1]
+        
+        # If crop is too short, it's clipped noise
+        if h < 22:
+            return None, "Green", bs_val, f"clipped_h={h}"
+            
+        if bs_val == "Small":
+            # 1 vs 3: 1 has w <= 17, 3 has w >= 19
+            if w <= 17:
+                return 1, "Green", "Small", f"w={w}"
+            else:
+                return 3, "Green", "Small", f"w={w}"
+        elif bs_val == "Big":
+            # 7 vs 9: 9 has closed top loop (tl > 15), 7 is open (tl <= 10)
+            top_left = cv2.countNonZero(glyph[h//5:h//2, :int(w*0.4)])
+            if top_left > 15:
+                return 9, "Green", "Big", f"tl={top_left}"
+            else:
+                return 7, "Green", "Big", f"tl={top_left}"
+        else: # Fallback if BS not detected
+            if w <= 17:
+                return 1, "Green", "Small", f"w={w}"
+            top_left = cv2.countNonZero(glyph[h//5:h//2, :int(w*0.4)])
+            if top_left > 15:
+                return 9, "Green", "Big", f"tl={top_left}"
+            else:
+                return 7, "Green", "Big", f"tl={top_left}"
+    else:
+        coords = np.argwhere(r_mask > 0)
+        if len(coords) < 15:
+            return None, "Red", bs_val, "noise"
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        
+        if h < 22:
+            return None, "Red", bs_val, f"clipped_h={h}"
+            
+        if bs_val == "Small":
+            # 2 vs 4: 2 has bottom-left baseline
+            bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+            if bot_left > 22:
+                return 2, "Red", "Small", f"bl={bot_left}"
+            else:
+                return 4, "Red", "Small", f"bl={bot_left}"
+        elif bs_val == "Big":
+            # 6 vs 8: In 8, upper-right quadrant from y=0.2h to 0.45h, x>=0.7w has closed right wall (>12 px)
+            # In 6, right wall is open (<= 8 px)
+            # Also check if middle waist exists
+            top_right_wall = cv2.countNonZero(glyph[int(h*0.22):int(h*0.45), int(w*0.68):])
+            # In 8, there is also an upper loop hole
+            upper_half = glyph[:int(h*0.45), :]
+            # Check contour hierarchy or count of holes
+            contours, hierarchy = cv2.findContours(glyph.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+            num_holes = len(contours) - 1 if contours else 0
+            
+            # An 8 has 2 holes; 6 has 1 hole at the bottom
+            if num_holes >= 2 or top_right_wall >= 12:
+                return 8, "Red", "Big", f"rw={top_right_wall}, holes={num_holes}"
+            else:
+                return 6, "Red", "Big", f"rw={top_right_wall}, holes={num_holes}"
+        else:
+            bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+            top_right_wall = cv2.countNonZero(glyph[int(h*0.22):int(h*0.45), int(w*0.68):])
+            if top_right_wall >= 12:
+                return 8, "Red", "Big", f"rw={top_right_wall}"
+            elif bot_left > 22:
+                return 2, "Red", "Small", f"bl={bot_left}"
+            else:
+                return 4, "Red", "Small", f"bl={bot_left}"
+
+async def run_extraction():
+    files = sorted(glob.glob(os.path.join(b6_dir, "*.jpeg")))
+    obs_by_pid = defaultdict(list)
+    
+    for idx, f in enumerate(files):
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        if im is None: continue
+        
+        pid_strip = im[500:1450, 20:300]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        
+        bs_strip = im[500:1450, 420:530]
+        res_bs = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB)))
+        bs_items = []
+        for l in res_bs.lines:
+            txt = " ".join([w.text.strip() for w in l.words])
+            if "Big" in txt or "Small" in txt or "sma" in txt.lower():
+                val = "Small" if ("Small" in txt or "sma" in txt.lower()) else "Big"
+                y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+                bs_items.append((y_c, val))
+                
+        for line in res_pid.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for i in range(len(txt)-16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith('202610241000'):
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    yc = int(round(500 + y_rel))
+                    
+                    best_bs = None
+                    min_d = 999.0
+                    for b_y, b_val in bs_items:
+                        dist = abs(b_y - y_rel)
+                        if dist < min_d and dist < 35:
+                            min_d = dist
+                            best_bs = b_val
+                            
+                    best_d, col, sz, note = classify_row_refined(im, yc, best_bs)
+                    if best_d is not None:
+                        obs_by_pid[chunk].append({
+                            "file": fname,
+                            "digit": best_d,
+                            "col": col,
+                            "size": sz,
+                            "note": note,
+                            "bs_ocr": best_bs,
+                            "yc": yc
+                        })
+                    break
+                    
+    return obs_by_pid
+
+if __name__ == '__main__':
+    obs = asyncio.run(run_extraction())
+    print(f"Total unique PIDs extracted: {len(obs)}")
+    
+    conflicts = 0
+    reconciled = {}
+    digit_counter = Counter()
+    
+    for pid in sorted(obs.keys()):
+        digits = [o["digit"] for o in obs[pid]]
+        c = Counter(digits)
+        best_d = c.most_common(1)[0][0]
+        if len(c) > 1:
+            conflicts += 1
+            print(f"Conflict on {pid}: {dict(c)}")
+            for item in obs[pid]:
+                print(f"   {item['file']}: d={item['digit']}, bs={item['bs_ocr']}, note={item['note']}")
+                
+        digit_counter[best_d] += 1
+        sz = "Small" if best_d <= 4 else "Big"
+        if best_d == 0: col = "Red+Violet"
+        elif best_d == 5: col = "Green+Violet"
+        elif best_d in [1, 3, 7, 9]: col = "Green"
+        else: col = "Red"
+        
+        reconciled[pid] = {
+            "period_id": pid,
+            "timestamp": get_b6_timestamp(pid),
+            "number": best_d,
+            "colour": col,
+            "size": sz,
+            "source_count": len(obs[pid]),
+            "sources": list(set([o["file"] for o in obs[pid]]))
+        }
+        
+    print(f"\nReconciled {len(reconciled)} Batch 6 rounds.")
+    print(f"Total remaining conflicts: {conflicts}")
+    print("Digit distribution:")
+    for d in range(10):
+        print(f"  Digit {d}: {digit_counter[d]}")
+        
+    with open(r"extraction\reconciled_batch6.json", "w") as f:
+        json.dump(reconciled, f, indent=2)
+    print("Saved reconciled_batch6.json successfully.")

@@ -1,0 +1,49 @@
+import cv2, os, asyncio, winocr
+from PIL import Image
+import numpy as np
+
+batch2_dir = r"extraction\extracted_zip_batch2"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+async def inspect_sample_eight():
+    fname = "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg"
+    img_path = os.path.join(batch2_dir, fname)
+    img = cv2.imread(img_path)
+    print(f"Image shape: {img.shape}")
+    
+    pid_strip = img[500:1450, 30:290]
+    res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+    
+    for line in res_pid.lines:
+        txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+        if "50446" in txt or "50452" in txt:
+            w0 = line.words[0]
+            y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+            yc = int(round(500 + y_rel))
+            print(f"\nFound {txt} at yc={yc}")
+            
+            # Crop across a wide window x=330..410
+            crop_wide = img[yc-20:yc+20, 330:410]
+            hsv = cv2.cvtColor(crop_wide, cv2.COLOR_BGR2HSV)
+            r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+            coords = np.argwhere(r_mask > 0)
+            if len(coords) > 20:
+                min_y, min_x = coords.min(axis=0)
+                max_y, max_x = coords.max(axis=0)
+                glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+                w = max_x - min_x + 1
+                h = max_y - min_y + 1
+                top_right = cv2.countNonZero(glyph[h//5:h//2, int(w*0.6):])
+                print(f"Glyph bounding box: w={w}, h={h}, top_right={top_right}")
+                
+                # Check template scores with templates[6] and templates[8]
+                res6 = cv2.minMaxLoc(cv2.matchTemplate(crop_wide, templates[6], cv2.TM_CCOEFF_NORMED))[1]
+                res8 = cv2.minMaxLoc(cv2.matchTemplate(crop_wide, templates[8], cv2.TM_CCOEFF_NORMED))[1]
+                print(f"Template match scores: score(6)={res6:.3f}, score(8)={res8:.3f}")
+                
+                print("ASCII art:")
+                for r in glyph:
+                    print("".join(["#" if p > 0 else " " for p in r]))
+
+if __name__ == '__main__':
+    asyncio.run(inspect_sample_eight())

@@ -1,0 +1,132 @@
+"""
+End-to-End Extraction, Reconciliation, ML Preparation and Verification Pipeline.
+"""
+import os
+import csv
+from typing import List, Dict, Any, Optional
+from src.schema import RawObservation, ReconciledRecord, AuditRecord
+from src.reconciliation import reconcile_observations
+from src.ml_dataset_builder import build_ml_dataset
+from src.excel_generator import create_excel_workbook
+from src.verify_outputs import verify_all_artifacts
+
+def export_to_csv(rows: List[List[Any]], csv_path: str):
+    os.makedirs(os.path.dirname(csv_path), exist_ok=True)
+    with open(csv_path, mode="w", newline="", encoding="utf-8-sig") as f:
+        writer = csv.writer(f)
+        for row in rows:
+            writer.writerow([str(c or "").strip() for c in row])
+    print(f"Exported CSV: {csv_path}")
+
+def run_pipeline(
+    raw_observations: List[RawObservation],
+    output_dir: str,
+    total_screenshots_count: int,
+    allow_rule_derivation: bool = False
+) -> Dict[str, Any]:
+    os.makedirs(output_dir, exist_ok=True)
+    excel_path = os.path.join(output_dir, "Colour_Prediction_Dataset.xlsx")
+    raw_csv_path = os.path.join(output_dir, "colour_raw_data.csv")
+    ml_csv_path = os.path.join(output_dir, "colour_ml_ready.csv")
+    audit_csv_path = os.path.join(output_dir, "colour_audit.csv")
+
+    print(f"[PIPELINE] Starting reconciliation for {len(raw_observations)} observations...")
+    # Step 1: Reconcile observations
+    reconciled_records, audit_records, missing_rounds = reconcile_observations(
+        raw_observations,
+        allow_rule_derivation_fallback=allow_rule_derivation
+    )
+
+    # Step 2: Build ML dataset
+    print(f"[PIPELINE] Building 5-round lag ML dataset...")
+    ml_records = build_ml_dataset(reconciled_records)
+
+    # Step 3: Compute Summary Metrics
+    total_obs = len(raw_observations)
+    unique_pids = len(reconciled_records)
+    duplicate_count = max(0, total_obs - unique_pids)
+    conflict_count = sum(1 for r in reconciled_records if r.overall_verification == "CONFLICT")
+
+    summary_metrics = {
+        "total_screenshots": total_screenshots_count,
+        "total_observations": total_obs,
+        "unique_periods": unique_pids,
+        "duplicate_count": duplicate_count,
+        "conflict_count": conflict_count,
+        "missing_rounds_count": len(missing_rounds),
+        "ml_samples_count": len(ml_records)
+    }
+
+    # Step 4: Export CSVs
+    # Raw Data CSV
+    raw_csv_headers = [
+        "row_no", "period_id", "number", "big_small", "colour",
+        "timestamp", "source_screenshot", "number_verification",
+        "colour_verification", "overall_verification", "notes"
+    ]
+    raw_csv_data = [raw_csv_headers]
+    for r in reconciled_records:
+        raw_csv_data.append([
+            r.row_no, str(r.period_id), r.number if r.number is not None else "",
+            r.big_small or "", r.colour or "", r.timestamp or "",
+            ", ".join(r.source_screenshots), r.number_verification,
+            r.colour_verification, r.overall_verification, r.notes
+        ])
+    export_to_csv(raw_csv_data, raw_csv_path)
+
+    # ML Ready CSV
+    ml_headers = [
+        "period_id",
+        "previous_1_number", "previous_2_number", "previous_3_number", "previous_4_number", "previous_5_number",
+        "previous_1_colour", "previous_2_colour", "previous_3_colour", "previous_4_colour", "previous_5_colour",
+        "previous_1_size", "previous_2_size", "previous_3_size", "previous_4_size", "previous_5_size",
+        "target_number", "target_colour", "target_size"
+    ]
+    ml_csv_data = [ml_headers]
+    for m in ml_records:
+        ml_csv_data.append([
+            str(m["period_id"]),
+            m["previous_1_number"], m["previous_2_number"], m["previous_3_number"], m["previous_4_number"], m["previous_5_number"],
+            m["previous_1_colour"], m["previous_2_colour"], m["previous_3_colour"], m["previous_4_colour"], m["previous_5_colour"],
+            m["previous_1_size"], m["previous_2_size"], m["previous_3_size"], m["previous_4_size"], m["previous_5_size"],
+            m["target_number"], m["target_colour"], m["target_size"]
+        ])
+    export_to_csv(ml_csv_data, ml_csv_path)
+
+    # Audit CSV
+    audit_headers = ["period_id", "check_type", "status", "source_evidence", "description"]
+    audit_csv_data = [audit_headers]
+    for a in audit_records:
+        audit_csv_data.append([str(a.period_id), a.check_type, a.status, a.source_evidence, a.description])
+    export_to_csv(audit_csv_data, audit_csv_path)
+
+    # Step 5: Generate Excel Workbook
+    print(f"[PIPELINE] Generating 5-sheet styled Excel workbook...")
+    create_excel_workbook(
+        raw_records=reconciled_records,
+        ml_records=ml_records,
+        audit_records=audit_records,
+        missing_rounds=missing_rounds,
+        summary_metrics=summary_metrics,
+        output_path=excel_path
+    )
+
+    # Step 6: Automated Verification Pass
+    is_valid, validation_errors = verify_all_artifacts(
+        excel_path=excel_path,
+        raw_csv_path=raw_csv_path,
+        ml_csv_path=ml_csv_path,
+        audit_csv_path=audit_csv_path
+    )
+
+    return {
+        "success": is_valid,
+        "validation_errors": validation_errors,
+        "excel_path": excel_path,
+        "raw_csv_path": raw_csv_path,
+        "ml_csv_path": ml_csv_path,
+        "audit_csv_path": audit_csv_path,
+        "reconciled_count": len(reconciled_records),
+        "ml_count": len(ml_records),
+        "audit_count": len(audit_records)
+    }

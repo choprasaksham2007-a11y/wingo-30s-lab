@@ -1,0 +1,143 @@
+import os
+import sys
+import numpy as np
+import pandas as pd
+from scipy import stats
+from collections import Counter
+import math
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+csv_path = r"project_reports\colour_raw_data_v19.csv"
+print(f"Loading {csv_path}...")
+df = pd.read_csv(csv_path, dtype={"Period ID": str, "premium": str, "number": int})
+print(f"Total rows: {len(df)}")
+
+premiums = df["premium"].tolist()
+numbers = df["number"].tolist()
+pids = df["Period ID"].tolist()
+
+# Convert premiums to 5-digit integer arrays and digit matrices
+prem_ints = np.array([int(p) for p in premiums], dtype=np.int64)
+# Digits matrix: shape (N, 5)
+digits_matrix = np.array([[int(d) for d in p] for p in premiums], dtype=np.int8)
+N = len(premiums)
+
+print("\n" + "=" * 80)
+print("1. INDEPENDENT DIGIT UNIFORMITY (POSITIONS 1 TO 5)")
+print("=" * 80)
+# Check each position
+for pos in range(5):
+    col = digits_matrix[:, pos]
+    counts = Counter(col)
+    exp = N / 10.0
+    chi2 = sum(((counts.get(d, 0) - exp) ** 2) / exp for d in range(10))
+    p_val = 1 - stats.chi2.cdf(chi2, df=9)
+    print(f"Position {pos+1} (10^{4-pos}): Chi2 = {chi2:.4f}, p-value = {p_val:.4f} -> {'UNIFORM (Random)' if p_val > 0.01 else 'NON-UNIFORM'}")
+
+print("\n" + "=" * 80)
+print("2. CROSS-DIGIT CORRELATIONS (ARE DIGITS INDEPENDENT WITHIN THE SAME NUMBER?)")
+print("=" * 80)
+corr_matrix = np.corrcoef(digits_matrix.T)
+print("Correlation matrix between digit positions (1 to 5):")
+for r in range(5):
+    row_str = "  ".join(f"{corr_matrix[r, c]:+.4f}" for c in range(5))
+    print(f"  Pos {r+1}: [ {row_str} ]")
+
+max_cross_corr = max(abs(corr_matrix[r, c]) for r in range(5) for c in range(5) if r != c)
+print(f"Max off-diagonal cross-correlation: {max_cross_corr:.4f} (Expected near 0 for independent digits)")
+
+print("\n" + "=" * 80)
+print("3. AUTOCORRELATION (DOES ROUND t INFLUENCE ROUND t+1, t+2, ...?)")
+print("=" * 80)
+# Full 5-digit number autocorrelation for lags 1 to 20
+mean_p = np.mean(prem_ints)
+var_p = np.var(prem_ints)
+norm_p = prem_ints - mean_p
+
+threshold_95 = 1.96 / np.sqrt(N)
+threshold_99 = 2.576 / np.sqrt(N)
+print(f"Sample size N = {N}")
+print(f"95% Confidence Interval bound: |r| < {threshold_95:.5f}")
+print(f"99% Confidence Interval bound: |r| < {threshold_99:.5f}")
+
+sig_lags = 0
+for lag in range(1, 21):
+    r_lag = np.sum(norm_p[:-lag] * norm_p[lag:]) / ((N - lag) * var_p)
+    is_sig = abs(r_lag) > threshold_95
+    if is_sig: sig_lags += 1
+    print(f"  Lag {lag:2d}: r = {r_lag:+.5f} {'*' if is_sig else ''}")
+
+print(f"Significant lags at 95% level: {sig_lags} / 20 (Expected false positives ~1.0)")
+
+print("\n" + "=" * 80)
+print("4. LINEAR CONGRUENTIAL GENERATOR (LCG) / POLYNOMIAL RECURRENCE TEST")
+print("=" * 80)
+# In an LCG: X_{n+1} = a * X_n + c (mod m)
+# Determinant test for LCG: det([X_n, X_{n+1}, 1; X_{n+1}, X_{n+2}, 1; X_{n+2}, X_{n+3}, 1]) = 0 mod m
+# We test whether consecutive differences have any common GCD or low-dimensional hyperplanes
+diffs = np.diff(prem_ints)
+mean_diff = np.mean(diffs)
+std_diff = np.std(diffs)
+print(f"Consecutive Differences: Mean = {mean_diff:.2f} (Expected ~0), Std = {std_diff:.2f} (Expected uniform std ~40824)")
+runs_up_down = np.sum(diffs > 0)
+runs_down = np.sum(diffs < 0)
+runs_equal = np.sum(diffs == 0)
+print(f"Diffs > 0: {runs_up_down} ({runs_up_down/len(diffs)*100:.2f}%), Diffs < 0: {runs_down} ({runs_down/len(diffs)*100:.2f}%), Exact Repeats: {runs_equal} ({runs_equal/len(diffs)*100:.4f}%)")
+
+print("\n" + "=" * 80)
+print("5. OUT-OF-SAMPLE FORWARD PREDICTION TEST (CHRONOLOGICAL HOLDOUT)")
+print("=" * 80)
+# Split into 80% train (71,132 rounds) and 20% holdout (17,784 rounds)
+split_idx = int(N * 0.8)
+train_p = prem_ints[:split_idx]
+train_n = numbers[:split_idx]
+test_p = prem_ints[split_idx:]
+test_n = numbers[split_idx:]
+test_size = len(test_n)
+
+print(f"Training set: {split_idx} rounds (first 80%)")
+print(f"Holdout set : {test_size} rounds (last 20% - strictly untouched)")
+
+# Test strategies on the winning digit (number = premium % 10):
+# 1. Uniform random baseline: 10.00%
+# 2. Most common digit in training
+most_common_d = Counter(train_n).most_common(1)[0][0]
+hits_most_common = sum(n == most_common_d for n in test_n)
+
+# 3. Previous round digit persistence (Markov lag 1)
+hits_lag1 = sum(test_n[i] == test_n[i-1] for i in range(1, test_size))
+
+# 4. Lag 2 persistence
+hits_lag2 = sum(test_n[i] == test_n[i-2] for i in range(2, test_size))
+
+# 5. Period ID modulo arithmetic (pid % 10)
+hits_pid = sum((int(df["Period ID"].iloc[split_idx + i]) % 10) == test_n[i] for i in range(test_size))
+
+# 6. Frequency of Big vs Small (50% baseline)
+train_big = sum(n >= 5 for n in train_n)
+test_big_actual = sum(n >= 5 for n in test_n)
+print(f"\n--- WINNING DIGIT ACCURACY (Random Baseline = 10.00%) ---")
+print(f"  Random Baseline              : 10.00% ({test_size * 0.1:.0f} / {test_size})")
+print(f"  Always Predict Most Common ({most_common_d}): {hits_most_common/test_size*100:.2f}% ({hits_most_common} / {test_size})")
+print(f"  Predict Previous Digit (Lag 1): {hits_lag1/(test_size-1)*100:.2f}% ({hits_lag1} / {test_size-1})")
+print(f"  Predict 2 Rounds Ago (Lag 2)  : {hits_lag2/(test_size-2)*100:.2f}% ({hits_lag2} / {test_size-2})")
+print(f"  Period ID Modulo Rule         : {hits_pid/test_size*100:.2f}% ({hits_pid} / {test_size})")
+
+print(f"\n--- BIG / SMALL ACCURACY (Random Baseline = 50.00%) ---")
+print(f"  Actual Big percentage in test : {test_big_actual/test_size*100:.2f}%")
+print(f"  Always Predict Big            : {test_big_actual/test_size*100:.2f}%")
+prev_big_hits = sum((test_n[i] >= 5) == (test_n[i-1] >= 5) for i in range(1, test_size))
+print(f"  Predict Same Size as Previous : {prev_big_hits/(test_size-1)*100:.2f}%")
+
+print("\n" + "=" * 80)
+print("6. EXACT 5-DIGIT PREMIUM COLLISION & REPEAT RATE")
+print("=" * 80)
+unique_prems = len(set(premiums))
+print(f"Total 5-digit rounds  : {N}")
+print(f"Unique 5-digit values : {unique_prems} (out of 100,000 possible 00000-99999)")
+# In 88,916 draws from 100,000 with replacement:
+# Expected unique = 100000 * (1 - (1 - 1/100000)^N) = 100000 * (1 - e^(-0.88916)) = ~58,903
+exp_unique = 100000 * (1 - math.exp(-N / 100000.0))
+print(f"Expected unique (if pure uniform random): {exp_unique:.0f}")
+print(f"Observed unique / Expected ratio        : {unique_prems / exp_unique:.4f}")

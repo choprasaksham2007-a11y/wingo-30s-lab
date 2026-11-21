@@ -1,0 +1,637 @@
+{
+  "details": [
+    {
+      "colour": "Green",
+      "dot_pixels": {
+        "g": 296,
+        "r": 61,
+        "v": 0
+      },
+      "glyph_colour": "Green",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 331,
+        "r": 0,
+        "v": 0
+      },
+      "number": 1,
+      "pid": "20261022100052061",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.58 (1).jpeg",
+      "seq": 480,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Red+Violet",
+      "dot_pixels": {
+        "g": 0,
+        "r": 313,
+        "v": 320
+      },
+      "glyph_colour": "Red+Violet",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 240,
+        "v": 261
+      },
+      "number": 0,
+      "pid": "20261022100052081",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.58 (2).jpeg",
+      "seq": 500,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Green",
+      "dot_pixels": {
+        "g": 295,
+        "r": 0,
+        "v": 0
+      },
+      "glyph_colour": "Green",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 529,
+        "r": 0,
+        "v": 0
+      },
+      "number": 9,
+      "pid": "20261022100052108",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.00 (2).jpeg",
+      "seq": 527,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 356,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 521,
+        "v": 0
+      },
+      "number": 8,
+      "pid": "20261022100052110",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.00 (3).jpeg",
+      "seq": 529,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 2037,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 431,
+        "v": 0
+      },
+      "number": 4,
+      "pid": "20261022100052121",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.01.jpeg",
+      "seq": 540,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Green",
+      "dot_pixels": {
+        "g": 0,
+        "r": 1955,
+        "v": 0
+      },
+      "glyph_colour": "Green",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 517,
+        "r": 0,
+        "v": 0
+      },
+      "number": 3,
+      "pid": "20261022100052151",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.02.jpeg",
+      "seq": 570,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 294,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 466,
+        "v": 0
+      },
+      "number": 6,
+      "pid": "20261022100052178",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.02 (2).jpeg",
+      "seq": 597,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Green",
+      "dot_pixels": {
+        "g": 0,
+        "r": 1866,
+        "v": 0
+      },
+      "glyph_colour": "Green",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 516,
+        "r": 0,
+        "v": 0
+      },
+      "number": 3,
+      "pid": "20261022100052180",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.03.jpeg",
+      "seq": 599,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Green",
+      "dot_pixels": {
+        "g": 316,
+        "r": 0,
+        "v": 0
+      },
+      "glyph_colour": "Green",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 529,
+        "r": 0,
+        "v": 0
+      },
+      "number": 9,
+      "pid": "20261022100052196",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.03 (1).jpeg",
+      "seq": 615,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 1498,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 461,
+        "v": 0
+      },
+      "number": 6,
+      "pid": "20261022100052228",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.04 (2).jpeg",
+      "seq": 646,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red+Violet",
+      "dot_pixels": {
+        "g": 0,
+        "r": 2047,
+        "v": 0
+      },
+      "glyph_colour": "Red+Violet",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 261,
+        "v": 251
+      },
+      "number": 0,
+      "pid": "20261022100052230",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.04 (2).jpeg",
+      "seq": 648,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 2285,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 422,
+        "v": 0
+      },
+      "number": 2,
+      "pid": "20261022100052242",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.04 (3).jpeg",
+      "seq": 660,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Green+Violet",
+      "dot_pixels": {
+        "g": 315,
+        "r": 0,
+        "v": 321
+      },
+      "glyph_colour": "Green+Violet",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 254,
+        "r": 0,
+        "v": 226
+      },
+      "number": 5,
+      "pid": "20261022100052282",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.06 (2).jpeg",
+      "seq": 700,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 296,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 464,
+        "v": 0
+      },
+      "number": 6,
+      "pid": "20261022100052313",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.07 (2).jpeg",
+      "seq": 730,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Green",
+      "dot_pixels": {
+        "g": 316,
+        "r": 0,
+        "v": 0
+      },
+      "glyph_colour": "Green",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 325,
+        "r": 0,
+        "v": 0
+      },
+      "number": 1,
+      "pid": "20261022100052343",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.56.jpeg",
+      "seq": 760,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 292,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 414,
+        "v": 0
+      },
+      "number": 2,
+      "pid": "20261022100052383",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.54.jpeg",
+      "seq": 800,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Green",
+      "dot_pixels": {
+        "g": 297,
+        "r": 0,
+        "v": 0
+      },
+      "glyph_colour": "Green",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 383,
+        "r": 0,
+        "v": 0
+      },
+      "number": 7,
+      "pid": "20261022100052423",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.55 (1).jpeg",
+      "seq": 840,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red+Violet",
+      "dot_pixels": {
+        "g": 0,
+        "r": 315,
+        "v": 321
+      },
+      "glyph_colour": "Red+Violet",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 258,
+        "v": 244
+      },
+      "number": 0,
+      "pid": "20261022100052852",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.28 (1).jpeg",
+      "seq": 884,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 2006,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 461,
+        "v": 0
+      },
+      "number": 6,
+      "pid": "20261022100052854",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.28 (2).jpeg",
+      "seq": 886,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 294,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 412,
+        "v": 0
+      },
+      "number": 2,
+      "pid": "20261023100050008",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.41 (1).jpeg",
+      "seq": 920,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 291,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 465,
+        "v": 0
+      },
+      "number": 6,
+      "pid": "20261023100050028",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.42 (1).jpeg",
+      "seq": 940,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Green+Violet",
+      "dot_pixels": {
+        "g": 0,
+        "r": 1412,
+        "v": 0
+      },
+      "glyph_colour": "Green+Violet",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 253,
+        "r": 0,
+        "v": 224
+      },
+      "number": 5,
+      "pid": "20261023100050052",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.43 (1).jpeg",
+      "seq": 964,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Green",
+      "dot_pixels": {
+        "g": 0,
+        "r": 1865,
+        "v": 0
+      },
+      "glyph_colour": "Green",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 391,
+        "r": 0,
+        "v": 0
+      },
+      "number": 7,
+      "pid": "20261023100050054",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.43 (1).jpeg",
+      "seq": 966,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 297,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 460,
+        "v": 0
+      },
+      "number": 6,
+      "pid": "20261023100050078",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.44.jpeg",
+      "seq": 990,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Green+Violet",
+      "dot_pixels": {
+        "g": 317,
+        "r": 0,
+        "v": 321
+      },
+      "glyph_colour": "Green+Violet",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 262,
+        "r": 0,
+        "v": 224
+      },
+      "number": 5,
+      "pid": "20261023100050118",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.45 (1).jpeg",
+      "seq": 1020,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 292,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 511,
+        "v": 0
+      },
+      "number": 8,
+      "pid": "20261023100050148",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.46 (1).jpeg",
+      "seq": 1050,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Green+Violet",
+      "dot_pixels": {
+        "g": 321,
+        "r": 135,
+        "v": 347
+      },
+      "glyph_colour": "Green+Violet",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 267,
+        "r": 0,
+        "v": 227
+      },
+      "number": 5,
+      "pid": "20261023100050293",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.48 (1).jpeg",
+      "seq": 1115,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 312,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 421,
+        "v": 0
+      },
+      "number": 4,
+      "pid": "20261023100050328",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.49 (1).jpeg",
+      "seq": 1150,
+      "size": "Small",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 2220,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 527,
+        "v": 0
+      },
+      "number": 8,
+      "pid": "20261023100050373",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.51 (1).jpeg",
+      "seq": 1195,
+      "size": "Big",
+      "verified": true
+    },
+    {
+      "colour": "Red",
+      "dot_pixels": {
+        "g": 0,
+        "r": 292,
+        "v": 0
+      },
+      "glyph_colour": "Red",
+      "glyph_match": true,
+      "num_pixels": {
+        "g": 0,
+        "r": 523,
+        "v": 0
+      },
+      "number": 8,
+      "pid": "20261023100050418",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.52 (1).jpeg",
+      "seq": 1240,
+      "size": "Big",
+      "verified": true
+    }
+  ],
+  "number_differences": 0,
+  "total_checked": 30,
+  "unverified": 0
+}

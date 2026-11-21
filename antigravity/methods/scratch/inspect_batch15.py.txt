@@ -1,0 +1,31 @@
+import csv
+import os
+
+uploaded_csv = r'project_reports\inputs\input_8a9e44d71a.csv'
+v15_csv = r'project_reports\colour_raw_data_v15.csv'
+
+print("--- Checking v15 CSV ---")
+with open(v15_csv, 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    v15_header = next(reader)
+    v15_rows = list(reader)
+
+print(f"v15 header: {v15_header}")
+print(f"v15 total rows: {len(v15_rows)}")
+print(f"v15 first row: {v15_rows[0]}")
+print(f"v15 last row: {v15_rows[-1]}")
+v15_pids = set(r[1] for r in v15_rows)
+
+print("\n--- Checking Uploaded CSV ---")
+with open(uploaded_csv, 'r', encoding='utf-8', errors='replace') as f:
+    reader = csv.reader(f)
+    up_header = next(reader)
+    up_rows = list(reader)
+
+print(f"Uploaded header: {up_header}")
+print(f"Uploaded total rows: {len(up_rows)}")
+print(f"Uploaded first 3 rows: {up_rows[:3]}")
+print(f"Uploaded last 3 rows: {up_rows[-3:]}")
+
+# Check columns and PID locations in uploaded csv
+# Let's inspect the headers and sample row structure

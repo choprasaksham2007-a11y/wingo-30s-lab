@@ -1,0 +1,459 @@
+{
+  "dataset_path": "project_reports\\Colour_Prediction_Dataset_v8.xlsx",
+  "overall_certification": {
+    "certified_zero_errors": true,
+    "dataset_version": "v8",
+    "pass1_passed": true,
+    "pass2_passed": true,
+    "pass3_passed": true,
+    "total_certified_rounds": 3425
+  },
+  "pass1_game_rules_audit": {
+    "colour_distribution": {
+      "Green": 1377,
+      "Green+Violet": 352,
+      "Red": 1345,
+      "Red+Violet": 351
+    },
+    "digit_distribution": {
+      "0": 351,
+      "1": 348,
+      "2": 319,
+      "3": 356,
+      "4": 329,
+      "5": 352,
+      "6": 354,
+      "7": 343,
+      "8": 343,
+      "9": 330
+    },
+    "digit_percentages": {
+      "0": 10.25,
+      "1": 10.16,
+      "2": 9.31,
+      "3": 10.39,
+      "4": 9.61,
+      "5": 10.28,
+      "6": 10.34,
+      "7": 10.01,
+      "8": 10.01,
+      "9": 9.64
+    },
+    "pass_status": true,
+    "period_id_format_errors": 0,
+    "rule_violations": 0,
+    "sequence_continuity_errors": 0,
+    "size_distribution": {
+      "Big": 1722,
+      "Small": 1703
+    },
+    "total_rows_audited": 3425
+  },
+  "pass2_batch7_ingestion_and_visual_audit": {
+    "accuracy_rate": 100.0,
+    "batch_audited": "Batch 7 (sequences 3211 to 3425, 215 new rounds; 406 total extracted rounds)",
+    "classification_errors": 0,
+    "colour_mismatches": 0,
+    "details": [
+      {
+        "expected": "0 Red+Violet Small",
+        "metric": "V=158px, R=177px (Dual hue verified)",
+        "ocr_size": "Small",
+        "period_id": "20261024100051306",
+        "seq": 3223,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.45 (2).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:23:00",
+        "visual_detected": "0 Red+Violet Small",
+        "yc": 1030
+      },
+      {
+        "expected": "0 Red+Violet Small",
+        "metric": "V=164px, R=181px (Dual hue verified)",
+        "ocr_size": "Small",
+        "period_id": "20261024100051512",
+        "seq": 3419,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.55 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 18:06:00",
+        "visual_detected": "0 Red+Violet Small",
+        "yc": 1147
+      },
+      {
+        "expected": "1 Green Small",
+        "metric": "w=13px, h=28px (w<=17)",
+        "ocr_size": "Small",
+        "period_id": "20261024100051295",
+        "seq": 3212,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.46 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:17:30",
+        "visual_detected": "1 Green Small",
+        "yc": 1093
+      },
+      {
+        "expected": "1 Green Small",
+        "metric": "w=13px, h=29px (w<=17)",
+        "ocr_size": "Small",
+        "period_id": "20261024100051492",
+        "seq": 3399,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.54.jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 17:56:00",
+        "visual_detected": "1 Green Small",
+        "yc": 1147
+      },
+      {
+        "expected": "2 Red Small",
+        "metric": "BL_fill=58px, w=19px, h=28px",
+        "ocr_size": "Small",
+        "period_id": "20261024100051300",
+        "seq": 3217,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.46 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:20:00",
+        "visual_detected": "2 Red Small",
+        "yc": 781
+      },
+      {
+        "expected": "2 Red Small",
+        "metric": "BL_fill=59px, w=19px, h=28px",
+        "ocr_size": "Small",
+        "period_id": "20261024100051515",
+        "seq": 3422,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.55 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 18:07:30",
+        "visual_detected": "2 Red Small",
+        "yc": 960
+      },
+      {
+        "expected": "3 Green Small",
+        "metric": "w=20px, h=29px (w<=25)",
+        "ocr_size": "Small",
+        "period_id": "20261024100051309",
+        "seq": 3226,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.45 (2).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:24:30",
+        "visual_detected": "3 Green Small",
+        "yc": 843
+      },
+      {
+        "expected": "3 Green Small",
+        "metric": "w=20px, h=29px (w<=25)",
+        "ocr_size": "Small",
+        "period_id": "20261024100051511",
+        "seq": 3418,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.55 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 18:05:30",
+        "visual_detected": "3 Green Small",
+        "yc": 1209
+      },
+      {
+        "expected": "4 Red Small",
+        "metric": "BL_fill=15px, w=20px, h=28px",
+        "ocr_size": "Small",
+        "period_id": "20261024100051358",
+        "seq": 3265,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.48 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:49:00",
+        "visual_detected": "4 Red Small",
+        "yc": 843
+      },
+      {
+        "expected": "4 Red Small",
+        "metric": "BL_fill=10px, w=20px, h=28px",
+        "ocr_size": "Small",
+        "period_id": "20261024100051510",
+        "seq": 3417,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.55 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 18:05:00",
+        "visual_detected": "4 Red Small",
+        "yc": 1270
+      },
+      {
+        "expected": "5 Green+Violet Big",
+        "metric": "V=154px, G=170px (Dual hue verified)",
+        "ocr_size": "Big",
+        "period_id": "20261024100051356",
+        "seq": 3263,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.48 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:48:00",
+        "visual_detected": "5 Green+Violet Big",
+        "yc": 968
+      },
+      {
+        "expected": "5 Green+Violet Big",
+        "metric": "V=147px, G=177px (Dual hue verified)",
+        "ocr_size": "Big",
+        "period_id": "20261024100051509",
+        "seq": 3416,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.55 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 18:04:30",
+        "visual_detected": "5 Green+Violet Big",
+        "yc": 1333
+      },
+      {
+        "expected": "6 Red Big",
+        "metric": "TR_density=25.0%, w=19px, h=28px",
+        "ocr_size": "Big",
+        "period_id": "20261024100051328",
+        "seq": 3235,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.46 (2).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:34:00",
+        "visual_detected": "6 Red Big",
+        "yc": 906
+      },
+      {
+        "expected": "6 Red Big",
+        "metric": "TR_density=20.3%, w=19px, h=28px",
+        "ocr_size": "Big",
+        "period_id": "20261024100051502",
+        "seq": 3409,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.54 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 18:01:00",
+        "visual_detected": "6 Red Big",
+        "yc": 1147
+      },
+      {
+        "expected": "7 Green Big",
+        "metric": "TL_fill=2px, w=20px, h=29px",
+        "ocr_size": "Big",
+        "period_id": "20261024100051304",
+        "seq": 3221,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.45 (2).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:22:00",
+        "visual_detected": "7 Green Big",
+        "yc": 1154
+      },
+      {
+        "expected": "7 Green Big",
+        "metric": "TL_fill=7px, w=20px, h=29px",
+        "ocr_size": "Big",
+        "period_id": "20261024100051494",
+        "seq": 3401,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.54.jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 17:57:00",
+        "visual_detected": "7 Green Big",
+        "yc": 1022
+      },
+      {
+        "expected": "8 Red Big",
+        "metric": "TR_density=75.0%, w=18px, h=28px",
+        "ocr_size": "Big",
+        "period_id": "20261024100051307",
+        "seq": 3224,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.45 (2).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:23:30",
+        "visual_detected": "8 Red Big",
+        "yc": 968
+      },
+      {
+        "expected": "8 Red Big",
+        "metric": "TR_density=78.1%, w=18px, h=28px",
+        "ocr_size": "Big",
+        "period_id": "20261024100051518",
+        "seq": 3425,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.55 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 18:09:00",
+        "visual_detected": "8 Red Big",
+        "yc": 773
+      },
+      {
+        "expected": "9 Green Big",
+        "metric": "TL_fill=63px, w=20px, h=29px",
+        "ocr_size": "Big",
+        "period_id": "20261024100051310",
+        "seq": 3227,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.45 (2).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 16:25:00",
+        "visual_detected": "9 Green Big",
+        "yc": 781
+      },
+      {
+        "expected": "9 Green Big",
+        "metric": "TL_fill=64px, w=20px, h=28px",
+        "ocr_size": "Big",
+        "period_id": "20261024100051500",
+        "seq": 3407,
+        "source_file": "WhatsApp Image 2026-10-24 at 18.11.54 (1).jpeg",
+        "status": "PASS",
+        "timestamp": "2026-10-24 18:00:00",
+        "visual_detected": "9 Green Big",
+        "yc": 1270
+      }
+    ],
+    "digit_coverage": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 2,
+      "7": 2,
+      "8": 2,
+      "9": 2
+    },
+    "new_rounds_audit": {
+      "documented_gap": {
+        "duration": "0:05:00",
+        "gap_id": 16,
+        "missing_rounds": 10,
+        "preceding_period_id": "20261024100051310",
+        "resuming_period_id": "20261024100051321"
+      },
+      "new_rounds_count": 215,
+      "pass_status": true,
+      "period_id_range": [
+        "20261024100051294",
+        "20261024100051518"
+      ],
+      "sequence_no_range": [
+        3211,
+        3425
+      ],
+      "timestamp_interval_seconds": 30
+    },
+    "overlap_audit": {
+      "discrepancies_found": 0,
+      "overlapping_rounds_count": 191,
+      "pass_status": true,
+      "period_id_range": [
+        "20261024100051102",
+        "20261024100051293"
+      ]
+    },
+    "six_vs_eight_audit": {
+      "certified_zero_6_8_errors": true,
+      "digit_6_count": 33,
+      "digit_6_tr_density_mean_pct": 24.6,
+      "digit_6_tr_density_range_pct": [
+        20.3,
+        26.6
+      ],
+      "digit_6_tr_density_std_pct": 2.1,
+      "digit_8_count": 43,
+      "digit_8_tr_density_mean_pct": 77.5,
+      "digit_8_tr_density_range_pct": [
+        75.0,
+        79.7
+      ],
+      "digit_8_tr_density_std_pct": 1.3,
+      "overlap_or_ambiguity": false,
+      "separation_gap_pct": 48.4,
+      "total_big_red_in_batch7": 76
+    },
+    "size_label_mismatches": 0,
+    "spot_check_sample_size": 20,
+    "two_vs_four_audit": {
+      "certified_zero_2_4_errors": true,
+      "digit_2_bl_fill_mean_px": 58.3,
+      "digit_2_bl_fill_range_px": [
+        52,
+        64
+      ],
+      "digit_2_bl_fill_std_px": 2.0,
+      "digit_2_count": 50,
+      "digit_4_bl_fill_mean_px": 10.7,
+      "digit_4_bl_fill_range_px": [
+        8,
+        18
+      ],
+      "digit_4_bl_fill_std_px": 3.1,
+      "digit_4_count": 34,
+      "overlap_or_ambiguity": false,
+      "separation_gap_px": 34,
+      "total_small_red_in_batch7": 84
+    },
+    "zero_classification_errors_certified": true
+  },
+  "pass3_statistical_tests": {
+    "chi_square_uniform": {
+      "degrees_of_freedom": 9,
+      "is_uniform": true,
+      "p_value": 0.9059,
+      "statistic": 4.0832
+    },
+    "colour_distribution": {
+      "Green": 1377,
+      "Green+Violet": 352,
+      "Red": 1345,
+      "Red+Violet": 351
+    },
+    "digit_distribution": {
+      "0": 351,
+      "1": 348,
+      "2": 319,
+      "3": 356,
+      "4": 329,
+      "5": 352,
+      "6": 354,
+      "7": 343,
+      "8": 343,
+      "9": 330
+    },
+    "digit_percentages": {
+      "0": 10.25,
+      "1": 10.16,
+      "2": 9.31,
+      "3": 10.39,
+      "4": 9.61,
+      "5": 10.28,
+      "6": 10.34,
+      "7": 10.01,
+      "8": 10.01,
+      "9": 9.64
+    },
+    "first_order_transition_matrix": {
+      "P_Big_to_Big": 0.5044,
+      "P_Big_to_Small": 0.4956,
+      "P_Small_to_Big": 0.5024,
+      "P_Small_to_Small": 0.4976,
+      "counts": {
+        "Big_to_Big": 864,
+        "Big_to_Small": 849,
+        "Small_to_Big": 851,
+        "Small_to_Small": 843
+      }
+    },
+    "size_distribution": {
+      "big": 1722,
+      "big_pct": 50.28,
+      "chi_square": 0.1054,
+      "p_value": 0.4956,
+      "small": 1703,
+      "small_pct": 49.72
+    },
+    "streak_analysis": {
+      "longest_big_streak": 11,
+      "longest_green_family_streak": 11,
+      "longest_number_repeat": {
+        "digit": 5,
+        "end_seq": 683,
+        "length": 4,
+        "start_seq": 680
+      },
+      "longest_pure_green_streak": 8,
+      "longest_pure_red_streak": 13,
+      "longest_red_family_streak": 13,
+      "longest_small_streak": 9
+    },
+    "total_rows": 3425
+  },
+  "raw_csv_path": "project_reports\\colour_raw_data_v8.csv",
+  "total_rows_in_dataset": 3425
+}

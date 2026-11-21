@@ -1,0 +1,9 @@
+import openpyxl
+
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v3.xlsx", data_only=True)
+for sname in ["Audit", "ID_Audit"]:
+    ws = wb[sname]
+    print(f"\n--- {sname} ---")
+    for row in ws.iter_rows(values_only=True):
+        if any(row):
+            print("  ", [str(x) for x in row if x is not None])

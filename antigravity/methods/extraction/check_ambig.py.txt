@@ -1,0 +1,38 @@
+import cv2
+import numpy as np
+
+def to_ascii(im, title):
+    print(f"\n--- {title} ---")
+    gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
+    small = cv2.resize(gray, (20, 20))
+    for row in small:
+        line = "".join(["#" if val < 200 else "." for val in row])
+        print(line)
+
+zip_dir = r"extraction\extracted_zip"
+img_00 = cv2.imread(zip_dir + r"\WhatsApp Image 2026-10-23 at 09.34.00.jpeg")
+img_59 = cv2.imread(zip_dir + r"\WhatsApp Image 2026-10-23 at 09.33.59.jpeg")
+
+# In 09.34.00.jpeg, find where 52084 and 52090 are
+# Let's inspect the crops
+# We can find y of 52084 and 52090 in 09.34.00.jpeg
+import asyncio
+from PIL import Image
+import winocr
+
+async def main():
+    for f in ["WhatsApp Image 2026-10-23 at 09.34.00.jpeg", "WhatsApp Image 2026-10-23 at 09.33.59.jpeg"]:
+        im = cv2.imread(zip_dir + "\\" + f)
+        pid_strip = im[580:1350, 45:280]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        for line in res.lines:
+            txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0")
+            for target in ["52084", "52090"]:
+                if target in txt:
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    yc = int(round(580 + y_rel))
+                    crop = im[yc-20:yc+20, 345:385]
+                    to_ascii(crop, f"{f} - PID {target}")
+
+asyncio.run(main())

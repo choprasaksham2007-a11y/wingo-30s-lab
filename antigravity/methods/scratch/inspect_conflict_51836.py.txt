@@ -1,0 +1,29 @@
+import cv2, os, numpy as np, json
+
+b8_dir = r"extraction\extracted_zip_batch8"
+with open(r"extraction\raw_obs_batch8.json", "r") as f:
+    obs = json.load(f)
+
+pid = "20261024100051836"
+items = obs[pid]
+print(f"Inspecting {len(items)} observations for PID {pid}:")
+
+for it in items:
+    fname = it['file']
+    yc = it['yc']
+    im = cv2.imread(os.path.join(b8_dir, fname))
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords = np.argwhere(r_mask > 0)
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+    h, w = glyph.shape
+    top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+    tr_fill = cv2.countNonZero(top_right_box)
+    box_area = top_right_box.shape[0] * top_right_box.shape[1]
+    pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+    print(f"\n--- File: {fname} (yc={yc}, glyph={h}x{w}, tr_pct={pct:.1f}%) ---")
+    for row in glyph:
+        print("".join(["#" if p > 0 else "." for p in row]))

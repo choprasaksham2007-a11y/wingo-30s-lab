@@ -1,0 +1,68 @@
+import openpyxl, math
+from collections import Counter
+from scipy import stats
+
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v7.xlsx", data_only=True)
+ws = wb['Raw_Data']
+
+nums = [ws.cell(row=r, column=4).value for r in range(2, ws.max_row+1)]
+cols = [ws.cell(row=r, column=5).value for r in range(2, ws.max_row+1)]
+sizes = [ws.cell(row=r, column=6).value for r in range(2, ws.max_row+1)]
+
+N = len(nums)
+expected = N / 10.0
+c_nums = Counter(nums)
+
+# Chi-squared test for digits
+obs_counts = [c_nums[d] for d in range(10)]
+exp_counts = [expected] * 10
+chi2_stat, p_val = stats.chisquare(obs_counts, exp_counts)
+
+print(f"Total rounds audited: {N}")
+print(f"Chi-squared statistic: {chi2_stat:.4f}, p-value: {p_val:.4f}")
+if p_val > 0.05:
+    print("Verdict: Digits 0-9 are completely uniform and fair (p > 0.05).")
+else:
+    print("Verdict: Distribution deviates from pure uniformity.")
+
+# Calculate max streaks
+def get_streak_details(lst):
+    streaks = []
+    cur_s = 1
+    cur_val = lst[0]
+    for i in range(1, len(lst)):
+        if lst[i] == cur_val:
+            cur_s += 1
+        else:
+            streaks.append((cur_val, cur_s))
+            cur_s = 1
+            cur_val = lst[i]
+    streaks.append((cur_val, cur_s))
+    
+    max_streak = max(streaks, key=lambda x: x[1])
+    return max_streak, Counter([s[1] for s in streaks])
+
+max_bs, dist_bs = get_streak_details(sizes)
+max_col, dist_col = get_streak_details(cols)
+
+print(f"\nMax Big/Small Streak: {max_bs[1]} consecutive rounds of '{max_bs[0]}'")
+print(f"Max Colour Streak: {max_col[1]} consecutive rounds of '{max_col[0]}'")
+
+# First-order Markov Transition Matrix for Size
+bs_trans = Counter([(sizes[i], sizes[i+1]) for i in range(len(sizes)-1)])
+print("\nFirst-Order Transition Probabilities (Big/Small):")
+p_bb = bs_trans[('Big', 'Big')] / (bs_trans[('Big', 'Big')] + bs_trans[('Big', 'Small')])
+p_bs = bs_trans[('Big', 'Small')] / (bs_trans[('Big', 'Big')] + bs_trans[('Big', 'Small')])
+p_ss = bs_trans[('Small', 'Small')] / (bs_trans[('Small', 'Small')] + bs_trans[('Small', 'Big')])
+p_sb = bs_trans[('Small', 'Big')] / (bs_trans[('Small', 'Small')] + bs_trans[('Small', 'Big')])
+print(f"   P(Big -> Big):   {p_bb:.4f} ({p_bb*100:.1f}%)")
+print(f"   P(Big -> Small): {p_bs:.4f} ({p_bs*100:.1f}%)")
+print(f"   P(Small -> Small): {p_ss:.4f} ({p_ss*100:.1f}%)")
+print(f"   P(Small -> Big):   {p_sb:.4f} ({p_sb*100:.1f}%)")
+
+# Check for duplicate consecutive identical rows (number, color, size, but distinct PID)
+rep_runs = 0
+for i in range(len(nums)-1):
+    if nums[i] == nums[i+1]:
+        rep_runs += 1
+print(f"\nConsecutive identical number repeat rate: {rep_runs}/{N-1} ({rep_runs/(N-1)*100:.2f}%) [Theoretical: 10.00%]")

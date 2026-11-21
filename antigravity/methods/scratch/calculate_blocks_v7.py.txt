@@ -1,0 +1,114 @@
+import openpyxl, json, sys
+sys.path.append(r"scratch")
+sys.stdout.reconfigure(encoding='utf-8')
+from audit_b6_6_vs_8 import audit_results
+
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v6.xlsx")
+ws = wb['Raw_Data']
+
+rows = []
+for r in range(2, ws.max_row+1):
+    pid = str(ws.cell(row=r, column=2).value)
+    ts = str(ws.cell(row=r, column=3).value)
+    num = ws.cell(row=r, column=4).value
+    col = ws.cell(row=r, column=5).value
+    sz = ws.cell(row=r, column=6).value
+    orig_col = ws.cell(row=r, column=7).value
+    note = ws.cell(row=r, column=8).value
+    rows.append({
+        'pid': pid, 'ts': ts, 'num': num, 'col': col, 'sz': sz, 'orig_col': orig_col, 'note': note
+    })
+
+with open(r"extraction\reconciled_batch6.json", "r") as f:
+    b6 = json.load(f)
+
+for p in b6:
+    if p in audit_results:
+        d = audit_results[p]['final_d']
+        b6[p]['number'] = d
+        b6[p]['colour'] = 'Red'
+        b6[p]['size'] = 'Big'
+
+for p in sorted(b6.keys()):
+    v = b6[p]
+    rows.append({
+        'pid': p,
+        'ts': v['timestamp'],
+        'num': v['number'],
+        'col': v['colour'],
+        'sz': v['size'],
+        'orig_col': v['colour'],
+        'note': 'Batch 6 extraction verified'
+    })
+
+for i, r in enumerate(rows, 1):
+    r['seq'] = i
+
+def get_day_round(pid):
+    suffix = int(pid[-5:]) - 50000
+    day = pid[:8]
+    return day, suffix
+
+blocks = []
+cur_block = [rows[0]]
+
+for i in range(1, len(rows)):
+    prev_day, prev_rnd = get_day_round(rows[i-1]['pid'])
+    curr_day, curr_rnd = get_day_round(rows[i]['pid'])
+    
+    is_step = False
+    if prev_day == curr_day and curr_rnd == prev_rnd + 1:
+        is_step = True
+    elif prev_rnd == 2880 and curr_rnd == 1:
+        is_step = True
+        
+    if is_step:
+        cur_block.append(rows[i])
+    else:
+        blocks.append(cur_block)
+        cur_block = [rows[i]]
+blocks.append(cur_block)
+
+print(f"Total Blocks: {len(blocks)}")
+for b_idx, b in enumerate(blocks, 1):
+    seq_s = b[0]['seq']
+    seq_e = b[-1]['seq']
+    cnt = len(b)
+    pid_s = b[0]['pid']
+    pid_e = b[-1]['pid']
+    t_s = b[0]['ts']
+    t_e = b[-1]['ts']
+    print(f"Block {b_idx:02d}: Seqs {seq_s:4d}..{seq_e:4d} | Rounds: {cnt:4d} | PIDs: {pid_s}..{pid_e} | Time: {t_s} -> {t_e}")
+
+# Calculate gaps
+gaps = []
+for i in range(len(blocks) - 1):
+    b1 = blocks[i]
+    b2 = blocks[i+1]
+    p_last = b1[-1]['pid']
+    p_next = b2[0]['pid']
+    t_last = b1[-1]['ts']
+    t_next = b2[0]['ts']
+    
+    d1, r1 = get_day_round(p_last)
+    d2, r2 = get_day_round(p_next)
+    
+    if d1 == d2:
+        missing = r2 - r1 - 1
+    else:
+        missing = (2880 - r1) + (r2 - 1)
+        
+    gaps.append({
+        'gap_idx': i + 1,
+        'prec_pid': p_last,
+        'prec_time': t_last,
+        'res_pid': p_next,
+        'res_time': t_next,
+        'missing_rounds': missing,
+        'block_before': i + 1,
+        'block_after': i + 2
+    })
+
+print(f"\nTotal Gaps: {len(gaps)}")
+for g in gaps:
+    print(f"Gap {g['gap_idx']:02d}: {g['prec_pid']} ({g['prec_time']}) -> {g['res_pid']} ({g['res_time']}) | Missing: {g['missing_rounds']:4d} rounds | Between Block {g['block_before']} and {g['block_after']}")

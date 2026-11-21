@@ -1,0 +1,12 @@
+from unified_pipeline import build_unified_dataset
+from src.ml_dataset_builder import build_ml_dataset
+
+records, audits, gaps = build_unified_dataset()
+ml_rows = build_ml_dataset(records)
+
+print(f"Total ML Training Samples generated: {len(ml_rows)}")
+if ml_rows:
+    print(f"Sample 1: Target={ml_rows[0]['period_id']} (target num={ml_rows[0]['target_number']})")
+    print(f"  prev_1: num={ml_rows[0]['previous_1_number']}, col={ml_rows[0]['previous_1_colour']}, size={ml_rows[0]['previous_1_size']}")
+    print(f"  prev_5: num={ml_rows[0]['previous_5_number']}, col={ml_rows[0]['previous_5_colour']}, size={ml_rows[0]['previous_5_size']}")
+    print(f"Last Sample: Target={ml_rows[-1]['period_id']} (target num={ml_rows[-1]['target_number']})")

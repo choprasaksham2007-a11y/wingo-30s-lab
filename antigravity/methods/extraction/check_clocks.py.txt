@@ -1,0 +1,24 @@
+import cv2, os, asyncio, winocr, glob
+from PIL import Image
+
+b1_dir = r"extraction\extracted_zip"
+b2_dir = r"extraction\extracted_zip_batch2"
+
+async def check_clocks(directory, label):
+    files = sorted(glob.glob(os.path.join(directory, "*.jpeg")))
+    print(f"=== {label} (Total {len(files)} files) ===")
+    for idx in [0, 5, len(files)//2, len(files)-1]:
+        if idx >= len(files): continue
+        f = files[idx]
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        top_crop = im[0:100, 0:300]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(top_crop, cv2.COLOR_BGR2RGB)))
+        txt = " ".join([w.text for l in res.lines for w in l.words])
+        print(f"{fname}: Clock OCR = '{txt}'")
+
+async def main():
+    await check_clocks(b1_dir, "BATCH 1 (OLD)")
+    await check_clocks(b2_dir, "BATCH 2 (NEW)")
+
+asyncio.run(main())

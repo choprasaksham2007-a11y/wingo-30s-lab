@@ -1,0 +1,153 @@
+"""
+Enhanced Line-Aligned Precision Extractor using tight templates and sliding window matching.
+"""
+import os
+import glob
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+import numpy as np
+import pickle
+from src.schema import RawObservation
+from src.color_rules import derive_size_from_number, derive_colour_from_number
+
+zip_dir = r"extraction\extracted_zip"
+tight_templates = np.load(r"extraction\tight_templates.npy", allow_pickle=True).item()
+
+def classify_sliding(num_search_region, expected_size=None):
+    best_digit = None
+    best_score = -1.0
+    for digit, tpl in tight_templates.items():
+        # Match template over sliding window
+        res = cv2.matchTemplate(num_search_region, tpl, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        
+        # Slight bonus if size agrees with domain rule
+        rule_size = derive_size_from_number(digit)
+        score = max_val
+        if expected_size and rule_size == expected_size:
+            score += 0.03
+            
+        if score > best_score:
+            best_score = score
+            best_digit = digit
+            
+    return best_digit, best_score
+
+def detect_dot(img, yc):
+    dot_crop = img[yc-25:yc+25, 600:670]
+    hsv = cv2.cvtColor(dot_crop, cv2.COLOR_BGR2HSV)
+    
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    total_color = g_cnt + r_cnt + v_cnt
+    if total_color > 700:
+        return None, True, "Dot obscured by floating icon"
+        
+    if v_cnt > 100 and r_cnt > 100:
+        return "Red+Violet", False, "Direct dot visible"
+    elif v_cnt > 100 and g_cnt > 100:
+        return "Green+Violet", False, "Direct dot visible"
+    elif r_cnt > 150:
+        return "Red", False, "Direct dot visible"
+    elif g_cnt > 150:
+        return "Green", False, "Direct dot visible"
+    elif v_cnt > 150:
+        return "Violet", False, "Direct dot visible"
+    elif total_color < 50:
+        return None, True, "Dot not detected"
+    else:
+        return None, True, "Uncertain dot pixels"
+
+async def extract_screenshot_v2(file_path):
+    img = cv2.imread(file_path)
+    fname = os.path.basename(file_path)
+    
+    # 1. OCR Period ID strip
+    pid_strip = img[580:1350, 45:280]
+    pil_pid = Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))
+    res_pid = await winocr.recognize_pil(pil_pid)
+    
+    # 2. OCR Big/Small strip
+    bs_strip = img[580:1350, 460:570]
+    pil_bs = Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB))
+    res_bs = await winocr.recognize_pil(pil_bs)
+    
+    bss_found = []
+    for line in res_bs.lines:
+        txt = " ".join([w.text.strip() for w in line.words])
+        if "Big" in txt or "Small" in txt:
+            val = "Big" if "Big" in txt else "Small"
+            w_y = line.words[0].bounding_rect.y + line.words[0].bounding_rect.height / 2.0
+            bss_found.append((w_y, val))
+            
+    observations = []
+    
+    for line in res_pid.lines:
+        line_txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+        digits = "".join([c for c in line_txt if c.isdigit()])
+        if len(digits) != 17:
+            continue
+            
+        w0 = line.words[0]
+        y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+        y_full = 580 + y_rel
+        yc = int(round(y_full))
+        
+        # Match Big/Small closest to y_rel
+        bs_val = None
+        min_bs_dist = 999.0
+        for b_y, b_txt in bss_found:
+            dist = abs(b_y - y_rel)
+            if dist < min_bs_dist and dist < 30:
+                min_bs_dist = dist
+                bs_val = b_txt
+                
+        # Number classification in search window (width 50, height 50)
+        num_search = img[yc-25:yc+25, 335:395]
+        num_val, num_score = classify_sliding(num_search, expected_size=bs_val)
+        
+        # Verify size with number
+        if bs_val is None and num_val is not None:
+            bs_val = derive_size_from_number(num_val)
+            
+        # Dot detection at exact yc
+        dot_color, is_occ, dot_notes = detect_dot(img, yc)
+        
+        observations.append(RawObservation(
+            source_screenshot=fname,
+            period_id=digits,
+            number=num_val,
+            big_small=bs_val,
+            colour=dot_color,
+            row_index_in_screenshot=None,
+            is_occluded=is_occ,
+            ocr_confidence=round(num_score * 100, 1),
+            notes=dot_notes
+        ))
+        
+    return observations
+
+async def run_v2():
+    files = sorted(glob.glob(os.path.join(zip_dir, "*.jpeg")))
+    print(f"Extracting {len(files)} screenshots with v2 sliding template precision...")
+    all_obs = []
+    for idx, f in enumerate(files):
+        obs = await extract_screenshot_v2(f)
+        all_obs.extend(obs)
+        if (idx + 1) % 25 == 0 or idx == len(files) - 1:
+            print(f"Extracted {idx+1}/{len(files)}: total observations = {len(all_obs)}")
+            
+    with open(r"extraction\data\aligned_v2_observations.pkl", "wb") as pf:
+        pickle.dump(all_obs, pf)
+    print("Saved aligned_v2_observations.pkl successfully!")
+
+if __name__ == "__main__":
+    asyncio.run(run_v2())

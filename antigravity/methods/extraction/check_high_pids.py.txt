@@ -1,0 +1,8 @@
+import json
+
+with open(r"extraction\scan_summary.json") as f:
+    data = json.load(f)
+
+# Sort by max PID
+for item in sorted(data, key=lambda x: x["max_pid"], reverse=True)[:10]:
+    print(f"{item['file']}: time='{item['time']}', page='{item['page']}', max_pid={item['max_pid']}, min_pid={item['min_pid']}")

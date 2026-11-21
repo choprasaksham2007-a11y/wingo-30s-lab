@@ -1,0 +1,35 @@
+import pandas as pd
+from datetime import datetime, timedelta
+
+# Check v7 dataset
+df = pd.read_excel(r'project_reports\Colour_Prediction_Dataset_v7.xlsx', sheet_name='Raw_Data')
+print('Columns:', df.columns.tolist())
+last_row = df.iloc[-1]
+print('--- DATASET LATEST ---')
+for col in df.columns:
+    print(f'{col}: {last_row[col]}')
+
+# Current live clock math
+now = datetime.now()
+print('\n--- LIVE CLOCK ---')
+print('Current Time:', now.strftime('%Y-%m-%d %H:%M:%S'))
+
+# Reset at 05:30:00 AM IST today
+reset_time = datetime(now.year, now.month, now.day, 5, 30, 0)
+diff_sec = (now - reset_time).total_seconds()
+current_round_offset = int(diff_sec // 30) + 1
+current_period_suffix = 50000 + current_round_offset
+
+round_start = reset_time + timedelta(seconds=(current_round_offset - 1)*30)
+round_end = reset_time + timedelta(seconds=current_round_offset*30)
+
+print(f'Current Active Round: 202610241000{current_period_suffix}')
+print(f'Active Window: {round_start.strftime("%H:%M:%S")} to {round_end.strftime("%H:%M:%S")}')
+
+prev_suffix = current_period_suffix - 1
+prev_end = round_start
+print(f'Just Finished Round: 202610241000{prev_suffix} (Ended at {prev_end.strftime("%H:%M:%S")})')
+
+next_suffix = current_period_suffix + 1
+next_start = round_end
+print(f'Next Round: 202610241000{next_suffix} (Starts at {next_start.strftime("%H:%M:%S")})')

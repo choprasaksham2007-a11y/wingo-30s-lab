@@ -1,0 +1,33 @@
+import cv2
+import asyncio
+import glob
+import os
+from PIL import Image
+import winocr
+import numpy as np
+
+zip_dir = r"extraction\extracted_zip"
+files = sorted(glob.glob(os.path.join(zip_dir, "*.jpeg")))
+
+async def find_zero():
+    templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+    for f in files[20:]:
+        img = cv2.imread(f)
+        crop = img[500:1430, 320:570]
+        pil_im = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
+        res = await winocr.recognize_pil(pil_im)
+        for line in res.lines:
+            for w in line.words:
+                txt = w.text.strip()
+                if txt == "0" and w.bounding_rect.x < 100:
+                    y = w.bounding_rect.y
+                    k = round((y - 100) / 76.6)
+                    if 0 <= k < 10:
+                        yc = int(617 + k * 76.6)
+                        templates[0] = img[yc-20:yc+20, 345:385]
+                        print(f"Found template for digit 0 in {os.path.basename(f)} row {k}")
+                        np.save(r"extraction\digit_templates.npy", templates)
+                        return
+    print("Zero not found by OCR yet")
+
+asyncio.run(find_zero())

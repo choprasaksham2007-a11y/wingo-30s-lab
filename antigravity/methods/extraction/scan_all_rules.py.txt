@@ -1,0 +1,98 @@
+import openpyxl
+
+excel_path = r"project_reports\Colour_Prediction_Dataset.xlsx"
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+ws_raw = wb["Raw_Data"]
+
+headers = [c.value for c in ws_raw[1]]
+seq_idx = headers.index("sequence_no")
+pid_idx = headers.index("Period ID")
+ts_idx = headers.index("timestamp")
+num_idx = headers.index("number")
+col_idx = headers.index("colour")
+size_idx = headers.index("size")
+
+EXPECTED_COLOUR = {
+    0: "Red+Violet",
+    1: "Green",
+    2: "Red",
+    3: "Green",
+    4: "Red",
+    5: "Green+Violet",
+    6: "Red",
+    7: "Green",
+    8: "Red",
+    9: "Green"
+}
+
+EXPECTED_SIZE = {
+    0: "Small",
+    1: "Small",
+    2: "Small",
+    3: "Small",
+    4: "Small",
+    5: "Big",
+    6: "Big",
+    7: "Big",
+    8: "Big",
+    9: "Big"
+}
+
+colour_mismatches = []
+size_mismatches = []
+invalid_numbers = []
+
+for row in ws_raw.iter_rows(min_row=2, values_only=True):
+    seq = row[seq_idx]
+    pid = row[pid_idx]
+    num = row[num_idx]
+    col = row[col_idx]
+    sz = row[size_idx]
+    
+    if num not in EXPECTED_COLOUR:
+        invalid_numbers.append((seq, pid, num))
+        continue
+        
+    exp_col = EXPECTED_COLOUR[num]
+    exp_sz = EXPECTED_SIZE[num]
+    
+    if col != exp_col:
+        colour_mismatches.append({
+            "seq": seq,
+            "pid": pid,
+            "number": num,
+            "current_col": col,
+            "expected_col": exp_col,
+            "current_size": sz,
+            "expected_size": exp_sz
+        })
+        
+    if sz != exp_sz:
+        size_mismatches.append({
+            "seq": seq,
+            "pid": pid,
+            "number": num,
+            "current_size": sz,
+            "expected_size": exp_sz
+        })
+
+print("=" * 70)
+print("SCAN OF ALL 1,260 ROWS IN RAW_DATA")
+print("=" * 70)
+print(f"Total rows scanned: {ws_raw.max_row - 1}")
+print(f"Invalid numbers:    {len(invalid_numbers)}")
+print(f"Size mismatches:    {len(size_mismatches)}")
+print(f"Colour mismatches:  {len(colour_mismatches)}")
+
+print("\nList of all rows with colour mismatches:")
+for m in colour_mismatches:
+    print(f"  Seq {m['seq']:4d} | PID: {m['pid']} | Num: {m['number']} | Col in file: {m['current_col']:10s} -> Expected: {m['expected_col']:12s} | Size: {m['current_size']}")
+
+print(f"\nSequence numbers of colour mismatches ({len(colour_mismatches)} total):")
+seqs_found = [m['seq'] for m in colour_mismatches]
+print(seqs_found)
+
+target_seqs = [528, 598, 647, 677, 695, 696, 716, 773, 876, 885, 895, 905, 915, 955, 965, 975, 985, 1006, 1026, 1036, 1095, 1105, 1123, 1163, 1222, 1232]
+print(f"\nMatches user's exact 26 sequence numbers? {seqs_found == target_seqs}")
+if seqs_found != target_seqs:
+    print("Difference:", set(seqs_found).symmetric_difference(set(target_seqs)))

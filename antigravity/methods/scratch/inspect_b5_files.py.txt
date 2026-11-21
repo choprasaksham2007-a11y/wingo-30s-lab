@@ -1,0 +1,11 @@
+import asyncio
+from scan_batch5 import scan_batch5_pids
+
+async def inspect():
+    sorted_pids, file_pids = await scan_batch5_pids()
+    for fname, fpids in sorted(file_pids.items()):
+        suffixes = sorted([int(p[-5:]) for p in fpids])
+        print(f"{fname}: {suffixes[0]} -> {suffixes[-1]} ({len(suffixes)} rounds)")
+
+if __name__ == '__main__':
+    asyncio.run(inspect())

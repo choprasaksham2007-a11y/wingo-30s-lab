@@ -1,0 +1,10 @@
+import openpyxl
+
+wb_v3 = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v3.xlsx", data_only=True)
+ws_v3 = wb_v3['Raw_Data']
+
+for r in range(2, 2137):
+    pid = str(ws_v3.cell(row=r, column=2).value)
+    if '50430' in pid or '50431' in pid:
+        row = [ws_v3.cell(row=r, column=c).value for c in range(1, 9)]
+        print(f"V3 Row {r}:", row)

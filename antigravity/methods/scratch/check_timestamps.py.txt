@@ -1,0 +1,36 @@
+import csv
+from datetime import datetime, timedelta
+
+uploaded_csv = r'project_reports\inputs\input_8a9e44d71a.csv'
+v15_csv = r'project_reports\colour_raw_data_v15.csv'
+
+with open(v15_csv, 'r', encoding='utf-8') as f:
+    v15_pids = set(r[1] for r in csv.reader(f))
+
+with open(uploaded_csv, 'r', encoding='utf-8', errors='replace') as f:
+    reader = csv.reader(f)
+    header = next(reader)
+    up_rows = list(reader)
+
+new_rows = [r for r in up_rows if r[0].strip() not in v15_pids]
+
+def get_timestamp(pid: str) -> str:
+    year = int(pid[:4])
+    month = int(pid[4:6])
+    day = int(pid[6:8])
+    suffix = int(pid[-5:])
+    base = datetime(year, month, day, 5, 30, 0)
+    dt = base + timedelta(seconds=(suffix - 50000) * 30)
+    return dt.strftime('%Y-%m-%d %H:%M:%S')
+
+print(f"Row 1 (PID={new_rows[0][0]}): Calculated TS = {get_timestamp(new_rows[0][0])} | api_serviceTime = {new_rows[0][14]}")
+# Check if api_serviceTime is epoch ms
+ts_epoch = int(new_rows[0][14]) / 1000.0
+# IST is UTC + 5:30
+dt_api = datetime.utcfromtimestamp(ts_epoch) + timedelta(hours=5, minutes=30)
+print(f"Row 1 api_serviceTime in IST: {dt_api}")
+
+print(f"Row 344 (PID={new_rows[-1][0]}): Calculated TS = {get_timestamp(new_rows[-1][0])} | api_serviceTime = {new_rows[-1][14]}")
+ts_epoch_last = int(new_rows[-1][14]) / 1000.0
+dt_api_last = datetime.utcfromtimestamp(ts_epoch_last) + timedelta(hours=5, minutes=30)
+print(f"Row 344 api_serviceTime in IST: {dt_api_last}")

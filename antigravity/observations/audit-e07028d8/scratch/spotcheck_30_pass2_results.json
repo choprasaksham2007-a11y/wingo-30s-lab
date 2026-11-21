@@ -1,0 +1,872 @@
+[
+  {
+    "best_digit": 1,
+    "best_score": 0.998,
+    "dot_pixels": {
+      "g": 296,
+      "r": 61,
+      "v": 0
+    },
+    "expected_score": 0.998,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Green",
+      "expected_num": 1,
+      "expected_sz": "Small",
+      "folder": "extracted_zip",
+      "pid": "20261022100052061",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.58 (1).jpeg",
+      "seq": 480
+    },
+    "matched_line": "20261022100052061",
+    "num_pixels": {
+      "g": 331,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 0,
+    "best_score": 0.995,
+    "dot_pixels": {
+      "g": 0,
+      "r": 313,
+      "v": 320
+    },
+    "expected_score": 0.995,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Red+Violet",
+      "expected_num": 0,
+      "expected_sz": "Small",
+      "folder": "extracted_zip",
+      "pid": "20261022100052081",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.58 (2).jpeg",
+      "seq": 500
+    },
+    "matched_line": "20261022100052081",
+    "num_pixels": {
+      "g": 0,
+      "r": 240,
+      "v": 261
+    },
+    "status": "verified",
+    "vis_col": "Red+Violet",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 9,
+    "best_score": 0.986,
+    "dot_pixels": {
+      "g": 295,
+      "r": 0,
+      "v": 0
+    },
+    "expected_score": 0.986,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Green",
+      "expected_num": 9,
+      "expected_sz": "Big",
+      "folder": "extracted_zip",
+      "pid": "20261022100052108",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.00 (2).jpeg",
+      "seq": 527
+    },
+    "matched_line": "20261022100052108",
+    "num_pixels": {
+      "g": 529,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 8,
+    "best_score": 0.995,
+    "dot_pixels": {
+      "g": 0,
+      "r": 356,
+      "v": 0
+    },
+    "expected_score": 0.995,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Red",
+      "expected_num": 8,
+      "expected_sz": "Big",
+      "folder": "extracted_zip",
+      "pid": "20261022100052110",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.00 (3).jpeg",
+      "seq": 529
+    },
+    "matched_line": "20261022100052110",
+    "num_pixels": {
+      "g": 0,
+      "r": 521,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 4,
+    "best_score": 0.994,
+    "dot_pixels": {
+      "g": 0,
+      "r": 2145,
+      "v": 0
+    },
+    "expected_score": 0.994,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Red",
+      "expected_num": 4,
+      "expected_sz": "Small",
+      "folder": "extracted_zip",
+      "pid": "20261022100052121",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.01.jpeg",
+      "seq": 540
+    },
+    "matched_line": "20261022100052121",
+    "num_pixels": {
+      "g": 0,
+      "r": 431,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 3,
+    "best_score": 0.999,
+    "dot_pixels": {
+      "g": 0,
+      "r": 2078,
+      "v": 0
+    },
+    "expected_score": 0.999,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Green",
+      "expected_num": 3,
+      "expected_sz": "Small",
+      "folder": "extracted_zip",
+      "pid": "20261022100052151",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.02.jpeg",
+      "seq": 570
+    },
+    "matched_line": "20261022100052151",
+    "num_pixels": {
+      "g": 517,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 6,
+    "best_score": 0.997,
+    "dot_pixels": {
+      "g": 0,
+      "r": 294,
+      "v": 0
+    },
+    "expected_score": 0.997,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Red",
+      "expected_num": 6,
+      "expected_sz": "Big",
+      "folder": "extracted_zip",
+      "pid": "20261022100052178",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.02 (2).jpeg",
+      "seq": 597
+    },
+    "matched_line": "20261022100052178",
+    "num_pixels": {
+      "g": 0,
+      "r": 466,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 2,
+    "best_score": 0.993,
+    "dot_pixels": {
+      "g": 0,
+      "r": 2454,
+      "v": 0
+    },
+    "expected_score": 0.993,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Red",
+      "expected_num": 2,
+      "expected_sz": "Small",
+      "folder": "extracted_zip",
+      "pid": "20261022100052242",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.04 (3).jpeg",
+      "seq": 660
+    },
+    "matched_line": "20261022100052242",
+    "num_pixels": {
+      "g": 0,
+      "r": 422,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": ""
+  },
+  {
+    "best_digit": 5,
+    "best_score": 0.989,
+    "dot_pixels": {
+      "g": 315,
+      "r": 0,
+      "v": 321
+    },
+    "expected_score": 0.989,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Green+Violet",
+      "expected_num": 5,
+      "expected_sz": "Big",
+      "folder": "extracted_zip",
+      "pid": "20261022100052282",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.34.06 (2).jpeg",
+      "seq": 700
+    },
+    "matched_line": "20261022100052282",
+    "num_pixels": {
+      "g": 254,
+      "r": 0,
+      "v": 226
+    },
+    "status": "verified",
+    "vis_col": "Green+Violet",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 7,
+    "best_score": 0.985,
+    "dot_pixels": {
+      "g": 297,
+      "r": 0,
+      "v": 0
+    },
+    "expected_score": 0.985,
+    "item": {
+      "batch": "Batch 1",
+      "expected_col": "Green",
+      "expected_num": 7,
+      "expected_sz": "Big",
+      "folder": "extracted_zip",
+      "pid": "20261022100052423",
+      "screenshot": "WhatsApp Image 2026-10-23 at 09.33.55 (1).jpeg",
+      "seq": 840
+    },
+    "matched_line": "20261022100052423",
+    "num_pixels": {
+      "g": 383,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 0,
+    "best_score": 0.993,
+    "dot_pixels": {
+      "g": 0,
+      "r": 1909,
+      "v": 0
+    },
+    "expected_score": 0.993,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Red+Violet",
+      "expected_num": 0,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050439",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.46.jpeg",
+      "seq": 1261
+    },
+    "matched_line": "20261023100050439",
+    "num_pixels": {
+      "g": 0,
+      "r": 243,
+      "v": 268
+    },
+    "status": "verified",
+    "vis_col": "Red+Violet",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 1,
+    "best_score": 0.996,
+    "dot_pixels": {
+      "g": 69,
+      "r": 950,
+      "v": 0
+    },
+    "expected_score": 0.996,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Green",
+      "expected_num": 1,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050440",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.46.jpeg",
+      "seq": 1262
+    },
+    "matched_line": "20261023100050440",
+    "num_pixels": {
+      "g": 321,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 2,
+    "best_score": 0.997,
+    "dot_pixels": {
+      "g": 0,
+      "r": 293,
+      "v": 0
+    },
+    "expected_score": 0.997,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Red",
+      "expected_num": 2,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050442",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.46.jpeg",
+      "seq": 1264
+    },
+    "matched_line": "20261023100050442",
+    "num_pixels": {
+      "g": 0,
+      "r": 419,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 3,
+    "best_score": 0.986,
+    "dot_pixels": {
+      "g": 0,
+      "r": 1451,
+      "v": 0
+    },
+    "expected_score": 0.986,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Green",
+      "expected_num": 3,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050443",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg",
+      "seq": 1265
+    },
+    "matched_line": "20261023100050443",
+    "num_pixels": {
+      "g": 503,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 4,
+    "best_score": 0.99,
+    "dot_pixels": {
+      "g": 0,
+      "r": 1032,
+      "v": 0
+    },
+    "expected_score": 0.99,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Red",
+      "expected_num": 4,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050450",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg",
+      "seq": 1272
+    },
+    "matched_line": "20261023100050450",
+    "num_pixels": {
+      "g": 0,
+      "r": 431,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 5,
+    "best_score": 0.977,
+    "dot_pixels": {
+      "g": 0,
+      "r": 1906,
+      "v": 0
+    },
+    "expected_score": 0.977,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Green+Violet",
+      "expected_num": 5,
+      "expected_sz": "Big",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050449",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg",
+      "seq": 1271
+    },
+    "matched_line": "20261023100050449",
+    "num_pixels": {
+      "g": 261,
+      "r": 0,
+      "v": 233
+    },
+    "status": "verified",
+    "vis_col": "Green+Violet",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 7,
+    "best_score": 0.987,
+    "dot_pixels": {
+      "g": 0,
+      "r": 1942,
+      "v": 0
+    },
+    "expected_score": 0.987,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Green",
+      "expected_num": 7,
+      "expected_sz": "Big",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050445",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg",
+      "seq": 1267
+    },
+    "matched_line": "20261023100050445",
+    "num_pixels": {
+      "g": 391,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 8,
+    "best_score": 0.993,
+    "dot_pixels": {
+      "g": 0,
+      "r": 314,
+      "v": 0
+    },
+    "expected_score": 0.993,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Red",
+      "expected_num": 8,
+      "expected_sz": "Big",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050446",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg",
+      "seq": 1268
+    },
+    "matched_line": "20261023100050446",
+    "num_pixels": {
+      "g": 0,
+      "r": 524,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 9,
+    "best_score": 0.993,
+    "dot_pixels": {
+      "g": 296,
+      "r": 0,
+      "v": 0
+    },
+    "expected_score": 0.993,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Green",
+      "expected_num": 9,
+      "expected_sz": "Big",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050457",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.51.jpeg",
+      "seq": 1279
+    },
+    "matched_line": "20261023100050457",
+    "num_pixels": {
+      "g": 530,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 3,
+    "best_score": 0.998,
+    "dot_pixels": {
+      "g": 0,
+      "r": 1906,
+      "v": 0
+    },
+    "expected_score": 0.998,
+    "item": {
+      "batch": "Batch 2",
+      "expected_col": "Green",
+      "expected_num": 3,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch2",
+      "pid": "20261023100050489",
+      "screenshot": "WhatsApp Image 2026-10-23 at 22.06.53.jpeg",
+      "seq": 1311
+    },
+    "matched_line": "20261023100050489",
+    "num_pixels": {
+      "g": 522,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 0,
+    "best_score": 0.926,
+    "dot_pixels": {
+      "g": 0,
+      "r": 250,
+      "v": 274
+    },
+    "expected_score": 0.926,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Red+Violet",
+      "expected_num": 0,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100051779",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.08.jpeg",
+      "seq": 1647
+    },
+    "matched_line": "20261023100051779",
+    "num_pixels": {
+      "g": 0,
+      "r": 238,
+      "v": 214
+    },
+    "status": "verified",
+    "vis_col": "Red+Violet",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 0,
+    "best_score": 0.928,
+    "dot_pixels": {
+      "g": 0,
+      "r": 247,
+      "v": 271
+    },
+    "expected_score": 0.389,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Green",
+      "expected_num": 1,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100051781",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.08.jpeg",
+      "seq": 1649
+    },
+    "matched_line": "20261023100051781",
+    "num_pixels": {
+      "g": 0,
+      "r": 241,
+      "v": 208
+    },
+    "status": "verified",
+    "vis_col": "Red+Violet",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 2,
+    "best_score": 0.93,
+    "dot_pixels": {
+      "g": 0,
+      "r": 261,
+      "v": 0
+    },
+    "expected_score": 0.93,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Red",
+      "expected_num": 2,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100052141",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.25.jpeg",
+      "seq": 2009
+    },
+    "matched_line": "20261023100052141",
+    "num_pixels": {
+      "g": 0,
+      "r": 367,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": ""
+  },
+  {
+    "best_digit": 7,
+    "best_score": 0.968,
+    "dot_pixels": {
+      "g": 271,
+      "r": 498,
+      "v": 0
+    },
+    "expected_score": 0.248,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Red",
+      "expected_num": 4,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100051773",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.08.jpeg",
+      "seq": 1641
+    },
+    "matched_line": "20261023100051773",
+    "num_pixels": {
+      "g": 334,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 5,
+    "best_score": 0.933,
+    "dot_pixels": {
+      "g": 253,
+      "r": 5,
+      "v": 269
+    },
+    "expected_score": 0.933,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Green+Violet",
+      "expected_num": 5,
+      "expected_sz": "Big",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100051774",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.08.jpeg",
+      "seq": 1642
+    },
+    "matched_line": "20261023100051774",
+    "num_pixels": {
+      "g": 224,
+      "r": 0,
+      "v": 190
+    },
+    "status": "verified",
+    "vis_col": "Green+Violet",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 8,
+    "best_score": 0.939,
+    "dot_pixels": {
+      "g": 0,
+      "r": 265,
+      "v": 0
+    },
+    "expected_score": 0.782,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Red",
+      "expected_num": 6,
+      "expected_sz": "Big",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100051778",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.08.jpeg",
+      "seq": 1646
+    },
+    "matched_line": "20261023100051778",
+    "num_pixels": {
+      "g": 0,
+      "r": 456,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 9,
+    "best_score": 0.947,
+    "dot_pixels": {
+      "g": 291,
+      "r": 352,
+      "v": 0
+    },
+    "expected_score": 0.584,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Green",
+      "expected_num": 7,
+      "expected_sz": "Big",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100051777",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.08.jpeg",
+      "seq": 1645
+    },
+    "matched_line": "20261023100051777",
+    "num_pixels": {
+      "g": 469,
+      "r": 0,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Green",
+    "vis_sz": "Big"
+  },
+  {
+    "best_digit": 2,
+    "best_score": 0.929,
+    "dot_pixels": {
+      "g": 0,
+      "r": 762,
+      "v": 0
+    },
+    "expected_score": 0.364,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Green",
+      "expected_num": 1,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100051823",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.10 (1).jpeg",
+      "seq": 1691
+    },
+    "matched_line": "20261023100051823",
+    "num_pixels": {
+      "g": 0,
+      "r": 369,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 2,
+    "best_score": 0.936,
+    "dot_pixels": {
+      "g": 0,
+      "r": 479,
+      "v": 0
+    },
+    "expected_score": 0.368,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Green",
+      "expected_num": 1,
+      "expected_sz": "Small",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100051973",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.16 (1).jpeg",
+      "seq": 1841
+    },
+    "matched_line": "20261023100051973",
+    "num_pixels": {
+      "g": 0,
+      "r": 362,
+      "v": 0
+    },
+    "status": "verified",
+    "vis_col": "Red",
+    "vis_sz": "Small"
+  },
+  {
+    "best_digit": 5,
+    "best_score": 0.939,
+    "dot_pixels": {
+      "g": 253,
+      "r": 0,
+      "v": 276
+    },
+    "expected_score": 0.939,
+    "item": {
+      "batch": "Batch 3",
+      "expected_col": "Green+Violet",
+      "expected_num": 5,
+      "expected_sz": "Big",
+      "folder": "extracted_zip_batch3",
+      "pid": "20261023100052268",
+      "screenshot": "WhatsApp Image 2026-10-24 at 00.27.30 (1).jpeg",
+      "seq": 2135
+    },
+    "matched_line": "20261023100052268",
+    "num_pixels": {
+      "g": 235,
+      "r": 0,
+      "v": 192
+    },
+    "status": "verified",
+    "vis_col": "Green+Violet",
+    "vis_sz": "Big"
+  }
+]

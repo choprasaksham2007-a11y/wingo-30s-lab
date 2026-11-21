@@ -1,0 +1,12 @@
+import openpyxl, os
+
+for path in [
+    r"project_reports\Colour_Prediction_Dataset_v4.xlsx",
+    r"project_reports\Colour_Prediction_Dataset_v3.xlsx"
+]:
+    wb = openpyxl.load_workbook(path, data_only=True)
+    print(f"\nVerifying {os.path.basename(path)}:")
+    print("Sheets:", wb.sheetnames)
+    print("Raw_Data max row:", wb['Raw_Data'].max_row - 1)
+    print("ML_Ready max row:", wb['ML_Ready'].max_row - 1)
+    print("Missing_Rounds max row:", wb['Missing_Rounds'].max_row - 1)

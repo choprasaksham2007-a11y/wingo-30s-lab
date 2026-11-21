@@ -1,0 +1,45 @@
+import openpyxl, json, cv2, os, asyncio, winocr
+from PIL import Image
+import numpy as np
+
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+ws = wb['Raw_Data']
+
+with open(r"scratch\audit_81_results.json", "r") as f:
+    res = json.load(f)
+
+changed_eights = [r for r in res if r.get("avg_tr", 0) < 50]
+print(f"Total changed eights (8 -> 6): {len(changed_eights)}")
+
+changed_seqs = set(r["seq"] for r in changed_eights)
+
+# Find all adjacent sequence numbers
+adjacent_seqs = set()
+for s in changed_seqs:
+    adjacent_seqs.add(s - 1)
+    adjacent_seqs.add(s + 1)
+
+adjacent_seqs = adjacent_seqs - changed_seqs # Exclude the changed ones themselves
+adjacent_seqs = sorted([s for s in adjacent_seqs if 1261 <= s <= 1640])
+print(f"Total adjacent rows to check: {len(adjacent_seqs)}")
+
+# Let's inspect their current values in Raw_Data
+adj_rows = []
+for r in range(2, ws.max_row + 1):
+    seq = ws.cell(row=r, column=1).value
+    if seq in adjacent_seqs:
+        pid = str(ws.cell(row=r, column=2).value)
+        num = ws.cell(row=r, column=4).value
+        col = ws.cell(row=r, column=5).value
+        sz = ws.cell(row=r, column=6).value
+        adj_rows.append({
+            "seq": seq,
+            "pid": pid,
+            "num": num,
+            "col": col,
+            "sz": sz
+        })
+
+print("Sample 10 adjacent rows:")
+for a in adj_rows[:10]:
+    print(a)

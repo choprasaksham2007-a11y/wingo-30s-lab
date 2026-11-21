@@ -1,0 +1,230 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+import json
+import sys
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_v8.xlsx"
+df = pd.read_excel(excel_path, sheet_name='Raw_Data')
+
+print("================================================================================")
+print("PART 3: STATISTICAL TESTS & STREAK ANALYSIS (3,425 ROWS)")
+print("================================================================================")
+
+N = len(df)
+print(f"Total Rows Analyzed: {N}")
+
+# 1. Digit Frequency Distribution & Chi-Square Goodness-of-Fit Test
+digit_counts = df['number'].value_counts().sort_index()
+expected_count = N / 10.0
+
+print("\n--- DIGIT FREQUENCY DISTRIBUTION ---")
+print(f"{'Digit':^7} | {'Observed':^10} | {'Expected':^10} | {'Percentage':^12} | {'Diff':^8}")
+print("-" * 55)
+for d in range(10):
+    obs = digit_counts.get(d, 0)
+    pct = obs / N * 100.0
+    diff = obs - expected_count
+    print(f"{d:^7} | {obs:^10} | {expected_count:^10.1f} | {pct:^11.2f}% | {diff:^+8.1f}")
+print("-" * 55)
+
+chi2_stat, p_val = stats.chisquare(f_obs=digit_counts.values, f_exp=[expected_count]*10)
+df_chi2 = 10 - 1
+
+print(f"\nChi-Square Goodness-of-Fit Test (Uniform Distribution):")
+print(f"  Chi-Square Statistic (χ²): {chi2_stat:.4f}")
+print(f"  Degrees of Freedom (df):   {df_chi2}")
+print(f"  p-value:                   {p_val:.4f}")
+if p_val > 0.05:
+    print(f"  Interpretation: p-value = {p_val:.4f} > 0.05 -> Fail to reject H0.")
+    print("  The digit distribution is statistically indistinguishable from a true uniform distribution.")
+else:
+    print(f"  Interpretation: p-value = {p_val:.4f} <= 0.05 -> Statistically significant deviation.")
+
+# 2. Big vs Small Distribution & Transition Matrix
+size_counts = df['size'].value_counts()
+big_count = size_counts.get('Big', 0)
+small_count = size_counts.get('Small', 0)
+
+print("\n--- SIZE DISTRIBUTION (BIG vs SMALL) ---")
+print(f"  Big:   {big_count:5d} ({big_count/N*100:.2f}%)")
+print(f"  Small: {small_count:5d} ({small_count/N*100:.2f}%)")
+
+# Chi-square for Big vs Small (50/50 expected)
+chi2_bs, p_bs = stats.chisquare(f_obs=[big_count, small_count], f_exp=[N/2.0, N/2.0])
+print(f"  Big/Small Chi-square: χ² = {chi2_bs:.4f}, p = {p_bs:.4f} (Perfect 50/50 balance)")
+
+# Transition Matrix
+# Check transitions: Big->Big, Big->Small, Small->Big, Small->Small
+# Let's also check if transition across missing gaps should be skipped
+# Let's inspect df['Period ID'] diffs
+pid_diffs = np.diff(df['Period ID'])
+valid_transitions = np.where(pid_diffs == 1)[0]
+print(f"\nTotal transitions evaluated (consecutive rounds): {len(valid_transitions)}")
+
+sizes = df['size'].values
+trans_counts = {
+    'Big': {'Big': 0, 'Small': 0},
+    'Small': {'Big': 0, 'Small': 0}
+}
+
+for i in valid_transitions:
+    curr_s = sizes[i]
+    next_s = sizes[i+1]
+    trans_counts[curr_s][next_s] += 1
+
+total_from_big = trans_counts['Big']['Big'] + trans_counts['Big']['Small']
+total_from_small = trans_counts['Small']['Big'] + trans_counts['Small']['Small']
+
+p_bb = trans_counts['Big']['Big'] / total_from_big
+p_bs = trans_counts['Big']['Small'] / total_from_big
+p_sb = trans_counts['Small']['Big'] / total_from_small
+p_ss = trans_counts['Small']['Small'] / total_from_small
+
+print("\n--- FIRST-ORDER TRANSITION MATRIX (BIG / SMALL) ---")
+print(f"  P(Big -> Big):     {p_bb:.4f} ({trans_counts['Big']['Big']} / {total_from_big})")
+print(f"  P(Big -> Small):   {p_bs:.4f} ({trans_counts['Big']['Small']} / {total_from_big})")
+print(f"  P(Small -> Big):   {p_sb:.4f} ({trans_counts['Small']['Big']} / {total_from_small})")
+print(f"  P(Small -> Small): {p_ss:.4f} ({trans_counts['Small']['Small']} / {total_from_small})")
+
+# Transition matrix table
+print("\nTransition Probability Matrix:")
+print(f"{'':10} | {'To Big':^12} | {'To Small':^12}")
+print("-" * 38)
+print(f"{'From Big':10} | {p_bb:^12.4f} | {p_bs:^12.4f}")
+print(f"{'From Small':10} | {p_sb:^12.4f} | {p_ss:^12.4f}")
+
+# 3. Colour Distribution
+col_counts = df['colour'].value_counts()
+print("\n--- COLOUR DISTRIBUTION ---")
+for col_name, c in col_counts.items():
+    print(f"  {col_name:15}: {c:5d} ({c/N*100:.2f}%)")
+
+# 4. Streak Analysis
+# We analyze streaks within continuous sessions (where pid step == 1)
+# to avoid artificially concatenating runs across 5-minute missing gaps.
+# We also compute the global continuous sequence streak for full disclosure.
+
+def analyze_streaks(values, pids):
+    # Returns list of (value, length, start_idx, end_idx)
+    streaks = []
+    curr_val = values[0]
+    curr_len = 1
+    start_idx = 0
+    
+    for i in range(1, len(values)):
+        # Check if consecutive in time/PID
+        is_continuous = (pids[i] - pids[i-1] == 1)
+        if values[i] == curr_val and is_continuous:
+            curr_len += 1
+        else:
+            streaks.append((curr_val, curr_len, start_idx, i-1))
+            curr_val = values[i]
+            curr_len = 1
+            start_idx = i
+    streaks.append((curr_val, curr_len, start_idx, len(values)-1))
+    return streaks
+
+pids_arr = df['Period ID'].values
+
+# Size streaks
+size_streaks = analyze_streaks(df['size'].values, pids_arr)
+big_streaks = [s for s in size_streaks if s[0] == 'Big']
+small_streaks = [s for s in size_streaks if s[0] == 'Small']
+
+max_big_streak = max(big_streaks, key=lambda x: x[1])
+max_small_streak = max(small_streaks, key=lambda x: x[1])
+
+print("\n--- STREAK ANALYSIS (WITHIN CONTINUOUS SESSIONS) ---")
+print(f"Longest Big streak:   {max_big_streak[1]} consecutive rounds (Seq {df.iloc[max_big_streak[2]]['sequence_no']} to {df.iloc[max_big_streak[3]]['sequence_no']}, PID {pids_arr[max_big_streak[2]]} to {pids_arr[max_big_streak[3]]})")
+print(f"Longest Small streak: {max_small_streak[1]} consecutive rounds (Seq {df.iloc[max_small_streak[2]]['sequence_no']} to {df.iloc[max_small_streak[3]]['sequence_no']}, PID {pids_arr[max_small_streak[2]]} to {pids_arr[max_small_streak[3]]})")
+
+# Colour streaks:
+# Pure colour:
+pure_col_streaks = analyze_streaks(df['colour'].values, pids_arr)
+red_streaks = [s for s in pure_col_streaks if s[0] == 'Red']
+green_streaks = [s for s in pure_col_streaks if s[0] == 'Green']
+rv_streaks = [s for s in pure_col_streaks if s[0] == 'Red+Violet']
+gv_streaks = [s for s in pure_col_streaks if s[0] == 'Green+Violet']
+
+max_red_streak = max(red_streaks, key=lambda x: x[1])
+max_green_streak = max(green_streaks, key=lambda x: x[1])
+print(f"Longest Pure Red streak:   {max_red_streak[1]} consecutive rounds (Seq {df.iloc[max_red_streak[2]]['sequence_no']} to {df.iloc[max_red_streak[3]]['sequence_no']})")
+print(f"Longest Pure Green streak: {max_green_streak[1]} consecutive rounds (Seq {df.iloc[max_green_streak[2]]['sequence_no']} to {df.iloc[max_green_streak[3]]['sequence_no']})")
+
+# Dominant colour (treating Red+Violet as Red-family and Green+Violet as Green-family):
+dom_colours = df['colour'].map(lambda c: 'Red_Family' if 'Red' in c else 'Green_Family').values
+dom_col_streaks = analyze_streaks(dom_colours, pids_arr)
+red_fam_streaks = [s for s in dom_col_streaks if s[0] == 'Red_Family']
+green_fam_streaks = [s for s in dom_col_streaks if s[0] == 'Green_Family']
+max_red_fam = max(red_fam_streaks, key=lambda x: x[1])
+max_green_fam = max(green_fam_streaks, key=lambda x: x[1])
+print(f"Longest Red-Family streak:   {max_red_fam[1]} consecutive rounds (Seq {df.iloc[max_red_fam[2]]['sequence_no']} to {df.iloc[max_red_fam[3]]['sequence_no']})")
+print(f"Longest Green-Family streak: {max_green_fam[1]} consecutive rounds (Seq {df.iloc[max_green_fam[2]]['sequence_no']} to {df.iloc[max_green_fam[3]]['sequence_no']})")
+
+# Number repeats:
+num_streaks = analyze_streaks(df['number'].values, pids_arr)
+num_repeats = [s for s in num_streaks if s[1] > 1]
+max_num_repeat = max(num_streaks, key=lambda x: x[1])
+print(f"Longest Number repeat streak: {max_num_repeat[1]} consecutive rounds (Digit {max_num_repeat[0]}, Seq {df.iloc[max_num_repeat[2]]['sequence_no']} to {df.iloc[max_num_repeat[3]]['sequence_no']}, PID {pids_arr[max_num_repeat[2]]} to {pids_arr[max_num_repeat[3]]})")
+
+print(f"\nNumber Repeat Distribution:")
+repeat_counts = {}
+for s in num_repeats:
+    repeat_counts[s[1]] = repeat_counts.get(s[1], 0) + 1
+for l in sorted(repeat_counts.keys()):
+    print(f"  Streak length {l}: {repeat_counts[l]} occurrences")
+
+# Save statistical summary to json
+stat_summary = {
+    'total_rows': N,
+    'digit_distribution': {int(d): int(digit_counts.get(d, 0)) for d in range(10)},
+    'digit_percentages': {int(d): round(float(digit_counts.get(d, 0) / N * 100.0), 2) for d in range(10)},
+    'chi_square_uniform': {
+        'statistic': round(float(chi2_stat), 4),
+        'degrees_of_freedom': int(df_chi2),
+        'p_value': round(float(p_val), 4),
+        'is_uniform': bool(p_val > 0.05)
+    },
+    'size_distribution': {
+        'big': int(big_count),
+        'small': int(small_count),
+        'big_pct': round(float(big_count / N * 100.0), 2),
+        'small_pct': round(float(small_count / N * 100.0), 2),
+        'chi_square': round(float(chi2_bs), 4),
+        'p_value': round(float(p_bs), 4)
+    },
+    'first_order_transition_matrix': {
+        'P_Big_to_Big': round(float(p_bb), 4),
+        'P_Big_to_Small': round(float(p_bs), 4),
+        'P_Small_to_Big': round(float(p_sb), 4),
+        'P_Small_to_Small': round(float(p_ss), 4),
+        'counts': {
+            'Big_to_Big': int(trans_counts['Big']['Big']),
+            'Big_to_Small': int(trans_counts['Big']['Small']),
+            'Small_to_Big': int(trans_counts['Small']['Big']),
+            'Small_to_Small': int(trans_counts['Small']['Small']),
+        }
+    },
+    'colour_distribution': {c: int(v) for c, v in col_counts.items()},
+    'streak_analysis': {
+        'longest_big_streak': int(max_big_streak[1]),
+        'longest_small_streak': int(max_small_streak[1]),
+        'longest_pure_red_streak': int(max_red_streak[1]),
+        'longest_pure_green_streak': int(max_green_streak[1]),
+        'longest_red_family_streak': int(max_red_fam[1]),
+        'longest_green_family_streak': int(max_green_fam[1]),
+        'longest_number_repeat': {
+            'digit': int(max_num_repeat[0]),
+            'length': int(max_num_repeat[1]),
+            'start_seq': int(df.iloc[max_num_repeat[2]]['sequence_no']),
+            'end_seq': int(df.iloc[max_num_repeat[3]]['sequence_no'])
+        }
+    }
+}
+
+with open(r"scratch\statistical_tests_v8.json", "w") as f:
+    json.dump(stat_summary, f, indent=2)
+print("\nSaved statistical results to statistical_tests_v8.json")

@@ -1,0 +1,26 @@
+"""
+Batch processor: Scans the screenshots directory, coordinates extraction passes,
+and triggers the pipeline to output Excel and CSVs.
+"""
+import os
+import glob
+from typing import List
+from src.schema import RawObservation
+from src.pipeline import run_pipeline
+
+SCREENSHOTS_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "screenshots"))
+OUTPUT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "output"))
+
+def list_incoming_screenshots() -> List[str]:
+    extensions = ("*.png", "*.jpg", "*.jpeg", "*.webp", "*.bmp")
+    files = []
+    for ext in extensions:
+        files.extend(glob.glob(os.path.join(SCREENSHOTS_DIR, ext)))
+        files.extend(glob.glob(os.path.join(SCREENSHOTS_DIR, ext.upper())))
+    return sorted(list(set(files)))
+
+if __name__ == "__main__":
+    files = list_incoming_screenshots()
+    print(f"Detected {len(files)} screenshot(s) in {SCREENSHOTS_DIR}")
+    for idx, f in enumerate(files, 1):
+        print(f"  [{idx}] {os.path.basename(f)}")

@@ -1,0 +1,108 @@
+import json, os, sys
+from collections import Counter, defaultdict
+import pandas as pd
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+raw_b9_path = r"extraction\raw_obs_batch9.json"
+v9_xlsx_path = r"project_reports\Colour_Prediction_Dataset_v9.xlsx"
+
+with open(raw_b9_path, "r") as f:
+    obs = json.load(f)
+
+v9_df = pd.read_excel(v9_xlsx_path, sheet_name='Raw_Data')
+v9_map = {}
+for _, row in v9_df.iterrows():
+    v9_map[str(row['Period ID'])] = {
+        'seq': row['sequence_no'],
+        'number': row['number'],
+        'colour': row['colour'],
+        'size': row['size'],
+        'timestamp': str(row['timestamp'])
+    }
+
+print(f"Total PIDs in Batch 9: {len(obs)}")
+pids_sorted = sorted(obs.keys())
+print(f"Batch 9 Range: {pids_sorted[0]} to {pids_sorted[-1]}")
+
+# 1. Internal conflict check
+internal_conflicts = []
+reconciled_b9 = {}
+digit_counter = Counter()
+
+for pid in pids_sorted:
+    items = obs[pid]
+    digits = [it['digit'] for it in items]
+    c = Counter(digits)
+    best_digit = c.most_common(1)[0][0]
+    
+    if len(c) > 1:
+        internal_conflicts.append((pid, dict(c), items))
+        
+    ocr_digits = [it['ocr_digit'] for it in items if it.get('ocr_digit') is not None]
+    c_ocr = Counter(ocr_digits)
+    
+    sz = "Small" if best_digit <= 4 else "Big"
+    if best_digit == 0: col = "Red+Violet"
+    elif best_digit == 5: col = "Green+Violet"
+    elif best_digit in [1, 3, 7, 9]: col = "Green"
+    else: col = "Red"
+    
+    digit_counter[best_digit] += 1
+    
+    reconciled_b9[pid] = {
+        'pid': pid,
+        'number': best_digit,
+        'colour': col,
+        'size': sz,
+        'sources': list(set(it['file'] for it in items)),
+        'obs_count': len(items),
+        'digit_votes': dict(c),
+        'ocr_votes': dict(c_ocr)
+    }
+
+print(f"Internal conflicts in Batch 9: {len(internal_conflicts)}")
+for pid, c, items in internal_conflicts:
+    print(f"  Conflict on {pid}: votes={c}")
+    for it in items:
+        print(f"    {it['file']}: d={it['digit']}, bs={it['bs_ocr']}, ocr={it.get('ocr_digit')}, note={it['note']}")
+
+# 2. Overlap check with v9 dataset
+overlap_pids = [p for p in pids_sorted if p in v9_map]
+new_pids = [p for p in pids_sorted if p not in v9_map]
+
+print(f"\nOverlap PIDs with v9: {len(overlap_pids)} (from {overlap_pids[0]} to {overlap_pids[-1]})")
+print(f"New PIDs in Batch 9: {len(new_pids)} (from {new_pids[0]} to {new_pids[-1]})")
+
+overlap_mismatches = []
+for p in overlap_pids:
+    v9_val = v9_map[p]['number']
+    b9_val = reconciled_b9[p]['number']
+    if v9_val != b9_val:
+        overlap_mismatches.append((p, v9_map[p], reconciled_b9[p]))
+
+print(f"\nOverlap mismatches between v9 and Batch 9: {len(overlap_mismatches)}")
+for p, v9_info, b9_info in overlap_mismatches:
+    print(f"  PID {p}: v9 had {v9_info['number']} ({v9_info['colour']}, {v9_info['size']}) vs b9 extracted {b9_info['number']} ({b9_info['colour']}, {b9_info['size']})")
+
+# 3. Check continuity of new PIDs
+suffixes = [int(p[-5:]) for p in new_pids]
+print(f"\nNew suffixes range: {min(suffixes)} to {max(suffixes)} (count={len(suffixes)})")
+gaps_in_b9 = []
+for i in range(len(suffixes)-1):
+    diff = suffixes[i+1] - suffixes[i]
+    if diff != 1:
+        gaps_in_b9.append((suffixes[i], suffixes[i+1], diff - 1))
+
+print(f"Gaps within new Batch 9 rounds: {len(gaps_in_b9)}")
+for g in gaps_in_b9:
+    print(f"  Gap between {g[0]} and {g[1]}: missing {g[2]} rounds")
+
+# Step from v9 last round (51839) to first new round
+v9_last_suffix = int(str(v9_df.iloc[-1]['Period ID'])[-5:])
+print(f"Step from last v9 round ({v9_last_suffix}) to first new round ({suffixes[0]}): diff = {suffixes[0] - v9_last_suffix}")
+
+print("\nDigit distribution across all 198 Batch 9 rounds:")
+for d in range(10):
+    print(f"  Digit {d}: {digit_counter[d]}")

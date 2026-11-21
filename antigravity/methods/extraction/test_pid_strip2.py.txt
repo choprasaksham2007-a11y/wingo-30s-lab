@@ -1,0 +1,18 @@
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+
+img = cv2.imread(r"extraction\extracted_zip\WhatsApp Image 2026-10-23 at 09.34.09.jpeg")
+
+async def main():
+    pid_strip = img[580:1350, 45:280]
+    pil_im = Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))
+    res = await winocr.recognize_pil(pil_im)
+    print("PID Strip OCR lines for 09.34.09.jpeg:")
+    for line in res.lines:
+        line_txt = " ".join([w.text for w in line.words])
+        y = line.words[0].bounding_rect.y
+        print(f"y={y:.1f}: {line_txt}")
+
+asyncio.run(main())

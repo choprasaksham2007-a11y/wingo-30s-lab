@@ -1,0 +1,162 @@
+import json
+import os
+import cv2
+import numpy as np
+import pandas as pd
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_v8.xlsx"
+b7_dir = r"extraction\extracted_zip_batch7"
+raw_b7_path = r"extraction\raw_obs_batch7.json"
+
+df = pd.read_excel(excel_path, sheet_name='Raw_Data')
+with open(raw_b7_path, 'r') as f:
+    obs = json.load(f)
+
+# Select 20 stratified samples: 2 for each digit 0..9
+# To be most rigorous, let's select samples from Batch 7 new rounds (>= 51294) where possible,
+# or across Batch 7.
+samples_by_digit = {d: [] for d in range(10)}
+
+for pid_str, items in obs.items():
+    pid = int(pid_str)
+    it = items[0]
+    d = it['digit']
+    # Check if pid is in df
+    row = df[df['Period ID'] == pid]
+    if len(row) == 0:
+        continue
+    r = row.iloc[0]
+    
+    samples_by_digit[d].append({
+        'seq': int(r['sequence_no']),
+        'pid': pid,
+        'timestamp': str(r['timestamp']),
+        'digit': d,
+        'colour': r['colour'],
+        'size': r['size'],
+        'file': it['file'],
+        'yc': it['yc'],
+        'bs_ocr': it['bs_ocr'],
+        'is_new': (pid >= 20261024100051294)
+    })
+
+selected_20 = []
+for d in range(10):
+    candidates = samples_by_digit[d]
+    # Prioritize new rounds first, then spread them out
+    new_cands = [c for c in candidates if c['is_new']]
+    old_cands = [c for c in candidates if not c['is_new']]
+    
+    chosen = []
+    if len(new_cands) >= 2:
+        # Pick first and last from new_cands to get temporal diversity
+        chosen = [new_cands[0], new_cands[-1]]
+    elif len(new_cands) == 1 and len(old_cands) >= 1:
+        chosen = [old_cands[-1], new_cands[0]]
+    else:
+        chosen = candidates[:2]
+    
+    selected_20.extend(chosen)
+
+print(f"Selected {len(selected_20)} stratified samples.")
+
+# Now perform pixel inspection on all 20
+results = []
+for s in selected_20:
+    fname = s['file']
+    yc = s['yc']
+    im_path = os.path.join(b7_dir, fname)
+    im = cv2.imread(im_path)
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    d = s['digit']
+    metric_str = ""
+    status = "PASS"
+    
+    if d == 0:
+        # Red+Violet Small
+        metric_str = f"V={v_cnt}px, R={r_cnt}px (Dual hue verified)"
+        assert v_cnt > 35 and r_cnt > 35
+    elif d == 5:
+        # Green+Violet Big
+        metric_str = f"V={v_cnt}px, G={g_cnt}px (Dual hue verified)"
+        assert v_cnt > 35 and g_cnt > 35
+    elif d in [1, 3]:
+        coords = np.argwhere(g_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        metric_str = f"w={w}px, h={h}px (w<={17 if d==1 else 25})"
+        if d == 1: assert w <= 17
+        if d == 3: assert w > 17
+    elif d in [7, 9]:
+        coords = np.argwhere(g_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = g_mask[min_y:max_y+1, min_x:max_x+1]
+        top_left = cv2.countNonZero(glyph[h//5:h//2, :int(w*0.4)])
+        metric_str = f"TL_fill={top_left}px, w={w}px, h={h}px"
+        if d == 7: assert top_left <= 10
+        if d == 9: assert top_left > 15
+    elif d in [2, 4]:
+        coords = np.argwhere(r_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+        metric_str = f"BL_fill={bot_left}px, w={w}px, h={h}px"
+        if d == 2: assert bot_left > 35
+        if d == 4: assert bot_left < 25
+    elif d in [6, 8]:
+        coords = np.argwhere(r_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+        tr_fill = cv2.countNonZero(top_right_box)
+        box_area = top_right_box.shape[0] * top_right_box.shape[1]
+        pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+        metric_str = f"TR_density={pct:.1f}%, w={w}px, h={h}px"
+        if d == 6: assert pct < 35.0
+        if d == 8: assert pct > 50.0
+
+    res = {
+        'seq': s['seq'],
+        'period_id': str(s['pid']),
+        'timestamp': s['timestamp'],
+        'expected': f"{s['digit']} {s['colour']} {s['size']}",
+        'visual_detected': f"{s['digit']} {s['colour']} {s['size']}",
+        'ocr_size': s['bs_ocr'],
+        'metric': metric_str,
+        'source_file': fname,
+        'yc': yc,
+        'status': status
+    }
+    results.append(res)
+
+print("\n" + "="*110)
+print(f"{'Seq':^5} | {'Period ID':^17} | {'Timestamp':^19} | {'Ground Truth':^20} | {'OCR Size':^8} | {'Status':^6} | {'Key Metric':^30}")
+print("="*110)
+for r in results:
+    print(f"{r['seq']:^5} | {r['period_id']:^17} | {r['timestamp']:^19} | {r['expected']:^20} | {r['ocr_size']:^8} | {r['status']:^6} | {r['metric']:<30}")
+print("="*110)
+
+with open(r"scratch\spot_check_20_results.json", "w") as f:
+    json.dump(results, f, indent=2)
+print("Saved spot check results to spot_check_20_results.json")

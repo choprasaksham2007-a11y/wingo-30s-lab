@@ -1,0 +1,22 @@
+import cv2
+import numpy as np
+
+# Let's crop 52084 and 52090 from WhatsApp Image 2026-10-23 at 09.34.00.jpeg and 09.33.59.jpeg
+# We can save them to inspect
+zip_dir = r"extraction\extracted_zip"
+img_00 = cv2.imread(zip_dir + r"\WhatsApp Image 2026-10-23 at 09.34.00.jpeg")
+img_59 = cv2.imread(zip_dir + r"\WhatsApp Image 2026-10-23 at 09.33.59.jpeg")
+
+# We know the digit templates for 6 and 8:
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+t6 = templates[6]
+t8 = templates[8]
+
+# In 6 vs 8:
+# 6 has an opening at top-right (no stroke at top right, white pixels)
+# 8 is closed on both top-left and top-right!
+# Let's check top-right of 6 vs 8 template:
+# t6 top-right quadrant has white background (255, 255, 255)
+# t8 top-right quadrant has red loop (red pixels)
+print("t6 top-right red pixels:", np.count_nonzero(t6[5:15, 20:30, 2] > 200)) # red channel
+print("t8 top-right red pixels:", np.count_nonzero(t8[5:15, 20:30, 2] > 200))

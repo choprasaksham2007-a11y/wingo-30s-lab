@@ -1,0 +1,26 @@
+import cv2
+import numpy as np
+
+img = cv2.imread(r'extraction\extracted_zip\WhatsApp Image 2026-10-23 at 09.33.27.jpeg')
+
+table_crop = img[500:1400, 40:680]
+# In table_crop, row 3 is around y = 310 to 365, x = 300 to 360
+# Let us find where the colored pixels are in the Number column (x: 310 to 360)
+for k in range(10):
+    y_start = int(75 + k * 76.6)
+    y_end = int(y_start + 70)
+    row_num = table_crop[y_start:y_end, 310:360]
+    
+    # Check green, red, violet
+    hsv = cv2.cvtColor(row_num, cv2.COLOR_BGR2HSV)
+    g = cv2.countNonZero(cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255])))
+    r = cv2.countNonZero(cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255])))
+    v = cv2.countNonZero(cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255])))
+    
+    # Bounding box of non-white pixels
+    gray = cv2.cvtColor(row_num, cv2.COLOR_BGR2GRAY)
+    ys, xs = np.where(gray < 220)
+    w = xs.max() - xs.min() if len(xs) > 0 else 0
+    h = ys.max() - ys.min() if len(ys) > 0 else 0
+    
+    print(f"Row {k}: bbox=({w}x{h}), G={g}, R={r}, V={v}")

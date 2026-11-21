@@ -1,0 +1,10 @@
+import os, glob
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+files = glob.glob(os.path.join(batch3_dir, "*.*"))
+print(f"Total files in batch3: {len(files)}")
+for f in sorted(files)[:5]:
+    print(" ", os.path.basename(f))
+print("...")
+for f in sorted(files)[-5:]:
+    print(" ", os.path.basename(f))

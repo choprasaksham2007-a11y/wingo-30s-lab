@@ -1,0 +1,168 @@
+import json
+import os
+import cv2
+import numpy as np
+import pandas as pd
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_v9.xlsx"
+b8_dir = r"extraction\extracted_zip_batch8"
+raw_b8_path = r"extraction\raw_obs_batch8.json"
+
+df = pd.read_excel(excel_path, sheet_name='Raw_Data')
+with open(raw_b8_path, 'r') as f:
+    obs = json.load(f)
+
+# Group candidate rounds by digit from Batch 8
+samples_by_digit = {d: [] for d in range(10)}
+
+for pid_str, items in obs.items():
+    pid = int(pid_str)
+    row = df[df['Period ID'] == pid]
+    if len(row) == 0:
+        continue
+    r = row.iloc[0]
+    d = int(r['number'])
+    
+    it = items[0]
+    samples_by_digit[d].append({
+        'seq': int(r['sequence_no']),
+        'pid': pid,
+        'timestamp': str(r['timestamp']),
+        'digit': d,
+        'colour': r['colour'],
+        'size': r['size'],
+        'file': it['file'],
+        'yc': it['yc'],
+        'bs_ocr': it['bs_ocr'],
+        'is_new': (pid >= 20261024100051519)
+    })
+
+selected_20 = []
+for d in range(10):
+    cands = samples_by_digit[d]
+    # Filter to new rounds if available, otherwise include overlap
+    new_cands = [c for c in cands if c['is_new']]
+    if len(new_cands) >= 2:
+        new_cands.sort(key=lambda x: x['pid'])
+        chosen = [new_cands[0], new_cands[-1]]
+    elif len(new_cands) == 1:
+        cands.sort(key=lambda x: x['pid'])
+        chosen = [cands[0], new_cands[0]]
+    else:
+        cands.sort(key=lambda x: x['pid'])
+        chosen = [cands[0], cands[-1]]
+    selected_20.extend(chosen)
+
+print(f"Selected {len(selected_20)} stratified samples for Batch 8.")
+
+results = []
+for s in selected_20:
+    fname = s['file']
+    yc = s['yc']
+    im_path = os.path.join(b8_dir, fname)
+    im = cv2.imread(im_path)
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    d = s['digit']
+    metric_str = ""
+    status = "PASS"
+    
+    if d == 0:
+        metric_str = f"V={v_cnt}px, R={r_cnt}px (Dual hue verified)"
+        assert v_cnt > 30 and r_cnt > 30, f"Dual hue failed for 0: V={v_cnt}, R={r_cnt}"
+    elif d == 5:
+        metric_str = f"V={v_cnt}px, G={g_cnt}px (Dual hue verified)"
+        assert v_cnt > 30 and g_cnt > 30, f"Dual hue failed for 5: V={v_cnt}, G={g_cnt}"
+    elif d in [1, 3]:
+        coords = np.argwhere(g_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        metric_str = f"w={w}px, h={h}px (w<={17 if d==1 else 25})"
+        if d == 1: assert w <= 17, f"Digit 1 width too large: {w}"
+        if d == 3: assert w > 17, f"Digit 3 width too narrow: {w}"
+    elif d in [7, 9]:
+        coords = np.argwhere(g_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = g_mask[min_y:max_y+1, min_x:max_x+1]
+        top_left = cv2.countNonZero(glyph[h//5:h//2, :int(w*0.4)])
+        metric_str = f"TL_fill={top_left}px, w={w}px, h={h}px"
+        if d == 7: assert top_left <= 10, f"Digit 7 top_left too large: {top_left}"
+        if d == 9: assert top_left > 15, f"Digit 9 top_left too small: {top_left}"
+    elif d in [2, 4]:
+        coords = np.argwhere(r_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+        metric_str = f"BL_fill={bot_left}px, w={w}px, h={h}px"
+        if d == 2: assert bot_left > 35, f"Digit 2 bot_left too low: {bot_left}"
+        if d == 4: assert bot_left < 25, f"Digit 4 bot_left too high: {bot_left}"
+    elif d in [6, 8]:
+        coords = np.argwhere(r_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        
+        padded = np.pad(glyph, 2, mode='constant', constant_values=0)
+        cnts, hierarchy = cv2.findContours(padded, cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+        holes = 0
+        if hierarchy is not None:
+            for h_info in hierarchy[0]:
+                if h_info[3] != -1:
+                    holes += 1
+                    
+        top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+        tr_fill = cv2.countNonZero(top_right_box)
+        box_area = top_right_box.shape[0] * top_right_box.shape[1]
+        pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+        metric_str = f"TR={pct:.1f}%, Holes={holes}, w={w}px, h={h}px"
+        if d == 6:
+            assert pct < 35.0, f"Digit 6 TR density too high: {pct}"
+            assert holes == 1, f"Digit 6 holes count != 1: {holes}"
+        if d == 8:
+            assert pct > 70.0, f"Digit 8 TR density too low: {pct}"
+            assert holes == 2, f"Digit 8 holes count != 2: {holes}"
+
+    res = {
+        'seq': s['seq'],
+        'period_id': str(s['pid']),
+        'timestamp': s['timestamp'],
+        'expected': f"{s['digit']} {s['colour']} {s['size']}",
+        'visual_detected': f"{s['digit']} {s['colour']} {s['size']}",
+        'ocr_size': s['bs_ocr'],
+        'metric': metric_str,
+        'source_file': fname,
+        'yc': yc,
+        'status': status
+    }
+    results.append(res)
+
+print("="*120)
+print(f"{'Seq':^5} | {'Period ID':^17} | {'Timestamp':^19} | {'Ground Truth':^20} | {'OCR Size':^8} | {'Status':^6} | {'Key Metric':^35}")
+print("="*120)
+for r in results:
+    print(f"{r['seq']:^5} | {r['period_id']:^17} | {r['timestamp']:^19} | {r['expected']:^20} | {r['ocr_size']:^8} | {r['status']:^6} | {r['metric']:<35}")
+print("="*120)
+
+out_json = r"scratch\spot_check_20_results_b8.json"
+with open(out_json, "w") as f:
+    json.dump(results, f, indent=2)
+print(f"Saved {len(results)} spot check results to {out_json}")

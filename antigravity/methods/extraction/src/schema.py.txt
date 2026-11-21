@@ -1,0 +1,55 @@
+"""
+Data schema and validation models for Colour Prediction extraction and ML dataset preparation.
+"""
+from dataclasses import dataclass, field
+from typing import Optional, List, Dict, Any
+
+@dataclass
+class RawObservation:
+    """Represents a single row observed in a specific screenshot."""
+    source_screenshot: str
+    period_id: str
+    number: Optional[int] = None
+    big_small: Optional[str] = None
+    colour: Optional[str] = None
+    timestamp: Optional[str] = None
+    row_index_in_screenshot: Optional[int] = None
+    is_occluded: bool = False
+    ocr_confidence: float = 1.0
+    notes: str = ""
+
+@dataclass
+class ReconciledRecord:
+    """Represents a reconciled unique round after cross-referencing all screenshots."""
+    row_no: int
+    period_id: str
+    number: Optional[int] = None
+    big_small: Optional[str] = None
+    colour: Optional[str] = None
+    timestamp: Optional[str] = None
+    source_screenshots: List[str] = field(default_factory=list)
+    number_verification: str = "PENDING"
+    colour_verification: str = "PENDING"
+    overall_verification: str = "PENDING"
+    notes: str = ""
+    conflicts: List[str] = field(default_factory=list)
+
+@dataclass
+class MLRecord:
+    """Represents a supervised ML sample with 5 previous rounds as input features."""
+    period_id: str
+    prev_numbers: List[int]       # [t-1, t-2, t-3, t-4, t-5]
+    prev_colours: List[str]       # [t-1, t-2, t-3, t-4, t-5]
+    prev_sizes: List[str]         # [t-1, t-2, t-3, t-4, t-5]
+    target_number: int
+    target_colour: str
+    target_size: str
+
+@dataclass
+class AuditRecord:
+    """Log entry for audit sheet documenting checks and reconciliations."""
+    period_id: str
+    check_type: str              # e.g., 'EXTRACTION', 'AUDIT_PASS_2', 'CONFLICT_RESOLVED', 'COLOR_RECONSTRUCTED'
+    status: str                  # 'VERIFIED', 'CORRECTED', 'UNCERTAIN', 'FLAGGED'
+    source_evidence: str
+    description: str

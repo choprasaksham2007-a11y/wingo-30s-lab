@@ -1,0 +1,8 @@
+import json
+
+with open(r"extraction\reconciled_batch3.json", "r") as f:
+    data = json.load(f)
+
+for pid, info in data.items():
+    if "WhatsApp Image 2026-10-24 at 00.27.30.jpeg" in info['sources']:
+        print(pid, info)

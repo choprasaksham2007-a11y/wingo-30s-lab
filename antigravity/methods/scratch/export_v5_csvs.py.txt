@@ -1,0 +1,16 @@
+import openpyxl, csv, os
+
+brain_dir = r"project_reports"
+wb = openpyxl.load_workbook(os.path.join(brain_dir, "Colour_Prediction_Dataset_v5.xlsx"), data_only=True)
+
+for sheet_name, csv_v5 in [
+    ("Raw_Data", "colour_raw_data_v5.csv"),
+    ("ML_Ready", "colour_ml_ready_v5.csv")
+]:
+    ws = wb[sheet_name]
+    p_v5 = os.path.join(brain_dir, csv_v5)
+    with open(p_v5, 'w', newline='', encoding='utf-8') as f:
+        w = csv.writer(f)
+        for row in ws.iter_rows(values_only=True):
+            w.writerow(row)
+    print(f"Exported {csv_v5} ({ws.max_row - 1} data rows)")

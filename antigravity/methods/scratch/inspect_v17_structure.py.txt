@@ -1,0 +1,72 @@
+import pandas as pd
+from datetime import datetime, timedelta
+
+v16_df = pd.read_csv(r'project_reports\colour_raw_data_v16.csv', dtype=str)
+inc_df = pd.read_csv(r'project_reports\inputs\input_c34d46e6e9.csv', dtype=str)
+
+max_v16_pid = v16_df['Period ID'].max()
+new_df = inc_df[inc_df['issueNumber'] > max_v16_pid].sort_values('issueNumber').reset_index(drop=True)
+
+def get_dt(pid):
+    year = int(pid[:4])
+    month = int(pid[4:6])
+    day = int(pid[6:8])
+    suffix = int(pid[-5:])
+    base = datetime(year, month, day, 5, 30, 0)
+    return base + timedelta(seconds=(suffix - 50000) * 30)
+
+# Build combined rows
+combined_pids = list(v16_df['Period ID']) + list(new_df['issueNumber'])
+print(f'Combined total rows: {len(combined_pids)}')
+
+# Identify blocks
+blocks = []
+cur_block = [combined_pids[0]]
+
+for i in range(1, len(combined_pids)):
+    prev_pid = combined_pids[i-1]
+    curr_pid = combined_pids[i]
+    dt_prev = get_dt(prev_pid)
+    dt_curr = get_dt(curr_pid)
+    
+    if (dt_curr - dt_prev).total_seconds() == 30:
+        cur_block.append(curr_pid)
+    else:
+        blocks.append(cur_block)
+        cur_block = [curr_pid]
+blocks.append(cur_block)
+
+print(f'Total Blocks in v17: {len(blocks)}')
+for b_idx, b in enumerate(blocks, 1):
+    if b_idx >= 45: # show the recent blocks
+        t0 = get_dt(b[0]).strftime('%Y-%m-%d %H:%M:%S')
+        t1 = get_dt(b[-1]).strftime('%Y-%m-%d %H:%M:%S')
+        print(f'  Block {b_idx:02d}: {len(b):4d} rounds | {b[0]} -> {b[-1]} | {t0} -> {t1}')
+
+# Gaps
+gaps = []
+for i in range(len(blocks) - 1):
+    b1 = blocks[i]
+    b2 = blocks[i+1]
+    p_last = b1[-1]
+    p_next = b2[0]
+    dt_last = get_dt(p_last)
+    dt_next = get_dt(p_next)
+    missing = int((dt_next - dt_last).total_seconds() / 30) - 1
+    gaps.append({
+        'gap_idx': i + 1,
+        'prec_pid': p_last,
+        'prec_time': dt_last.strftime('%Y-%m-%d %H:%M:%S'),
+        'res_pid': p_next,
+        'res_time': dt_next.strftime('%Y-%m-%d %H:%M:%S'),
+        'missing_rounds': missing,
+        'block_before': i + 1,
+        'block_after': i + 2
+    })
+
+print(f'\nTotal Gaps in v17: {len(gaps)}')
+for g in gaps:
+    if g['gap_idx'] >= 45:
+        print(f"  Gap {g['gap_idx']:02d}: {g['prec_pid']} ({g['prec_time']}) -> {g['res_pid']} ({g['res_time']}) | missing {g['missing_rounds']} rounds")
+
+print('\nTotal missing rounds across all gaps:', sum(g['missing_rounds'] for g in gaps))

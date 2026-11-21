@@ -1,0 +1,50 @@
+"""
+Full merge and reconciliation of:
+1. Existing 500 rows from input_9f7c60764d.xlsx
+2. All 977 observations extracted from the 99 new screenshots.
+Calculates timestamps for every single round, resolves occlusions, audits consistency,
+and exports the unified 1,260+ round dataset.
+"""
+import os
+import openpyxl
+import pickle
+from collections import defaultdict
+from src.schema import RawObservation, ReconciledRecord, AuditRecord
+from src.color_rules import derive_size_from_number, derive_colour_from_number
+from test_ts import get_timestamp_for_period
+
+# 1. Load existing 500 rows
+excel_path = r"project_reports\inputs\input_9f7c60764d.xlsx"
+wb = openpyxl.load_workbook(excel_path)
+ws_raw = wb["Raw_Data"]
+
+existing_observations = []
+for row in ws_raw.iter_rows(min_row=2, values_only=True):
+    seq, pid, ts, num, col, size, src = row[:7]
+    num_ver = row[7] if len(row) > 7 else "VERIFIED"
+    col_ver = row[8] if len(row) > 8 else "VERIFIED"
+    ov_ver = row[9] if len(row) > 9 else "VERIFIED"
+    notes = row[10] if len(row) > 10 else ""
+    
+    if pid is not None:
+        pid_clean = str(pid).strip().replace('\u200b', '').replace('\ufeff', '')
+        num_int = int(num) if num is not None and str(num).isdigit() else None
+        existing_observations.append({
+            "period_id": pid_clean,
+            "number": num_int,
+            "colour": col,
+            "big_small": size,
+            "source": src or "Previous Excel Raw_Data",
+            "number_ver": num_ver,
+            "colour_ver": col_ver,
+            "overall_ver": ov_ver,
+            "notes": notes or "From previous 500-round dataset"
+        })
+
+print(f"Loaded {len(existing_observations)} existing observations.")
+
+# 2. Load new v2 observations
+with open(r"extraction\data\aligned_v2_observations.pkl", "rb") as pf:
+    new_obs = pickle.load(pf)
+
+print(f"Loaded {len(new_obs)} new screenshot observations.")

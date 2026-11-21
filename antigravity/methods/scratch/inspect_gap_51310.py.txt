@@ -1,0 +1,24 @@
+import json, glob, os, cv2, asyncio, re
+from PIL import Image
+import winocr
+
+b7_dir = r"extraction\extracted_zip_batch7"
+files = sorted(glob.glob(os.path.join(b7_dir, "*.jpeg")))
+
+# Let's inspect which files contain 51310 and 51321
+async def inspect_gap():
+    for f in files:
+        im = cv2.imread(f)
+        pid_strip = im[450:1450, 10:320]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        lines = []
+        for l in res.lines:
+            txt = ''.join([w.text.strip() for w in l.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for m in re.findall(r'2026102410005\d{4}', txt):
+                lines.append(int(m[-5:]))
+        if lines:
+            min_l, max_l = min(lines), max(lines)
+            if (min_l <= 51310 <= max_l) or (min_l <= 51321 <= max_l) or any(51310 <= x <= 51321 for x in lines):
+                print(f"{os.path.basename(f)}: contains range {min_l} to {max_l}: {lines}")
+
+asyncio.run(inspect_gap())

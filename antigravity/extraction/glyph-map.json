@@ -1,0 +1,30 @@
+{
+  "digit_templates.npy": [
+    {
+      "1": "glyph_0433cc617cf2eeb41e58022f",
+      "2": "glyph_849a253f089944adf9977173",
+      "4": "glyph_cb8d0226c1edd2d84a096dd1",
+      "5": "glyph_db2bac6aa0f0e1e2a19f599f",
+      "3": "glyph_7a1dc21139f75f337c580b74",
+      "7": "glyph_ff4911ef5064506cc3d02e3c",
+      "8": "glyph_1968908335f38cc55e11390f",
+      "9": "glyph_faaabd53b408a11231a60405",
+      "6": "glyph_e21fca06cf1ada2e54d9240e",
+      "0": "glyph_3d0153e22ed949b25d86b7fd"
+    }
+  ],
+  "tight_templates.npy": [
+    {
+      "1": "glyph_136cb719fa3801ebc33892c3",
+      "2": "glyph_002723e9f454e1c41c4860ca",
+      "4": "glyph_508036639d064671355ee1ff",
+      "5": "glyph_1526f87bfa3ea06891241730",
+      "3": "glyph_e5b03a99a6778eb1b2db446c",
+      "7": "glyph_5c7582914b15c0d56009300c",
+      "8": "glyph_6a1693a37c7802922262fb23",
+      "9": "glyph_cf565d37cf8ffab5528e6850",
+      "6": "glyph_7af8dc45d2c93ef052a6bed2",
+      "0": "glyph_23bab8fe7b8ccea453d861b4"
+    }
+  ]
+}

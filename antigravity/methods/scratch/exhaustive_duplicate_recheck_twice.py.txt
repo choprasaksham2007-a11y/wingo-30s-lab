@@ -1,0 +1,216 @@
+import os
+import sys
+import openpyxl
+import pandas as pd
+from collections import Counter
+
+sys.stdout.reconfigure(encoding="utf-8")
+
+def p(s=""):
+    print(s, flush=True)
+
+p("=" * 80)
+p("EXHAUSTIVE INDEPENDENT 2-PASS DUPLICATE AUDIT (ZERO-MISTAKE CERTIFICATION)")
+p("=" * 80)
+
+brain_dir = r"project_reports"
+downloads_dir = r"input"
+
+excel_brain = os.path.join(brain_dir, "Colour_Prediction_Dataset_v19.xlsx")
+excel_down = os.path.join(downloads_dir, "Colour_Prediction_Dataset_v19.xlsx")
+raw_csv_brain = os.path.join(brain_dir, "colour_raw_data_v19.csv")
+ml_csv_brain = os.path.join(brain_dir, "colour_ml_ready_v19.csv")
+sqlite_path = r"colour-ai\wingo_investigation\collected_data\wingo_30s_history.sqlite"
+collected_csv = r"colour-ai\wingo_investigation\collected_data\wingo_30s_history.csv"
+
+all_errors = []
+
+# ==============================================================================
+# PASS 1: EXHAUSTIVE CHECK OF EXCEL WORKBOOK (Raw_Data & ML_Ready)
+# ==============================================================================
+p("\n>>> PASS 1: AUDITING EXCEL WORKBOOK (Colour_Prediction_Dataset_v19.xlsx) <<<")
+
+p(f"Opening {excel_brain} in read_only mode...")
+wb = openpyxl.load_workbook(excel_brain, read_only=True)
+
+# 1.1 Raw_Data Sheet in Excel
+p("  Auditing Sheet 'Raw_Data'...")
+ws_raw = wb["Raw_Data"]
+raw_iter = iter(ws_raw.iter_rows(values_only=True))
+headers = next(raw_iter)
+p(f"  Headers: {headers}")
+
+raw_pids = []
+raw_seqs = []
+raw_rows_dict = {}
+
+conflict_count = 0
+for r_idx, row in enumerate(raw_iter, start=2):
+    seq = row[0]
+    pid = str(row[1]).strip()
+    ts = str(row[2]).strip()
+    prem = str(row[3]).strip()
+    num = row[4]
+    col = str(row[5]).strip()
+    sz = str(row[6]).strip()
+
+    raw_seqs.append(seq)
+    raw_pids.append(pid)
+
+    if pid in raw_rows_dict:
+        prev = raw_rows_dict[pid]
+        p(f"  [ERROR] DUPLICATE PID FOUND: {pid} at row {r_idx}! Previous seen at row {prev['row']}")
+        if (prev['num'], prev['prem']) != (num, prem):
+            p(f"    CONFLICT: previous=(num={prev['num']}, prem={prev['prem']}) vs current=(num={num}, prem={prem})")
+            conflict_count += 1
+        all_errors.append(f"Excel Raw_Data duplicate PID: {pid}")
+    else:
+        raw_rows_dict[pid] = {'row': r_idx, 'num': num, 'prem': prem, 'col': col}
+
+tot_raw_rows = len(raw_pids)
+uniq_raw_pids = len(set(raw_pids))
+tot_raw_seqs = len(raw_seqs)
+uniq_raw_seqs = len(set(raw_seqs))
+
+p(f"  Total Raw_Data rows read : {tot_raw_rows}")
+p(f"  Unique Period IDs count  : {uniq_raw_pids}")
+p(f"  Period ID Duplicates     : {tot_raw_rows - uniq_raw_pids}")
+p(f"  Sequence No Duplicates   : {tot_raw_seqs - uniq_raw_seqs}")
+p(f"  Conflicting outcome rows : {conflict_count}")
+
+if tot_raw_rows == uniq_raw_pids and conflict_count == 0:
+    p("  -> Raw_Data Excel Deduplication: VERIFIED PASS (0 Duplicates, 0 Conflicts)")
+else:
+    all_errors.append("Excel Raw_Data contains duplicates!")
+
+# 1.2 ML_Ready Sheet in Excel
+p("\n  Auditing Sheet 'ML_Ready'...")
+ws_ml = wb["ML_Ready"]
+ml_iter = iter(ws_ml.iter_rows(values_only=True))
+ml_headers = next(ml_iter)
+
+ml_sample_seqs = []
+ml_target_pids = []
+
+for r_idx, row in enumerate(ml_iter, start=2):
+    s_seq = row[0]
+    tgt_pid = str(row[1]).strip()
+    ml_sample_seqs.append(s_seq)
+    ml_target_pids.append(tgt_pid)
+
+tot_ml = len(ml_target_pids)
+uniq_ml_pids = len(set(ml_target_pids))
+uniq_ml_seqs = len(set(ml_sample_seqs))
+
+p(f"  Total ML_Ready rows read : {tot_ml}")
+p(f"  Unique Target PIDs count : {uniq_ml_pids}")
+p(f"  Target PID Duplicates    : {tot_ml - uniq_ml_pids}")
+p(f"  Sample Sequence Dupes    : {tot_ml - uniq_ml_seqs}")
+
+if tot_ml == uniq_ml_pids and tot_ml == uniq_ml_seqs:
+    p("  -> ML_Ready Excel Deduplication: VERIFIED PASS (0 Duplicates)")
+else:
+    all_errors.append("Excel ML_Ready contains duplicates!")
+
+wb.close()
+
+
+# ==============================================================================
+# PASS 2: INDEPENDENT CHECK OF ALL CSV FILES & SQLITE DATABASE
+# ==============================================================================
+p("\n>>> PASS 2: AUDITING ALL CSV FILES & SQLITE DATABASE <<<")
+
+# 2.1 Audit colour_raw_data_v19.csv
+p(f"  Checking {raw_csv_brain}...")
+df_raw_csv = pd.read_csv(raw_csv_brain, dtype={"Period ID": str, "premium": str})
+p(f"  Total rows in raw CSV    : {len(df_raw_csv)}")
+csv_pid_counts = df_raw_csv["Period ID"].value_counts()
+dupe_pids_csv = csv_pid_counts[csv_pid_counts > 1]
+p(f"  Duplicate Period IDs     : {len(dupe_pids_csv)}")
+if len(dupe_pids_csv) > 0:
+    p(f"  [ERROR] Duplicates in raw CSV: {dupe_pids_csv.to_dict()}")
+    all_errors.append(f"colour_raw_data_v19.csv has {len(dupe_pids_csv)} duplicate PIDs")
+else:
+    p("  -> colour_raw_data_v19.csv: VERIFIED PASS (0 Duplicates)")
+
+# 2.2 Audit colour_ml_ready_v19.csv
+p(f"\n  Checking {ml_csv_brain}...")
+df_ml_csv = pd.read_csv(ml_csv_brain, dtype={"Target Period ID": str, "target_premium": str})
+p(f"  Total rows in ML CSV     : {len(df_ml_csv)}")
+csv_ml_counts = df_ml_csv["Target Period ID"].value_counts()
+dupe_ml_csv = csv_ml_counts[csv_ml_counts > 1]
+p(f"  Duplicate Target PIDs    : {len(dupe_ml_csv)}")
+if len(dupe_ml_csv) > 0:
+    p(f"  [ERROR] Duplicates in ML CSV: {dupe_ml_csv.to_dict()}")
+    all_errors.append(f"colour_ml_ready_v19.csv has {len(dupe_ml_csv)} duplicate Target PIDs")
+else:
+    p("  -> colour_ml_ready_v19.csv: VERIFIED PASS (0 Duplicates)")
+
+# 2.3 Audit wingo_30s_history.csv
+p(f"\n  Checking {collected_csv}...")
+df_col = pd.read_csv(collected_csv, dtype={"issueNumber": str, "premium": str})
+p(f"  Total rows in collected CSV: {len(df_col)}")
+col_pid_counts = df_col["issueNumber"].value_counts()
+dupe_col = col_pid_counts[col_pid_counts > 1]
+p(f"  Duplicate issueNumbers     : {len(dupe_col)}")
+if len(dupe_col) > 0:
+    p(f"  [ERROR] Duplicates in collected CSV: {dupe_col.to_dict()}")
+    all_errors.append(f"wingo_30s_history.csv has {len(dupe_col)} duplicates")
+else:
+    p("  -> wingo_30s_history.csv: VERIFIED PASS (0 Duplicates)")
+
+# 2.4 Audit SQLite Database Table `rounds`
+import sqlite3
+p(f"\n  Checking SQLite database: {sqlite_path}...")
+conn = sqlite3.connect(sqlite_path)
+cur = conn.cursor()
+
+cur.execute("SELECT count(*) FROM rounds WHERE state = 1")
+tot_db_rounds = cur.fetchone()[0]
+
+cur.execute("SELECT count(DISTINCT issueNumber) FROM rounds WHERE state = 1")
+uniq_db_pids = cur.fetchone()[0]
+
+cur.execute("""
+    SELECT issueNumber, count(*) as cnt 
+    FROM rounds 
+    WHERE state = 1 
+    GROUP BY issueNumber 
+    HAVING cnt > 1
+""")
+dupe_db_rows = cur.fetchall()
+
+p(f"  Total DB rows (state=1)  : {tot_db_rounds}")
+p(f"  Unique DB issueNumbers   : {uniq_db_pids}")
+p(f"  Duplicate DB rows found  : {len(dupe_db_rows)}")
+
+if len(dupe_db_rows) == 0 and tot_db_rounds == uniq_db_pids:
+    p("  -> SQLite Database Deduplication: VERIFIED PASS (0 Duplicates)")
+else:
+    p(f"  [ERROR] DB Duplicates found: {dupe_db_rows}")
+    all_errors.append(f"SQLite DB has {len(dupe_db_rows)} duplicate rows")
+
+conn.close()
+
+# 2.5 Audit Downloads folder files
+p("\n  Verifying Downloads folder files exist and match...")
+p(f"  Checking {excel_down}...")
+if os.path.exists(excel_down):
+    down_size = os.path.getsize(excel_down)
+    brain_size = os.path.getsize(excel_brain)
+    p(f"  Downloads Excel size: {down_size} bytes (Brain: {brain_size} bytes, Matches: {down_size == brain_size})")
+    if down_size != brain_size:
+        all_errors.append("Downloads Excel size mismatch")
+else:
+    all_errors.append("Downloads Excel does not exist")
+
+# Final Verdict
+p("\n" + "=" * 80)
+if not all_errors:
+    p("ALL RECHECK AUDITS COMPLETE: EXACTLY ZERO DUPLICATES EXIST.")
+    p("CERTIFIED: Every single record across all files and sheets is strictly unique (0 duplicates).")
+else:
+    p(f"RECHECK FAILED WITH {len(all_errors)} ERRORS:")
+    for err in all_errors:
+        p(f"  - {err}")
+p("=" * 80)

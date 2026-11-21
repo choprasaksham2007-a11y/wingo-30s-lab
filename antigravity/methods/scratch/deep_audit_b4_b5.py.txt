@@ -1,0 +1,96 @@
+import cv2, os, winocr, asyncio, sys, json
+from PIL import Image
+import numpy as np
+import openpyxl
+from collections import Counter
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b4_dir = r"extraction\extracted_zip_batch4"
+b5_dir = r"extraction\extracted_zip_batch5"
+v7_path = r"project_reports\Colour_Prediction_Dataset_v7.xlsx"
+
+wb = openpyxl.load_workbook(v7_path, data_only=True)
+ws = wb['Raw_Data']
+
+v7_data = {}
+for r in range(2, ws.max_row+1):
+    seq = ws.cell(row=r, column=1).value
+    pid = str(ws.cell(row=r, column=2).value)
+    num = ws.cell(row=r, column=4).value
+    col = ws.cell(row=r, column=5).value
+    sz = ws.cell(row=r, column=6).value
+    v7_data[pid] = {'seq': seq, 'num': num, 'col': col, 'sz': sz}
+
+async def audit_batch(b_dir, b_name):
+    files = sorted([f for f in os.listdir(b_dir) if f.endswith('.jpeg')])
+    print(f"\n--- Deep Audit on {b_name} ({len(files)} files) ---")
+    
+    # 1. Index PIDs and numbers in each image
+    pid_locations = {} # pid -> list of (f, yc)
+    file_ocr = {}
+    for f in files:
+        img = cv2.imread(os.path.join(b_dir, f))
+        if img is None: continue
+        
+        # OCR PID strip
+        pid_strip = img[500:1450, 20:300]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        for l in res_pid.lines:
+            txt = "".join([w.text.strip() for w in l.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for i in range(len(txt)-16):
+                c = txt[i:i+17]
+                if c.isdigit() and c.startswith('202610241000'):
+                    y_c = 500 + l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+                    if c not in pid_locations: pid_locations[c] = []
+                    pid_locations[c].append((f, y_c))
+                    
+        # OCR number column
+        num_strip = img[500:1450, 315:375]
+        res_num = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(num_strip, cv2.COLOR_BGR2RGB)))
+        lines = []
+        for l in res_num.lines:
+            txt = "".join([w.text.strip() for w in l.words])
+            y_c = 500 + l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+            lines.append((y_c, txt))
+        file_ocr[f] = lines
+        
+    print(f"Indexed {len(pid_locations)} unique PIDs in {b_name}.")
+    
+    suspects = []
+    for pid in sorted(pid_locations.keys()):
+        if pid not in v7_data: continue
+        recorded_num = v7_data[pid]['num']
+        seq = v7_data[pid]['seq']
+        
+        ocr_digits = []
+        for f, yc in pid_locations[pid]:
+            for y_line, txt in file_ocr.get(f, []):
+                if abs(y_line - yc) < 18 and txt:
+                    clean = txt.replace('o', '0').replace('O', '0').replace('D', '0')
+                    for char in clean:
+                        if char.isdigit():
+                            ocr_digits.append(int(char))
+                            
+        if ocr_digits:
+            c = Counter(ocr_digits)
+            best_ocr = c.most_common(1)[0][0]
+            if best_ocr != recorded_num:
+                suspects.append({
+                    'seq': seq,
+                    'pid': pid,
+                    'recorded_num': recorded_num,
+                    'best_ocr': best_ocr,
+                    'ocr_counts': dict(c)
+                })
+                
+    print(f"Total suspects in {b_name}: {len(suspects)}")
+    for s in suspects:
+        print(f"   Seq {s['seq']:4d} | PID {s['pid']} | Recorded: {s['recorded_num']} | OCR detected: {s['best_ocr']} (Counts: {s['ocr_counts']})")
+    return suspects
+
+async def main():
+    await audit_batch(b5_dir, "Batch 5")
+    await audit_batch(b4_dir, "Batch 4")
+
+asyncio.run(main())

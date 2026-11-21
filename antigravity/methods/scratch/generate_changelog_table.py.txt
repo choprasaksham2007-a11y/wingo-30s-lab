@@ -1,0 +1,18 @@
+import json
+
+with open(r"extraction\changelog_26.json", "r") as f:
+    cl = json.load(f)
+
+print("| Seq | Period ID | Number | Size | Old Colour | New Colour | Verified | Screenshot Source | Occlusion / Visual Note |")
+print("|:---:|:---:|:---:|:---:|:---:|:---:|:---:|:---|:---|")
+for row in cl:
+    seq = row['sequence_no']
+    pid = row['period_id']
+    num = row['number']
+    size = row['size']
+    old_c = row['old_colour']
+    new_c = row['new_colour']
+    ver = row['verified_from_screenshot']
+    src = row['source_screenshot']
+    note = "Floating red icon covered dot; green glyph clearly visible" if "Green" in new_c else "Floating icon covered dot; green+violet glyph visible"
+    print(f"| {seq} | `{pid}` | {num} | {size} | {old_c} | **{new_c}** | {ver} | `{src}` | {note} |")

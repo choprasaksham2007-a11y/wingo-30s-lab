@@ -1,0 +1,176 @@
+import json
+import os
+import cv2
+import numpy as np
+import pandas as pd
+from datetime import datetime
+
+v7_path = r"project_reports\Colour_Prediction_Dataset_v7.xlsx"
+v8_path = r"project_reports\Colour_Prediction_Dataset_v8.xlsx"
+b7_dir = r"extraction\extracted_zip_batch7"
+raw_b7_path = r"extraction\raw_obs_batch7.json"
+
+print("================================================================================")
+print("PART 2: BATCH 7 INGESTION, OVERLAP, & MORPHOLOGY AUDIT")
+print("================================================================================")
+
+# 1. Overlap Check: Batch 6 vs Batch 7 (191 overlapping rounds: 20261024100051102 to 20261024100051293)
+df_v7 = pd.read_excel(v7_path, sheet_name='Raw_Data')
+df_v8 = pd.read_excel(v8_path, sheet_name='Raw_Data')
+
+overlap_start_pid = 20261024100051102
+overlap_end_pid = 20261024100051293
+
+sub_v7 = df_v7[(df_v7['Period ID'] >= overlap_start_pid) & (df_v7['Period ID'] <= overlap_end_pid)].copy()
+sub_v8 = df_v8[(df_v8['Period ID'] >= overlap_start_pid) & (df_v8['Period ID'] <= overlap_end_pid)].copy()
+
+print(f"Overlap rounds in v7: {len(sub_v7)}")
+print(f"Overlap rounds in v8: {len(sub_v8)}")
+
+assert len(sub_v7) == 191, f"Expected 191 overlap rounds in v7, found {len(sub_v7)}"
+assert len(sub_v8) == 191, f"Expected 191 overlap rounds in v8, found {len(sub_v8)}"
+
+sub_v7 = sub_v7.sort_values('Period ID')
+sub_v8 = sub_v8.sort_values('Period ID')
+
+overlap_mismatches = []
+for (_, r7), (_, r8) in zip(sub_v7.iterrows(), sub_v8.iterrows()):
+    p7, p8 = str(r7['Period ID']), str(r8['Period ID'])
+    n7, n8 = r7['number'], r8['number']
+    c7, c8 = r7['colour'], r8['colour']
+    s7, s8 = r7['size'], r8['size']
+    t7, t8 = str(r7['timestamp']), str(r8['timestamp'])
+    sq7, sq8 = r7['sequence_no'], r8['sequence_no']
+    
+    if p7 != p8 or n7 != n8 or c7 != c8 or s7 != s8:
+        overlap_mismatches.append({
+            'period_id': p7,
+            'v7': {'seq': sq7, 'num': n7, 'col': c7, 'sz': s7, 'ts': t7},
+            'v8': {'seq': sq8, 'num': n8, 'col': c8, 'sz': s8, 'ts': t8}
+        })
+
+print(f"Overlap check discrepancies across all 191 rounds: {len(overlap_mismatches)}")
+if overlap_mismatches:
+    for m in overlap_mismatches:
+        print("  Discrepancy:", m)
+else:
+    print(">> OVERLAP VERIFIED: Exactly 0 discrepancies across all 191 rounds (Period IDs 20261024100051102 to 20261024100051293) <<")
+
+# 2. Batch 7 New Rounds: 215 rounds (20261024100051294 to 20261024100051518)
+new_rounds = df_v8[(df_v8['Period ID'] >= 20261024100051294) & (df_v8['Period ID'] <= 20261024100051518)].copy()
+print(f"\nBatch 7 new rounds count: {len(new_rounds)}")
+assert len(new_rounds) == 215, f"Expected 215 new rounds, got {len(new_rounds)}"
+print(f"New rounds sequence range: {new_rounds['sequence_no'].min()} to {new_rounds['sequence_no'].max()}")
+assert new_rounds['sequence_no'].min() == 3211
+assert new_rounds['sequence_no'].max() == 3425
+
+# Check PID continuity and the expected missing rounds gap (51310 -> 51321)
+pids_new = new_rounds['Period ID'].values
+pid_diffs = np.diff(pids_new)
+gap_indices = np.where(pid_diffs != 1)[0]
+print(f"Gap indices in new rounds: {len(gap_indices)}")
+assert len(gap_indices) == 1, f"Expected exactly 1 known gap, got {len(gap_indices)}"
+gap_idx = gap_indices[0]
+print(f"Documented Gap: from {pids_new[gap_idx]} to {pids_new[gap_idx+1]} (diff={pid_diffs[gap_idx]})")
+assert pids_new[gap_idx] == 20261024100051310
+assert pids_new[gap_idx+1] == 20261024100051321
+assert pid_diffs[gap_idx] == 11 # 10 missing rounds: 51311 to 51320
+
+print(">> BATCH 7 NEW ROUNDS INTEGRITY VERIFIED: 215 rounds correctly sequenced with documented Gap #16 <<")
+
+# 3. Morphology Deep Audit on Batch 7 Candidates:
+with open(raw_b7_path, 'r') as f:
+    obs = json.load(f)
+
+print("\n--- AUDITING MORPHOLOGY METRICS IN BATCH 7 ---")
+
+six_tr_pcts = []
+eight_tr_pcts = []
+two_bl_fills = []
+four_bl_fills = []
+
+for pid_str, items in obs.items():
+    pid = int(pid_str)
+    is_new = (pid >= 20261024100051294)
+    it = items[0]
+    assigned_digit = it['digit']
+    fname = it['file']
+    yc = it['yc']
+    
+    im_path = os.path.join(b7_dir, fname)
+    if not os.path.exists(im_path):
+        continue
+    im = cv2.imread(im_path)
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords_r = np.argwhere(r_mask > 0)
+    
+    if assigned_digit in [6, 8] and len(coords_r) > 15:
+        min_y, min_x = coords_r.min(axis=0)
+        max_y, max_x = coords_r.max(axis=0)
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        h, w = glyph.shape
+        top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+        tr_fill = cv2.countNonZero(top_right_box)
+        box_area = top_right_box.shape[0] * top_right_box.shape[1]
+        pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+        
+        contours, _ = cv2.findContours(glyph.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+        num_holes = len(contours) - 1 if contours else 0
+        
+        if assigned_digit == 6:
+            six_tr_pcts.append({'pid': pid, 'is_new': is_new, 'pct': pct, 'file': fname, 'holes': num_holes})
+        else:
+            eight_tr_pcts.append({'pid': pid, 'is_new': is_new, 'pct': pct, 'file': fname, 'holes': num_holes})
+            
+    elif assigned_digit in [2, 4] and len(coords_r) > 15:
+        min_y, min_x = coords_r.min(axis=0)
+        max_y, max_x = coords_r.max(axis=0)
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        h, w = glyph.shape
+        bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+        
+        if assigned_digit == 2:
+            two_bl_fills.append({'pid': pid, 'is_new': is_new, 'bl': bot_left, 'file': fname, 'w': w, 'h': h})
+        else:
+            four_bl_fills.append({'pid': pid, 'is_new': is_new, 'bl': bot_left, 'file': fname, 'w': w, 'h': h})
+
+print(f"\n--- ENTIRE BATCH 7: 6 vs 8 AUDIT (Total 6s: {len(six_tr_pcts)}, Total 8s: {len(eight_tr_pcts)}) ---")
+six_pcts = [x['pct'] for x in six_tr_pcts]
+eight_pcts = [x['pct'] for x in eight_tr_pcts]
+
+print(f"Digit 6 TR Density: Min = {np.min(six_pcts):.1f}%, Max = {np.max(six_pcts):.1f}%, Mean = {np.mean(six_pcts):.1f}%, Std = {np.std(six_pcts):.1f}%")
+print(f"Digit 8 TR Density: Min = {np.min(eight_pcts):.1f}%, Max = {np.max(eight_pcts):.1f}%, Mean = {np.mean(eight_pcts):.1f}%, Std = {np.std(eight_pcts):.1f}%")
+
+sep_6_8 = np.min(eight_pcts) - np.max(six_pcts)
+print(f"Separation Gap (Min 8 - Max 6): {sep_6_8:.1f}%")
+assert sep_6_8 > 30.0, f"Separation gap too narrow: {sep_6_8}"
+print(">> CERTIFIED: 6 vs 8 separation gap is 100% distinct with zero overlap across all Batch 7 rounds!")
+
+print(f"\n--- ENTIRE BATCH 7: 2 vs 4 AUDIT (Total 2s: {len(two_bl_fills)}, Total 4s: {len(four_bl_fills)}) ---")
+two_bls = [x['bl'] for x in two_bl_fills]
+four_bls = [x['bl'] for x in four_bl_fills]
+
+print(f"Digit 2 BL Fill: Min = {np.min(two_bls)}, Max = {np.max(two_bls)}, Mean = {np.mean(two_bls):.1f}, Std = {np.std(two_bls):.1f}")
+print(f"Digit 4 BL Fill: Min = {np.min(four_bls)}, Max = {np.max(four_bls)}, Mean = {np.mean(four_bls):.1f}, Std = {np.std(four_bls):.1f}")
+
+sep_2_4 = np.min(two_bls) - np.max(four_bls)
+print(f"Separation Gap (Min 2 - Max 4): {sep_2_4} px")
+assert sep_2_4 > 25, f"Separation gap too narrow: {sep_2_4}"
+print(">> CERTIFIED: 2 vs 4 separation gap is 100% distinct with zero overlap across all Batch 7 rounds!")
+
+# Specific metrics for New Rounds (215 rounds: 51294 to 51518)
+six_new = [x['pct'] for x in six_tr_pcts if x['is_new']]
+eight_new = [x['pct'] for x in eight_tr_pcts if x['is_new']]
+two_new = [x['bl'] for x in two_bl_fills if x['is_new']]
+four_new = [x['bl'] for x in four_bl_fills if x['is_new']]
+
+print(f"\n--- BATCH 7 NEW ROUNDS ONLY (51294 to 51518) ---")
+print(f"New 6s (n={len(six_new)}): Min TR = {np.min(six_new):.1f}%, Max TR = {np.max(six_new):.1f}%, Mean TR = {np.mean(six_new):.1f}%")
+print(f"New 8s (n={len(eight_new)}): Min TR = {np.min(eight_new):.1f}%, Max TR = {np.max(eight_new):.1f}%, Mean TR = {np.mean(eight_new):.1f}%")
+print(f"New 6 vs 8 Gap: {np.min(eight_new) - np.max(six_new):.1f}%")
+print(f"New 4s (n={len(four_new)}): Min BL = {np.min(four_new)}, Max BL = {np.max(four_new)}, Mean BL = {np.mean(four_new):.1f}")
+print(f"New 2s (n={len(two_new)}): Min BL = {np.min(two_new)}, Max BL = {np.max(two_new)}, Mean BL = {np.mean(two_new):.1f}")
+print(f"New 2 vs 4 Gap: {np.min(two_new) - np.max(four_new)} px")

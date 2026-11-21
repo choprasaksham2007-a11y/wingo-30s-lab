@@ -1,0 +1,143 @@
+import openpyxl, json, cv2, os, asyncio, winocr
+from PIL import Image
+import numpy as np
+
+b2_dir = r"extraction\extracted_zip_batch2"
+b2_json_path = r"extraction\reconciled_batch2_refined.json"
+with open(b2_json_path, "r") as f:
+    b2_data = json.load(f)
+
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+ws = wb['Raw_Data']
+
+eights = []
+for r in range(2, ws.max_row + 1):
+    seq = ws.cell(row=r, column=1).value
+    if 1261 <= seq <= 1640:
+        num = ws.cell(row=r, column=4).value
+        if num == 8:
+            pid = str(ws.cell(row=r, column=2).value)
+            eights.append({
+                "seq": seq,
+                "pid": pid,
+                "sources": b2_data.get(pid, {}).get("sources", [])
+            })
+
+print(f"Total eights to audit: {len(eights)}")
+
+# Cache OCR results of all 46 batch2 files
+async def audit_all_eights():
+    # First, index PID locations across all batch2 files
+    files = sorted([f for f in os.listdir(b2_dir) if f.endswith(".jpeg")])
+    pid_locations = {} # pid -> list of (file, yc)
+    
+    for f in files:
+        img_path = os.path.join(b2_dir, f)
+        img = cv2.imread(img_path)
+        if img is None: continue
+        
+        pid_strip = img[500:1450, 30:290]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        for line in res_pid.lines:
+            txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+            for i in range(len(txt) - 16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith("202610231000"):
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    yc = int(round(500 + y_rel))
+                    if chunk not in pid_locations:
+                        pid_locations[chunk] = []
+                    pid_locations[chunk].append((f, yc))
+                    
+    print(f"Indexed {len(pid_locations)} unique PIDs across Batch 2 files.")
+    
+    # Now inspect each of the 81 eights
+    results = []
+    for e in eights:
+        pid = e["pid"]
+        seq = e["seq"]
+        locs = pid_locations.get(pid, [])
+        if not locs:
+            results.append({
+                "seq": seq,
+                "pid": pid,
+                "status": "unverified",
+                "reason": "PID not found in OCR indexing",
+                "detected": 8
+            })
+            continue
+            
+        # Check all locations
+        digit_votes = []
+        for fname, yc in locs:
+            img = cv2.imread(os.path.join(b2_dir, fname))
+            crop_wide = img[yc-20:yc+20, 330:410]
+            hsv = cv2.cvtColor(crop_wide, cv2.COLOR_BGR2HSV)
+            r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+            coords = np.argwhere(r_mask > 0)
+            if len(coords) < 20:
+                continue
+            min_y, min_x = coords.min(axis=0)
+            max_y, max_x = coords.max(axis=0)
+            glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+            h, w = glyph.shape
+            
+            # Key feature: Top-right opening!
+            # In 8, top-right quadrant (y from 0.15*h to 0.45*h, x from 0.6*w to 1.0*w) has a right wall (fill > 25)
+            # In 6, the top stroke arches from bottom-left to top, but the right side is completely open (fill < 10)
+            top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+            tr_fill = cv2.countNonZero(top_right_box)
+            
+            # Also check hole in top half (loop)
+            # In 8, upper half has a hole (closed loop)
+            # In 6, upper half is open from the right
+            digit_votes.append({
+                "file": fname,
+                "yc": yc,
+                "w": w,
+                "h": h,
+                "tr_fill": tr_fill,
+                "decision": 8 if tr_fill > 25 else 6
+            })
+            
+        if not digit_votes:
+            results.append({
+                "seq": seq,
+                "pid": pid,
+                "status": "unverified",
+                "reason": "No valid glyph mask",
+                "detected": 8
+            })
+        else:
+            decisions = [v["decision"] for v in digit_votes]
+            # majority vote
+            from collections import Counter
+            c = Counter(decisions)
+            best_d = c.most_common(1)[0][0]
+            avg_tr = np.mean([v["tr_fill"] for v in digit_votes])
+            results.append({
+                "seq": seq,
+                "pid": pid,
+                "status": "verified",
+                "detected": best_d,
+                "avg_tr": avg_tr,
+                "votes": digit_votes
+            })
+            
+    return results
+
+if __name__ == '__main__':
+    results = asyncio.run(audit_all_eights())
+    six_count = sum(1 for r in results if r["detected"] == 6)
+    eight_count = sum(1 for r in results if r["detected"] == 8)
+    unverified = sum(1 for r in results if r["status"] == "unverified")
+    print(f"\nAudit complete across 81 rows:")
+    print(f"  Detected as 6: {six_count}")
+    print(f"  Detected as 8: {eight_count}")
+    print(f"  Unverified: {unverified}")
+    
+    with open(r"scratch\audit_81_results.json", "w") as f:
+        json.dump(results, f, indent=2)

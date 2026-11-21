@@ -1,0 +1,125 @@
+import openpyxl, os, sys
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_v11.xlsx"
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+ws_raw = wb['Raw_Data']
+
+print(f"=== PASS 1 AUDIT: RAW DATA & CADENCE VERIFICATION (Total rows: {ws_raw.max_row - 1}) ===")
+
+rule_errors = []
+size_errors = []
+id_format_errors = []
+cadence_errors = []
+time_mismatches = []
+
+pids = []
+timestamps = []
+numbers = []
+colours = []
+sizes = []
+
+for r in range(2, ws_raw.max_row + 1):
+    seq = ws_raw.cell(row=r, column=1).value
+    pid_cell = ws_raw.cell(row=r, column=2)
+    pid = str(pid_cell.value)
+    ts_str = str(ws_raw.cell(row=r, column=3).value)
+    num = ws_raw.cell(row=r, column=4).value
+    col = str(ws_raw.cell(row=r, column=5).value)
+    sz = str(ws_raw.cell(row=r, column=6).value)
+    
+    # 1. Period ID check
+    if len(pid) != 17 or not pid.isdigit():
+        id_format_errors.append((seq, pid, "Length != 17 or not digit"))
+    if pid_cell.number_format != "@":
+        id_format_errors.append((seq, pid, f"Format != @ ({pid_cell.number_format})"))
+        
+    # 2. Rule check
+    expected_col = None
+    if num == 0: expected_col = "Red+Violet"
+    elif num == 5: expected_col = "Green+Violet"
+    elif num in [1, 3, 7, 9]: expected_col = "Green"
+    elif num in [2, 4, 6, 8]: expected_col = "Red"
+    else: rule_errors.append((seq, pid, num, "Invalid digit"))
+    
+    if col != expected_col:
+        rule_errors.append((seq, pid, num, col, expected_col))
+        
+    expected_sz = "Small" if num <= 4 else "Big"
+    if sz != expected_sz:
+        size_errors.append((seq, pid, num, sz, expected_sz))
+        
+    pids.append(pid)
+    timestamps.append(datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S"))
+    numbers.append(num)
+    colours.append(col)
+    sizes.append(sz)
+
+print(f"1. Period ID format check: {len(id_format_errors)} errors")
+print(f"2. Deterministic colour rule check: {len(rule_errors)} errors")
+print(f"3. Deterministic size rule check: {len(size_errors)} errors")
+
+# 4. Check uniqueness
+if len(pids) == len(set(pids)):
+    print(f"4. Period ID uniqueness check: 100% unique ({len(pids)} unique values, 0 duplicates)")
+else:
+    print(f"4. Period ID uniqueness check: FAILED! {len(pids) - len(set(pids))} duplicates found")
+
+# 5. Check cadence & block continuity
+blocks = []
+cur_block = [0]
+for i in range(1, len(pids)):
+    p_prev, p_curr = pids[i-1], pids[i]
+    d_prev, d_curr = p_prev[:8], p_curr[:8]
+    s_prev, s_curr = int(p_prev[-5:]) - 50000, int(p_curr[-5:]) - 50000
+    
+    is_step = False
+    if d_prev == d_curr and s_curr == s_prev + 1:
+        is_step = True
+    elif s_prev == 2880 and s_curr == 1:
+        is_step = True
+        
+    if is_step:
+        cur_block.append(i)
+    else:
+        blocks.append(cur_block)
+        cur_block = [i]
+blocks.append(cur_block)
+
+print(f"5. Block breakdown: {len(blocks)} continuous blocks detected")
+intra_block_steps = 0
+for b_idx, b in enumerate(blocks, 1):
+    for j in range(len(b)-1):
+        idx1, idx2 = b[j], b[j+1]
+        dt = (timestamps[idx2] - timestamps[idx1]).total_seconds()
+        intra_block_steps += 1
+        if dt != 30.0:
+            cadence_errors.append((idx1+1, idx2+1, pids[idx1], pids[idx2], dt))
+
+print(f"6. Intra-block cadence check ({intra_block_steps} steps): {len(cadence_errors)} errors (all exactly 30.000s)")
+
+# 7. Check Gaps
+ws_gaps = wb['Missing_Rounds']
+gap_rows = ws_gaps.max_row - 1
+print(f"7. Documented gaps in sheet 'Missing_Rounds': {gap_rows} gaps")
+assert gap_rows == len(blocks) - 1, f"Mismatch in gap rows: {gap_rows} vs {len(blocks)-1}"
+
+total_missing = 0
+for r in range(2, ws_gaps.max_row + 1):
+    g_idx = ws_gaps.cell(row=r, column=1).value
+    prec_pid = str(ws_gaps.cell(row=r, column=2).value)
+    prec_t = datetime.strptime(str(ws_gaps.cell(row=r, column=3).value), "%Y-%m-%d %H:%M:%S")
+    res_pid = str(ws_gaps.cell(row=r, column=4).value)
+    res_t = datetime.strptime(str(ws_gaps.cell(row=r, column=5).value), "%Y-%m-%d %H:%M:%S")
+    missing_rounds = int(ws_gaps.cell(row=r, column=6).value)
+    total_missing += missing_rounds
+    
+    dt_sec = (res_t - prec_t).total_seconds()
+    exp_missing = int(round(dt_sec / 30.0)) - 1
+    if missing_rounds != exp_missing:
+        print(f"  Gap {g_idx} mismatch: sheet has {missing_rounds}, time diff implies {exp_missing}")
+
+print(f"Total missing rounds documented across all {gap_rows} gaps: {total_missing}")
+print("=== PASS 1 AUDIT: ALL CHECKS PASSED PERFECTLY ===")

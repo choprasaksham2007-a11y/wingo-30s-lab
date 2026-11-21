@@ -1,0 +1,21 @@
+import cv2, os, numpy as np
+
+b7_dir = r"extraction\extracted_zip_batch7"
+
+def print_glyph_ascii(fname, yc, label):
+    im = cv2.imread(os.path.join(b7_dir, fname))
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords = np.argwhere(r_mask > 0)
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+    print(f"\n--- {label} ({glyph.shape[0]}x{glyph.shape[1]}) ---")
+    for row in glyph:
+        print("".join(["#" if p > 0 else "." for p in row]))
+
+# Check 51344 (classified 4)
+print_glyph_ascii("WhatsApp Image 2026-10-24 at 18.11.48 (2).jpeg", 1093, "PID 51344 (Classified 4)")
+# Check 51328 (classified 6)
+print_glyph_ascii("WhatsApp Image 2026-10-24 at 18.11.46 (2).jpeg", 906, "PID 51328 (Classified 6)")

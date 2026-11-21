@@ -1,0 +1,12 @@
+import cv2, os, glob, numpy as np
+
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+print("Template shapes:")
+for d in range(10):
+    print(f"  Digit {d}: shape={templates[d].shape}")
+
+# Let's see tight templates:
+tight = np.load(r"extraction\tight_templates.npy", allow_pickle=True).item()
+print("Tight template shapes:")
+for d in range(10):
+    print(f"  Digit {d}: shape={tight[d].shape}")

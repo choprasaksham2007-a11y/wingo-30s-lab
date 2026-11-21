@@ -1,0 +1,37 @@
+import glob, os, cv2, asyncio, winocr
+from PIL import Image
+from collections import defaultdict
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+files = sorted(glob.glob(os.path.join(batch3_dir, "*.jpeg")))
+
+async def analyze_batch3():
+    pid_to_files = defaultdict(list)
+    for f in files:
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        pid_strip = im[500:1450, 20:300]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        for line in res.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for i in range(len(txt)-16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith('202610231000'):
+                    pid_to_files[chunk].append(fname)
+    return pid_to_files
+
+pid_to_files = asyncio.run(analyze_batch3())
+all_pids = sorted(list(pid_to_files.keys()))
+print(f"Total distinct PIDs: {len(all_pids)}")
+print(f"Range: {all_pids[0]} to {all_pids[-1]}")
+
+suffixes = [int(p[-5:]) for p in all_pids]
+gaps = []
+for i in range(len(suffixes)-1):
+    diff = suffixes[i+1] - suffixes[i]
+    if diff > 1:
+        gaps.append((all_pids[i], all_pids[i+1], diff - 1))
+
+print(f"Internal gaps in Batch 3: {len(gaps)}")
+for g in gaps:
+    print(f"  Gap: {g[0]} -> {g[1]} ({g[2]} missing rounds)")

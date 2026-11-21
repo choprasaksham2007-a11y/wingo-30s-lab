@@ -1,0 +1,42 @@
+import cv2
+import numpy as np
+
+# Load raw templates
+templates_raw = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+# Trim each template to its tight foreground bounding box
+tight_templates = {}
+for d, tpl in templates_raw.items():
+    gray = cv2.cvtColor(tpl, cv2.COLOR_BGR2GRAY)
+    ys, xs = np.where(gray < 220)
+    tight = tpl[ys.min():ys.max()+1, xs.min():xs.max()+1]
+    tight_templates[d] = tight
+    print(f"Digit {d} tight size: {tight.shape[1]}x{tight.shape[0]}")
+
+np.save(r"extraction\tight_templates.npy", tight_templates)
+
+def classify_tight(num_crop, expected_size=None):
+    best_digit = None
+    best_score = -1.0
+    for digit, tpl in tight_templates.items():
+        # If expected_size is given, we can give priority to matching size
+        res = cv2.matchTemplate(num_crop, tpl, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        if max_val > best_score:
+            best_score = max_val
+            best_digit = digit
+    return best_digit, best_score
+
+# Test on 52084 and 52090
+zip_dir = r"extraction\extracted_zip"
+img_00 = cv2.imread(zip_dir + r"\WhatsApp Image 2026-10-23 at 09.34.00.jpeg")
+# In 09.34.00.jpeg, row for 52084 is at y_full around 612
+crop84 = img_00[612-25:612+25, 340:390]
+d84, s84 = classify_tight(crop84)
+print(f"PID 52084 classified as {d84} with score {s84:.4f}")
+
+img_01 = cv2.imread(zip_dir + r"\WhatsApp Image 2026-10-23 at 09.34.00 (1).jpeg")
+# In 09.34.00 (1).jpeg, row for 52090 is at y_full around 1217
+crop90 = img_01[1217-25:1217+25, 340:390]
+d90, s90 = classify_tight(crop90)
+print(f"PID 52090 classified as {d90} with score {s90:.4f}")

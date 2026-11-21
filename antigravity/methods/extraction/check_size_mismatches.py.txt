@@ -1,0 +1,23 @@
+import cv2, os, asyncio, winocr
+from PIL import Image
+
+old_dir = r"extraction\extracted_zip"
+new_dir = r"extraction\extracted_zip_batch2"
+
+cases = [
+    ("50429", old_dir, "WhatsApp Image 2026-10-23 at 09.33.53.jpeg", 1302),
+    ("50429", new_dir, "WhatsApp Image 2026-10-23 at 22.06.45 (1).jpeg", 834),
+    ("50430", old_dir, "WhatsApp Image 2026-10-23 at 09.33.53.jpeg", 1226),
+    ("50430", new_dir, "WhatsApp Image 2026-10-23 at 22.06.45 (1).jpeg", 757),
+    ("50435", old_dir, "WhatsApp Image 2026-10-23 at 09.33.53.jpeg", 843),
+    ("50435", new_dir, "WhatsApp Image 2026-10-23 at 22.06.46.jpeg", 1140),
+]
+
+for pid, d, fname, yc in cases:
+    im = cv2.imread(os.path.join(d, fname))
+    bs_crop = im[yc-20:yc+20, 440:530]
+    pil_bs = Image.fromarray(cv2.cvtColor(bs_crop, cv2.COLOR_BGR2RGB))
+    res_bs = asyncio.run(winocr.recognize_pil(pil_bs))
+    bs_txt = " ".join([w.text.strip() for line in res_bs.lines for w in line.words])
+    batch = "OLD" if d == old_dir else "NEW"
+    print(f"PID {pid} [{batch}] Size OCR: \"{bs_txt}\"")

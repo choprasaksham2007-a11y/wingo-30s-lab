@@ -1,0 +1,20 @@
+import openpyxl, sys
+from datetime import datetime
+
+sys.stdout.reconfigure(encoding='utf-8')
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+ws_raw = wb['Raw_Data']
+
+hourly_counts = {h: 0 for h in range(24)}
+
+for r in range(2, ws_raw.max_row + 1):
+    ts_str = str(ws_raw.cell(row=r, column=3).value)
+    dt = datetime.strptime(ts_str, "%Y-%m-%d %H:%M:%S")
+    hourly_counts[dt.hour] += 1
+
+print("Hourly distribution across a 24-hour clock (00:00 to 23:59):")
+for h in range(24):
+    cnt = hourly_counts[h]
+    bar = "=" * (cnt // 10)
+    status = "NO DATA (0%)" if cnt == 0 else f"{cnt} rounds"
+    print(f"{h:02d}:00 - {(h+1)%24:02d}:00 : {status:18s} {bar}")

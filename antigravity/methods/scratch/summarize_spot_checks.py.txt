@@ -1,0 +1,10 @@
+import json
+
+with open(r"extraction\spot_check_30_results.json", "r") as f:
+    sc = json.load(f)
+
+print(f"Total checked: {sc['total_checked']}")
+print(f"Unverified: {sc['unverified']}")
+print(f"Number differences: {sc['number_differences']}")
+for item in sc['details'][:5]:
+    print(f"Seq {item['seq']} (PID {item['pid']}): Num {item['number']} ({item['size']}, {item['colour']}) -> Match: {item['glyph_match']}, Verified: {item['verified']}")

@@ -1,0 +1,48 @@
+"""
+Unit test and sanity simulation script to ensure the pipeline is 100% operational
+before actual screenshots arrive.
+"""
+import os
+import sys
+
+# Ensure src is in python path
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.schema import RawObservation
+from src.pipeline import run_pipeline
+
+def test_pipeline():
+    print("Testing pipeline with simulated 17-digit Period IDs and overlapping screenshots...")
+    
+    # 7 rounds simulated: round 3 is occluded in screenshot_1.png, but visible in screenshot_2.png
+    observations = [
+        # Screenshot 1 (shows rounds 20261022100051950 to 20261022100051954)
+        RawObservation(source_screenshot="screenshot_1.png", period_id="20261022100051950", number=2, big_small="Small", colour="Red"),
+        RawObservation(source_screenshot="screenshot_1.png", period_id="20261022100051951", number=7, big_small="Big", colour="Green"),
+        RawObservation(source_screenshot="screenshot_1.png", period_id="20261022100051952", number=0, big_small="Small", colour="Red+Violet"),
+        RawObservation(source_screenshot="screenshot_1.png", period_id="20261022100051953", number=8, big_small="Big", colour=None, is_occluded=True), # occluded!
+        RawObservation(source_screenshot="screenshot_1.png", period_id="20261022100051954", number=3, big_small="Small", colour="Green"),
+
+        # Screenshot 2 (overlapping screenshot showing rounds 20261022100051953 to 20261022100051956)
+        RawObservation(source_screenshot="screenshot_2.png", period_id="20261022100051953", number=8, big_small="Big", colour="Red", is_occluded=False), # visible here!
+        RawObservation(source_screenshot="screenshot_2.png", period_id="20261022100051954", number=3, big_small="Small", colour="Green"),
+        RawObservation(source_screenshot="screenshot_2.png", period_id="20261022100051955", number=5, big_small="Big", colour="Green+Violet"),
+        RawObservation(source_screenshot="screenshot_2.png", period_id="20261022100051956", number=6, big_small="Big", colour="Red"),
+    ]
+
+    test_output_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "output"))
+    res = run_pipeline(
+        raw_observations=observations,
+        output_dir=test_output_dir,
+        total_screenshots_count=2,
+        allow_rule_derivation=True
+    )
+
+    print("Pipeline Test Result:", res)
+    assert res["success"] is True, f"Pipeline validation failed: {res['validation_errors']}"
+    assert res["reconciled_count"] == 7, f"Expected 7 unique rounds, got {res['reconciled_count']}"
+    assert res["ml_count"] == 2, f"Expected 2 ML training samples with lag 5 across 7 rounds, got {res['ml_count']}"
+    print("ALL SANITY TESTS PASSED SUCCESSFULLY!")
+
+if __name__ == "__main__":
+    test_pipeline()

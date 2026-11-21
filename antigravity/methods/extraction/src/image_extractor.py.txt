@@ -1,0 +1,70 @@
+"""
+Image processing and visual feature extraction module for colour prediction screenshots.
+Detects table rows, extracts Period IDs, numbers, and identifies dot colours using HSV color ranges.
+"""
+import os
+import cv2
+import numpy as np
+from PIL import Image
+from typing import List, Dict, Tuple, Optional
+from src.schema import RawObservation
+
+# HSV color ranges for color prediction game dots
+# In HSV:
+# Green: H approx 35-85, S > 50, V > 50
+# Red: H in 0-10 or 170-180, S > 50, V > 50
+# Violet/Purple: H in 125-165, S > 40, V > 40
+COLOR_RANGES = {
+    "Green": [
+        (np.array([35, 60, 60]), np.array([85, 255, 255]))
+    ],
+    "Red": [
+        (np.array([0, 70, 70]), np.array([10, 255, 255])),
+        (np.array([170, 70, 70]), np.array([180, 255, 255]))
+    ],
+    "Violet": [
+        (np.array([125, 40, 40]), np.array([165, 255, 255]))
+    ]
+}
+
+def detect_dot_color(dot_roi_bgr: np.ndarray) -> str:
+    """
+    Analyzes a cropped region containing the result dot(s) to identify the colour(s).
+    Supports dual-colour dots (e.g., Red+Violet for 0, Green+Violet for 5).
+    """
+    if dot_roi_bgr is None or dot_roi_bgr.size == 0:
+        return "UNKNOWN"
+        
+    hsv = cv2.cvtColor(dot_roi_bgr, cv2.COLOR_BGR2HSV)
+    total_pixels = dot_roi_bgr.shape[0] * dot_roi_bgr.shape[1]
+    
+    color_scores = {}
+    for color_name, ranges in COLOR_RANGES.items():
+        mask_combined = None
+        for lower, upper in ranges:
+            mask = cv2.inRange(hsv, lower, upper)
+            mask_combined = mask if mask_combined is None else cv2.bitwise_or(mask_combined, mask)
+        match_count = cv2.countNonZero(mask_combined)
+        color_scores[color_name] = match_count / float(total_pixels)
+        
+    detected = []
+    # Threshold for significant presence of color
+    if color_scores["Violet"] > 0.08:
+        detected.append("Violet")
+    if color_scores["Red"] > 0.12:
+        detected.append("Red")
+    if color_scores["Green"] > 0.12:
+        detected.append("Green")
+        
+    if "Violet" in detected and "Red" in detected:
+        return "Red+Violet"
+    elif "Violet" in detected and "Green" in detected:
+        return "Green+Violet"
+    elif "Red" in detected:
+        return "Red"
+    elif "Green" in detected:
+        return "Green"
+    elif "Violet" in detected:
+        return "Violet"
+    else:
+        return "UNKNOWN"

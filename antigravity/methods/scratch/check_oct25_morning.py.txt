@@ -1,0 +1,11 @@
+import pandas as pd
+df = pd.read_csv(r'project_reports\colour_raw_data_v17.csv', dtype=str)
+oct25 = df[df['timestamp'].str.startswith('2026-10-25')].sort_values('timestamp')
+print('Oct 25 total rounds:', len(oct25))
+print('Oct 25 earliest:', oct25.iloc[0]['Period ID'], oct25.iloc[0]['timestamp'])
+print('Oct 25 latest:', oct25.iloc[-1]['Period ID'], oct25.iloc[-1]['timestamp'])
+
+# Look at 09:19 AM on Oct 25
+around_9am = oct25[(oct25['timestamp'] >= '2026-10-25 09:00:00') & (oct25['timestamp'] <= '2026-10-25 09:30:00')]
+print('\nRounds around 09:00 to 09:30 on 2026-10-25:')
+print(around_9am[['sequence_no', 'Period ID', 'timestamp', 'number', 'colour', 'size']])

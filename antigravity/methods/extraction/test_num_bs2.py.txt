@@ -1,0 +1,24 @@
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+
+img = cv2.imread(r"extraction\extracted_zip\WhatsApp Image 2026-10-23 at 09.33.27.jpeg")
+
+async def main():
+    crop = img[500:1430, 320:570]
+    pil_im = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
+    res = await winocr.recognize_pil(pil_im)
+    print("Number + BigSmall crop OCR lines (y to 1430):")
+    nums = []
+    bss = []
+    for line in res.lines:
+        for w in line.words:
+            if w.bounding_rect.x < 100: # Number column relative x
+                nums.append((w.bounding_rect.y, w.text))
+            else:
+                bss.append((w.bounding_rect.y, w.text))
+    print("Numbers:", nums)
+    print("Big/Small:", bss)
+
+asyncio.run(main())

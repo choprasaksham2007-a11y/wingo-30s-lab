@@ -1,0 +1,51 @@
+import cv2, os, glob
+import numpy as np
+from PIL import Image
+import winocr, asyncio
+
+batch4_dir = r"extraction\extracted_zip_batch4"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+async def test_batch4_layout():
+    sample_path = os.path.join(batch4_dir, "WhatsApp Image 2026-10-24 at 10.46.29.jpeg")
+    im = cv2.imread(sample_path)
+    
+    # OCR on PID strip
+    pid_strip = im[500:1450, 20:300]
+    res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+    
+    # OCR on Big/Small strip
+    bs_strip = im[500:1450, 420:530]
+    res_bs = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB)))
+    
+    bs_dict = {}
+    for l in res_bs.lines:
+        txt = " ".join([w.text.strip() for w in l.words])
+        if "Big" in txt or "Small" in txt:
+            val = "Small" if "Small" in txt else "Big"
+            y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+            bs_dict[y_c] = val
+            
+    print("Testing digit crops across different x-ranges for row 0:")
+    line0 = res_pid.lines[4] # First actual PID line
+    txt0 = ''.join([w.text for w in line0.words])
+    y_rel = line0.words[0].bounding_rect.y + line0.words[0].bounding_rect.height / 2.0
+    yc = int(round(500 + y_rel))
+    print(f"PID: {txt0}, yc: {yc}")
+    
+    # Let's save crops at x: 315..375 and x: 345..405
+    crop_b3 = im[yc-20:yc+20, 315:375]
+    crop_b1 = im[yc-20:yc+20, 345:405]
+    
+    cv2.imwrite(r"scratch\b4_crop_315_375.png", crop_b3)
+    cv2.imwrite(r"scratch\b4_crop_345_405.png", crop_b1)
+    
+    # Test scores with templates
+    for x_start in [305, 315, 325, 335, 345]:
+        crop = im[yc-20:yc+20, x_start:x_start+60]
+        scores = {d: cv2.minMaxLoc(cv2.matchTemplate(crop, templates[d], cv2.TM_CCOEFF_NORMED))[1] for d in range(10)}
+        best_d = max(scores, key=scores.get)
+        print(f"x_start={x_start}: best digit={best_d}, score={scores[best_d]:.3f}")
+
+if __name__ == '__main__':
+    asyncio.run(test_batch4_layout())

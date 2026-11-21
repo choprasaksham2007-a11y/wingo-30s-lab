@@ -1,0 +1,63 @@
+import openpyxl
+
+def verify_file(path, expected_rows, expected_ml_rows):
+    print(f"\n--- Verifying: {path} ---")
+    wb = openpyxl.load_workbook(path, data_only=True)
+    print("Sheets:", wb.sheetnames)
+    
+    # 1. Raw_Data
+    ws_raw = wb['Raw_Data']
+    header = [cell.value for cell in ws_raw[1]]
+    rows = list(ws_raw.iter_rows(min_row=2, values_only=True))
+    print(f"Raw_Data rows: {len(rows)} (Expected: {expected_rows})")
+    print(f"Header: {header}")
+    
+    # Check Period IDs text & 17 digits
+    wb_text = openpyxl.load_workbook(path, data_only=False)
+    ws_text_raw = wb_text['Raw_Data']
+    pids = []
+    text_types = []
+    rule_violations = 0
+    for r in range(2, len(rows) + 2):
+        c = ws_text_raw.cell(row=r, column=2)
+        pid = str(c.value)
+        pids.append(pid)
+        text_types.append(c.data_type == 's' or ws_raw.cell(row=r, column=2).number_format == '@')
+        
+        # Rule check
+        num = ws_raw.cell(row=r, column=header.index('number') + 1).value
+        colour = ws_raw.cell(row=r, column=header.index('colour') + 1).value
+        size = ws_raw.cell(row=r, column=header.index('size') + 1).value
+        
+        expected_size = 'Small' if num <= 4 else 'Big'
+        if num == 0:
+            expected_colour = 'Red+Violet'
+        elif num in (1, 3, 7, 9):
+            expected_colour = 'Green'
+        elif num in (2, 4, 6, 8):
+            expected_colour = 'Red'
+        elif num == 5:
+            expected_colour = 'Green+Violet'
+            
+        if colour != expected_colour or size != expected_size:
+            rule_violations += 1
+            
+    print(f"All PIDs 17 digits: {all(len(p) == 17 for p in pids)}")
+    print(f"All PIDs unique: {len(set(pids)) == len(pids)}")
+    print(f"All PIDs text type: {all(text_types)}")
+    print(f"Rule violations: {rule_violations}")
+    
+    # 2. ML_Ready
+    ws_ml = wb['ML_Ready']
+    ml_rows = list(ws_ml.iter_rows(min_row=2, values_only=True))
+    print(f"ML_Ready rows: {len(ml_rows)} (Expected: {expected_ml_rows})")
+    
+    # Check Summary
+    ws_sum = wb['Summary']
+    print("Summary sheet sample:")
+    for row in ws_sum.iter_rows(values_only=True):
+        if any(row):
+            print("  ", [str(x) for x in row if x is not None][:4])
+
+verify_file(r"project_reports\Colour_Prediction_Dataset_corrected.xlsx", 1260, 1230)
+verify_file(r"project_reports\Colour_Prediction_Dataset_v3.xlsx", 2135, 2095)

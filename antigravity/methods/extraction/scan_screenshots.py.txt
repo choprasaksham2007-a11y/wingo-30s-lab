@@ -1,0 +1,68 @@
+import os
+import glob
+import asyncio
+from PIL import Image
+import winocr
+
+zip_dir = r"extraction\extracted_zip"
+files = sorted(glob.glob(os.path.join(zip_dir, "*.jpeg")))
+
+async def scan_all():
+    summary = []
+    print(f"Scanning {len(files)} files...")
+    for idx, f in enumerate(files):
+        img = Image.open(f)
+        # We can crop the table region: y from 500 to 1400, x from 40 to 680
+        # Also phone status bar: y from 0 to 80, x from 20 to 150
+        status_crop = img.crop((20, 10, 150, 70))
+        table_crop = img.crop((40, 500, 680, 1400))
+        page_crop = img.crop((300, 1420, 420, 1480))
+        
+        status_res = await winocr.recognize_pil(status_crop)
+        table_res = await winocr.recognize_pil(table_crop)
+        page_res = await winocr.recognize_pil(page_crop)
+        
+        # Extract Period IDs
+        pids = []
+        for line in table_res.lines:
+            for w in line.words:
+                txt = w.text.strip()
+                if len(txt) >= 15 and txt.isdigit():
+                    pids.append(txt)
+                    
+        time_str = status_res.text.strip().replace("\n", " ")
+        page_str = page_res.text.strip().replace("\n", " ")
+        
+        summary.append({
+            "file": os.path.basename(f),
+            "time": time_str,
+            "page": page_str,
+            "pid_count": len(pids),
+            "min_pid": min(pids) if pids else "NONE",
+            "max_pid": max(pids) if pids else "NONE",
+            "pids": pids
+        })
+        if (idx + 1) % 10 == 0 or idx == len(files) - 1:
+            print(f"Processed {idx+1}/{len(files)}...")
+
+    return summary
+
+async def main():
+    res = await scan_all()
+    all_pids = set()
+    for r in res:
+        all_pids.update(r["pids"])
+    print(f"\nTotal unique Period IDs found across all {len(files)} screenshots: {len(all_pids)}")
+    sorted_pids = sorted(list(all_pids), key=lambda x: (len(x), x))
+    if sorted_pids:
+        print(f"Smallest Period ID: {sorted_pids[0]}")
+        print(f"Largest Period ID:  {sorted_pids[-1]}")
+        
+    # Check coverage and pages
+    import json
+    with open(r"extraction\scan_summary.json", "w") as out_f:
+        json.dump(res, out_f, indent=2)
+    print("Saved scan_summary.json")
+
+if __name__ == "__main__":
+    asyncio.run(main())

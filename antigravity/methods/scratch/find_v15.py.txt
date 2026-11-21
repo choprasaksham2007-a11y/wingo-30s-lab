@@ -1,0 +1,13 @@
+import os
+import glob
+
+files = glob.glob(r'scratch\*v15*')
+print("Files in scratch matching v15:")
+for f in files:
+    print(f)
+
+# Also check brain artifacts
+brain_files = glob.glob(r'project_reports\*v15*')
+print("\nFiles in brain matching v15:")
+for f in brain_files:
+    print(f)

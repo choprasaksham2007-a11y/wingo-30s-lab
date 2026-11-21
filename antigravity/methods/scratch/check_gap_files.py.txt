@@ -1,0 +1,12 @@
+import asyncio
+from scan_batch4 import scan_batch4_pids
+
+async def check_files_around_gap():
+    pids, file_pids = await scan_batch4_pids()
+    for fname, fpids in file_pids.items():
+        suffixes = [int(p[-5:]) for p in fpids]
+        if any(50450 <= s <= 50475 for s in suffixes):
+            print(f"{fname}: {min(suffixes)} -> {max(suffixes)} ({len(suffixes)} pids)")
+
+if __name__ == '__main__':
+    asyncio.run(check_files_around_gap())

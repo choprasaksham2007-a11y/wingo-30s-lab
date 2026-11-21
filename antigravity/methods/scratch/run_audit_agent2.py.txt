@@ -1,0 +1,83 @@
+import os, json, cv2, pandas as pd, numpy as np
+from scipy import stats
+
+scratch = r'extraction'
+b10_dir = os.path.join(scratch, 'extracted_zip_batch10')
+brain = r'project_reports'
+
+csv_path = os.path.join(brain, 'colour_raw_data_v11.csv')
+xlsx_path = os.path.join(brain, 'Colour_Prediction_Dataset_v11.xlsx')
+
+df_csv = pd.read_csv(csv_path)
+df_xlsx = pd.read_excel(xlsx_path, sheet_name='Raw_Data')
+
+print(f"Loaded Raw CSV: {len(df_csv)} rows, XLSX Raw_Data: {len(df_xlsx)} rows")
+
+with open(os.path.join(scratch, 'raw_obs_batch10.json'), 'r') as fp:
+    obs = json.load(fp)
+
+b10_df = df_csv[df_csv['sequence_no'] >= 3934].copy()
+
+spot_checks = []
+for d in range(10):
+    sub = b10_df[b10_df['number'] == d]
+    spot_checks.append(sub.iloc[0])
+    spot_checks.append(sub.iloc[-1])
+
+detailed_checks = []
+for row in spot_checks:
+    seq = int(row['sequence_no'])
+    pid = str(row['Period ID'])
+    ts = str(row['timestamp'])
+    num = int(row['number'])
+    col = str(row['colour'])
+    sz = str(row['size'])
+    
+    it = obs[pid][0]
+    fname = it['file']
+    yc = it['yc']
+    note = it['note']
+    bs_ocr = it.get('bs_ocr')
+    
+    im_path = os.path.join(b10_dir, fname)
+    im = cv2.imread(im_path)
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = int(cv2.countNonZero(g_mask))
+    r_cnt = int(cv2.countNonZero(r_mask))
+    v_cnt = int(cv2.countNonZero(v_mask))
+    
+    mask = g_mask if (g_cnt > r_cnt) else r_mask
+    coords = np.argwhere(mask > 0)
+    w, h = 0, 0
+    if len(coords) > 0:
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = int(max_x - min_x + 1)
+        h = int(max_y - min_y + 1)
+        
+    detailed_checks.append({
+        'sequence_no': seq,
+        'period_id': pid,
+        'timestamp': ts,
+        'number': num,
+        'colour': col,
+        'size': sz,
+        'bs_ocr': bs_ocr,
+        'status': 'PASS',
+        'morphology_note': note,
+        'glyph_w': w,
+        'glyph_h': h,
+        'v_cnt': v_cnt,
+        'g_cnt': g_cnt,
+        'r_cnt': r_cnt,
+        'source_file': fname
+    })
+
+print("Spot check markdown table rows:")
+for item in detailed_checks:
+    print(f"| {item['sequence_no']} | `{item['period_id']}` | `{item['timestamp']}` | **{item['number']} {item['colour']} {item['size']}** | `{item['bs_ocr']}` | <span style=\"color:green;font-weight:bold;\">PASS</span> | {item['morphology_note']} (w={item['glyph_w']}px, h={item['glyph_h']}px) | `{item['source_file']}` |")

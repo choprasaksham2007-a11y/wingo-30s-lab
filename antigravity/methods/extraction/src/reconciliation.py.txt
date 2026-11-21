@@ -1,0 +1,224 @@
+"""
+Reconciliation engine for combining observations from multiple overlapping screenshots,
+resolving occlusions, detecting conflicts, and auditing consistency.
+"""
+from typing import List, Dict, Tuple, Optional
+from collections import defaultdict
+from src.schema import RawObservation, ReconciledRecord, AuditRecord
+from src.color_rules import (
+    validate_number_size_consistency,
+    validate_number_colour_consistency,
+    derive_colour_from_number,
+    derive_size_from_number
+)
+
+def reconcile_observations(
+    observations: List[RawObservation],
+    allow_rule_derivation_fallback: bool = False
+) -> Tuple[List[ReconciledRecord], List[AuditRecord], List[Dict[str, str]]]:
+    """
+    Reconciles multi-screenshot observations into unique chronological rounds.
+    Returns:
+        reconciled_records: List of ReconciledRecord sorted chronologically.
+        audit_records: List of AuditRecord tracking decisions.
+        missing_rounds: List of detected gaps or anomalies.
+    """
+    grouped: Dict[str, List[RawObservation]] = defaultdict(list)
+    for obs in observations:
+        grouped[str(obs.period_id).strip()].append(obs)
+        
+    reconciled_list: List[ReconciledRecord] = []
+    audit_records: List[AuditRecord] = []
+    
+    # Sort distinct period IDs chronologically (string sort works if ISO timestamp prefix or fixed-width ID)
+    sorted_period_ids = sorted(grouped.keys(), key=lambda x: (len(x), x))
+    
+    row_counter = 1
+    for pid in sorted_period_ids:
+        obs_list = grouped[pid]
+        sources = list(dict.fromkeys([o.source_screenshot for o in obs_list]))
+        
+        # Numbers observed
+        nums = [o.number for o in obs_list if o.number is not None]
+        sizes = [o.big_small for o in obs_list if o.big_small is not None]
+        colours = [o.colour for o in obs_list if o.colour and o.colour.upper() != "UNKNOWN"]
+        timestamps = [o.timestamp for o in obs_list if o.timestamp]
+        
+        conflicts = []
+        notes_list = []
+        
+        # 1. Check Number consistency
+        final_num = None
+        num_verification = "PENDING"
+        if len(set(nums)) == 1:
+            final_num = nums[0]
+            num_verification = "VERIFIED_SCREENSHOT" if len(sources) > 0 else "USER_PROVIDED"
+        elif len(set(nums)) > 1:
+            conflicts.append(f"Conflicting numbers observed across screenshots: {set(nums)}")
+            final_num = nums[0]  # flag for review
+            num_verification = "CONFLICT"
+        else:
+            final_num = None
+            num_verification = "MISSING"
+            
+        # 2. Check Size consistency
+        final_size = None
+        if len(set(sizes)) == 1:
+            final_size = sizes[0]
+        elif len(set(sizes)) > 1:
+            conflicts.append(f"Conflicting sizes observed: {set(sizes)}")
+            final_size = sizes[0]
+        else:
+            # If missing, can we derive it from verified number?
+            if final_num is not None:
+                final_size = derive_size_from_number(final_num)
+                notes_list.append("Size derived from verified number")
+                
+        # 3. Check Colour resolution & Overlap Recovery
+        final_colour = None
+        colour_verification = "PENDING"
+        
+        distinct_colours = list(set(colours))
+        if len(distinct_colours) == 1:
+            final_colour = distinct_colours[0]
+            if len(obs_list) > 1 and any(o.is_occluded for o in obs_list):
+                colour_verification = "RECONSTRUCTED_OVERLAP"
+                notes_list.append(f"Recovered occluded colour from overlapping screenshot(s): {', '.join(sources)}")
+                audit_records.append(AuditRecord(
+                    period_id=pid,
+                    check_type="COLOR_RECONSTRUCTED",
+                    status="VERIFIED",
+                    source_evidence=f"Overlapping screenshots: {', '.join(sources)}",
+                    description=f"Colour '{final_colour}' recovered for round {pid} where icon occluded dot in one view."
+                ))
+            else:
+                colour_verification = "VERIFIED_DIRECT"
+        elif len(distinct_colours) > 1:
+            conflicts.append(f"Conflicting colours observed: {distinct_colours}")
+            final_colour = distinct_colours[0]
+            colour_verification = "CONFLICT"
+        else:
+            # Colour is obscured in all available screenshots
+            if allow_rule_derivation_fallback and final_num is not None:
+                final_colour = derive_colour_from_number(final_num)
+                colour_verification = "DERIVED_RULE"
+                notes_list.append(f"Colour derived from verified number rule ({final_colour})")
+                audit_records.append(AuditRecord(
+                    period_id=pid,
+                    check_type="COLOR_DERIVATION",
+                    status="FLAGGED",
+                    source_evidence="Standard Game Rulebook",
+                    description=f"Colour derived as {final_colour} based on number {final_num}. Direct screenshot was occluded/missing."
+                ))
+            else:
+                final_colour = "UNKNOWN"
+                colour_verification = "UNKNOWN"
+                notes_list.append("Colour dot occluded or unavailable across all screenshots")
+                audit_records.append(AuditRecord(
+                    period_id=pid,
+                    check_type="EXTRACTION",
+                    status="UNCERTAIN",
+                    source_evidence=f"Screenshots: {', '.join(sources)}",
+                    description=f"Colour dot could not be reliably determined from any source screenshot."
+                ))
+                
+        # 4. Consistency cross-check
+        num_size_ok, size_msg = validate_number_size_consistency(final_num, final_size)
+        if not num_size_ok:
+            conflicts.append(size_msg)
+            
+        if final_colour and final_colour != "UNKNOWN":
+            num_col_ok, col_msg = validate_number_colour_consistency(final_num, final_colour)
+            if not num_col_ok:
+                conflicts.append(col_msg)
+                
+        # 5. Overall verification status
+        if conflicts:
+            overall_verification = "CONFLICT"
+            for c in conflicts:
+                audit_records.append(AuditRecord(
+                    period_id=pid,
+                    check_type="AUDIT_PASS_2",
+                    status="FLAGGED",
+                    source_evidence=f"Screenshots: {', '.join(sources)}",
+                    description=c
+                ))
+        elif colour_verification == "UNKNOWN" or num_verification == "MISSING":
+            overall_verification = "REVIEW_NEEDED"
+        else:
+            overall_verification = "VERIFIED"
+            audit_records.append(AuditRecord(
+                period_id=pid,
+                check_type="AUDIT_PASS_2",
+                status="VERIFIED",
+                source_evidence=f"Screenshots: {', '.join(sources)}",
+                description=f"Period ID {pid} verified with Number={final_num}, Size={final_size}, Colour={final_colour}."
+            ))
+            
+        final_timestamp = timestamps[0] if timestamps else None
+        
+        notes_str = "; ".join(notes_list + conflicts) if (notes_list or conflicts) else "Verified from screenshots"
+        
+        reconciled_list.append(ReconciledRecord(
+            row_no=row_counter,
+            period_id=str(pid),
+            number=final_num,
+            big_small=final_size,
+            colour=final_colour,
+            timestamp=final_timestamp,
+            source_screenshots=sources,
+            number_verification=num_verification,
+            colour_verification=colour_verification,
+            overall_verification=overall_verification,
+            notes=notes_str,
+            conflicts=conflicts
+        ))
+        row_counter += 1
+        
+    # Check for missing rounds in sequence
+    missing_rounds = detect_missing_rounds(reconciled_list)
+    
+    return reconciled_list, audit_records, missing_rounds
+
+
+def detect_missing_rounds(records: List[ReconciledRecord]) -> List[Dict[str, str]]:
+    """
+    Detects potential missing rounds based on numerical progression of Period IDs.
+    Does not invent IDs, only logs gaps for Sheet 4: Missing_Rounds.
+    """
+    missing_list = []
+    if len(records) < 2:
+        return missing_list
+        
+    for i in range(len(records) - 1):
+        pid1_str = records[i].period_id
+        pid2_str = records[i + 1].period_id
+        
+        # Check if Period IDs are integer-convertible
+        if pid1_str.isdigit() and pid2_str.isdigit():
+            val1 = int(pid1_str)
+            val2 = int(pid2_str)
+            diff = val2 - val1
+            if diff > 1:
+                # Potential missing rounds in between
+                missing_list.append({
+                    "prior_period_id": pid1_str,
+                    "subsequent_period_id": pid2_str,
+                    "estimated_missing_count": str(diff - 1),
+                    "reason": f"Jump of {diff} in Period ID sequence between {pid1_str} and {pid2_str}. Surrounding rounds appear valid."
+                })
+        else:
+            # Check for missing result fields
+            pass
+            
+    # Also check if any record has missing fields
+    for r in records:
+        if r.number is None or r.colour == "UNKNOWN" or r.big_small is None:
+            missing_list.append({
+                "prior_period_id": r.period_id,
+                "subsequent_period_id": r.period_id,
+                "estimated_missing_count": "0",
+                "reason": f"Period {r.period_id} exists but has incomplete result fields (Number={r.number}, Colour={r.colour}, Size={r.big_small})."
+            })
+            
+    return missing_list

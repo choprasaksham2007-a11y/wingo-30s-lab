@@ -1,0 +1,45 @@
+import pickle
+from collections import defaultdict
+
+with open(r"extraction\data\all_raw_observations.pkl", "rb") as pf:
+    all_obs = pickle.load(pf)
+
+print(f"Total raw observations extracted: {len(all_obs)}")
+
+grouped = defaultdict(list)
+for obs in all_obs:
+    grouped[obs.period_id].append(obs)
+
+unique_pids = sorted(list(grouped.keys()), key=lambda x: (len(x), x))
+print(f"Total unique Period IDs in new screenshots: {len(unique_pids)}")
+print(f"Min PID: {unique_pids[0]}")
+print(f"Max PID: {unique_pids[-1]}")
+
+# Dates breakdown
+dates = defaultdict(list)
+for p in unique_pids:
+    dates[p[:8]].append(p)
+
+for d, p_list in sorted(dates.items()):
+    print(f"Date {d}: {len(p_list)} unique rounds, range {p_list[0]} to {p_list[-1]}")
+
+# Check overlaps and color recovery
+recovered_colors = 0
+still_occluded = 0
+conflicting_numbers = 0
+
+for pid, obs_list in grouped.items():
+    nums = set(o.number for o in obs_list if o.number is not None)
+    if len(nums) > 1:
+        conflicting_numbers += 1
+        print(f"Conflict in PID {pid}: numbers observed = {nums}")
+        
+    cols = [o.colour for o in obs_list if o.colour is not None]
+    if len(cols) > 0 and any(o.is_occluded for o in obs_list):
+        recovered_colors += 1
+    elif len(cols) == 0:
+        still_occluded += 1
+
+print(f"Rounds with colour recovered from overlapping screenshots: {recovered_colors}")
+print(f"Rounds still occluded in all screenshots: {still_occluded}")
+print(f"Conflicting number rounds: {conflicting_numbers}")

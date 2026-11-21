@@ -87,6 +87,6 @@ The repository includes the whitepaper, a small data sample, full dataset releas
 
 The most useful outcome was learning to distinguish a pattern worth testing from a pattern that has survived testing—and to distinguish a confident report from evidence that actually supports its claims.
 
-**Read the research and reproduction instructions: https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis**
+**Read the research and reproduction instructions: https://github.com/choprasaksham2007-a11y/wingo-30s-lab**
 
 Research and curation: Saksham Chopra. Development, analysis and editorial assistance: Google Antigravity and ChatGPT. The archive identifies which results were checked locally, retained from earlier reports, hypothesized, or left unknown.

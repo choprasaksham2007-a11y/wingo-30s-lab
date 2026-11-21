@@ -1,0 +1,30 @@
+import openpyxl
+from collections import Counter
+from datetime import datetime, timedelta
+
+path = r"project_reports\Colour_Prediction_Dataset_v4.xlsx"
+wb = openpyxl.load_workbook(path, data_only=True)
+
+print("Sheets in workbook:", wb.sheetnames)
+
+# 1. Raw_Data
+ws_raw = wb['Raw_Data']
+raw_rows = list(ws_raw.iter_rows(min_row=2, values_only=True))
+print(f"Raw_Data rows: {len(raw_rows)}")
+
+# 2. ML_Ready
+ws_ml = wb['ML_Ready']
+ml_rows = list(ws_ml.iter_rows(min_row=2, values_only=True))
+print(f"ML_Ready rows: {len(ml_rows)}")
+
+# 3. Missing_Rounds
+ws_gaps = wb['Missing_Rounds']
+gap_rows = list(ws_gaps.iter_rows(min_row=2, values_only=True))
+print(f"Missing_Rounds gaps: {len(gap_rows)}")
+
+# 4. Summary
+ws_sum = wb['Summary']
+print("\nSummary Sheet:")
+for row in ws_sum.iter_rows(values_only=True):
+    if any(row):
+        print("  ", [str(x) for x in row if x is not None])

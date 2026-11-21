@@ -1,0 +1,15 @@
+import json
+
+with open(r"extraction\reconciled_batch3.json", "r") as f:
+    data = json.load(f)
+
+print(f"Type: {type(data)}")
+if isinstance(data, dict):
+    keys = list(data.keys())
+    print(f"Num keys: {len(keys)}")
+    print("Sample key:", keys[0], data[keys[0]])
+    sorted_keys = sorted(keys, key=lambda k: int(k))
+    print("Min PID:", sorted_keys[0])
+    print("Max PID:", sorted_keys[-1])
+    for k in sorted_keys[-10:]:
+        print(k, data[k])

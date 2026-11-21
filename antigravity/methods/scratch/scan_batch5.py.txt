@@ -1,0 +1,44 @@
+import os, glob, cv2, asyncio
+from PIL import Image
+import winocr
+from collections import defaultdict
+
+batch5_dir = r"extraction\extracted_zip_batch5"
+
+async def scan_batch5_pids():
+    files = sorted(glob.glob(os.path.join(batch5_dir, "*.jpeg")))
+    print(f"Total files: {len(files)}")
+    
+    all_pids = set()
+    file_pids = defaultdict(list)
+    
+    for idx, f in enumerate(files):
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        pid_strip = im[500:1450, 20:300]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        
+        for line in res.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for i in range(len(txt)-16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith('202610241000'):
+                    all_pids.add(chunk)
+                    file_pids[fname].append(chunk)
+                    
+    print(f"Total unique PIDs found in Batch 5: {len(all_pids)}")
+    sorted_pids = sorted(list(all_pids), key=lambda x: int(x))
+    print(f"Min PID: {sorted_pids[0]}, Max PID: {sorted_pids[-1]}")
+    suffixes = [int(p[-5:]) for p in sorted_pids]
+    print(f"Suffix range: {suffixes[0]} to {suffixes[-1]} (span: {suffixes[-1] - suffixes[0] + 1})")
+    
+    missing = []
+    s_set = set(suffixes)
+    for s in range(suffixes[0], suffixes[-1] + 1):
+        if s not in s_set:
+            missing.append(s)
+    print(f"Missing within Batch 5: {len(missing)} -> {missing}")
+    return sorted_pids, file_pids
+
+if __name__ == '__main__':
+    sorted_pids, file_pids = asyncio.run(scan_batch5_pids())

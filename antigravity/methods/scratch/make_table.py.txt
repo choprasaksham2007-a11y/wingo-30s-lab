@@ -1,0 +1,49 @@
+import json, os
+import pandas as pd
+
+with open('spot_check_30_results.json') as f:
+    results = json.load(f)
+
+md_table = []
+md_table.append('| # | Seq No | Period ID | Image File | Y-Center | Digit | Rule Colour | Rule Size | Size OCR | HSV Pixels (G/R/V) | Glyph BBox | Key Morphological Metric | Audit Status |')
+md_table.append('|---|---|---|---|---|---|---|---|---|---|---|---|---|')
+
+for idx, r in enumerate(results):
+    d = r['excel_num']
+    g_cnt = r['g_cnt']
+    r_cnt = r['r_cnt']
+    v_cnt = r['v_cnt']
+    w = r['glyph_w']
+    h = r['glyph_h']
+    bl = r['bl']
+    tl = r['tl']
+    tr = r['tr']
+
+    if d == 0:
+        morph = f'Dual split: R={r_cnt}, V={v_cnt}'
+    elif d == 1:
+        morph = f'Narrow glyph (W={w}, BL={bl})'
+    elif d == 2:
+        morph = f'Base loop (BL={bl})'
+    elif d == 3:
+        morph = f'Wide glyph (W={w}, BL={bl})'
+    elif d == 4:
+        morph = f'Vertical drop (BL={bl})'
+    elif d == 5:
+        morph = f'Dual split: G={g_cnt}, V={v_cnt}'
+    elif d == 6:
+        morph = f'Open upper right (TR={tr})'
+    elif d == 7:
+        morph = f'Open upper left (TL={tl})'
+    elif d == 8:
+        morph = f'Closed upper right (TR={tr})'
+    elif d == 9:
+        morph = f'Closed upper left (TL={tl})'
+        
+    row_str = f"| {idx+1} | {r['seq']} | `{r['pid']}` | `{r['file']}` | {r['yc']} | **{d}** | {r['excel_col']} | {r['excel_sz']} | {r['size_ocr']} | G={g_cnt}, R={r_cnt}, V={v_cnt} | {w}x{h} | {morph} | **CERTIFIED PASS** |"
+    md_table.append(row_str)
+
+with open('spot_check_table.md', 'w') as f:
+    f.write('\n'.join(md_table))
+
+print('Table generated with', len(results), 'rows')

@@ -1,0 +1,514 @@
+{
+  "audit_metadata": {
+    "audit_scope": [
+      "Excel Workbook Structure & Sheet Integrity",
+      "Period ID String & Cell Number Format (@)",
+      "ML_Ready Supervised Feature Engineering & Gap Isolation",
+      "Standalone CSV Schema & Content Fidelity",
+      "Multi-Directory File Synchronization & SHA-256 Bitwise Verification"
+    ],
+    "audit_timestamp": "2026-10-25T09:54:13.698207",
+    "auditor_role": "Agent 3: Master Excel Structure & ML Auditor",
+    "dataset_version": "v11.0 Master",
+    "overall_verdict": "PASSED - 100% COMPLIANT"
+  },
+  "domain_rules_and_continuity_audit": {
+    "colour_distribution": {
+      "Green": 1779,
+      "Green+Violet": 461,
+      "Red": 1736,
+      "Red+Violet": 458
+    },
+    "deterministic_game_rule_violations": 0,
+    "number_distribution": {
+      "0": 458,
+      "1": 462,
+      "2": 407,
+      "3": 458,
+      "4": 433,
+      "5": 461,
+      "6": 453,
+      "7": 435,
+      "8": 443,
+      "9": 424
+    },
+    "size_distribution": {
+      "Big": 2216,
+      "Small": 2218
+    },
+    "total_documented_gaps": 18,
+    "total_missing_rounds_across_gaps": 3076,
+    "total_verified_rounds": 4434
+  },
+  "ml_ready_supervised_audit": {
+    "actual_excluded_rounds": 95,
+    "all_blocks_match_lag_deduction": true,
+    "block_breakdown": [
+      {
+        "block_id": 1,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 631,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 636
+      },
+      {
+        "block_id": 2,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 83,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 88
+      },
+      {
+        "block_id": 3,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 125,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 130
+      },
+      {
+        "block_id": 4,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 143,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 148
+      },
+      {
+        "block_id": 5,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 45,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 50
+      },
+      {
+        "block_id": 6,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 583,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 588
+      },
+      {
+        "block_id": 7,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 481,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 486
+      },
+      {
+        "block_id": 8,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 4,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 9
+      },
+      {
+        "block_id": 9,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 313,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 318
+      },
+      {
+        "block_id": 10,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 153,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 158
+      },
+      {
+        "block_id": 11,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 35,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 40
+      },
+      {
+        "block_id": 12,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 65,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 70
+      },
+      {
+        "block_id": 13,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 65,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 70
+      },
+      {
+        "block_id": 14,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 143,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 148
+      },
+      {
+        "block_id": 15,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 84,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 89
+      },
+      {
+        "block_id": 16,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 194,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 199
+      },
+      {
+        "block_id": 17,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 403,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 408
+      },
+      {
+        "block_id": 18,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 293,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 298
+      },
+      {
+        "block_id": 19,
+        "excluded_initial_rounds": 5,
+        "ml_samples": 496,
+        "passed_exact_5_exclusion": true,
+        "raw_rounds": 501
+      }
+    ],
+    "expected_excluded_rounds": 95,
+    "expected_training_samples": 4339,
+    "gap_crossing_violations": 0,
+    "lag_rounds_per_block": 5,
+    "raw_data_fidelity_mismatches": 0,
+    "supervised_features_verified": [
+      "Target Period ID",
+      "target_timestamp",
+      "target_number",
+      "target_colour",
+      "target_size",
+      "prev_1_number",
+      "prev_1_colour",
+      "prev_1_size",
+      "prev_2_number",
+      "prev_2_colour",
+      "prev_2_size",
+      "prev_3_number",
+      "prev_3_colour",
+      "prev_3_size",
+      "prev_4_number",
+      "prev_4_colour",
+      "prev_4_size",
+      "prev_5_number",
+      "prev_5_colour",
+      "prev_5_size",
+      "block_id"
+    ],
+    "total_continuous_blocks": 19,
+    "total_raw_rounds": 4434,
+    "total_training_samples": 4339
+  },
+  "period_id_format_audit": {
+    "float_rounding_detected": false,
+    "ml_ready_target_period_ids": {
+      "expected_count": 4339,
+      "float_rounding_count": 0,
+      "length_17_count": 4339,
+      "number_format_at_count": 4339,
+      "number_format_at_percentage": 100.0,
+      "passed": true,
+      "pure_digits_17_count": 4339,
+      "sample_values": [
+        "20261022100051587",
+        "20261022100051588",
+        "20261022100051589",
+        "20261025100050451"
+      ],
+      "scientific_notation_count": 0,
+      "string_type_count": 4339,
+      "total_evaluated": 4339
+    },
+    "raw_data_period_ids": {
+      "expected_count": 4434,
+      "float_rounding_count": 0,
+      "length_17_count": 4434,
+      "number_format_at_count": 4434,
+      "number_format_at_percentage": 100.0,
+      "passed": true,
+      "pure_digits_17_count": 4434,
+      "sample_values": [
+        "20261022100051582",
+        "20261022100051583",
+        "20261022100051584",
+        "20261025100050451"
+      ],
+      "scientific_notation_count": 0,
+      "string_type_count": 4434,
+      "total_evaluated": 4434
+    },
+    "scientific_notation_detected": false
+  },
+  "standalone_csv_audit": {
+    "colour_ml_ready_v11_csv": {
+      "columns": [
+        "sample_sequence",
+        "Target Period ID",
+        "target_timestamp",
+        "target_number",
+        "target_colour",
+        "target_size",
+        "prev_1_number",
+        "prev_1_colour",
+        "prev_1_size",
+        "prev_2_number",
+        "prev_2_colour",
+        "prev_2_size",
+        "prev_3_number",
+        "prev_3_colour",
+        "prev_3_size",
+        "prev_4_number",
+        "prev_4_colour",
+        "prev_4_size",
+        "prev_5_number",
+        "prev_5_colour",
+        "prev_5_size",
+        "block_id"
+      ],
+      "columns_count": 22,
+      "expected_rows": 4339,
+      "missing_values_total": 0,
+      "passed": true,
+      "rows": 4339,
+      "target_period_id_valid_17_digits": true
+    },
+    "colour_raw_data_v11_csv": {
+      "columns": [
+        "sequence_no",
+        "Period ID",
+        "timestamp",
+        "number",
+        "colour",
+        "size",
+        "colour_original",
+        "fix_note"
+      ],
+      "columns_count": 8,
+      "expected_rows": 4434,
+      "missing_values_total": 0,
+      "passed": true,
+      "period_id_valid_17_digits": true,
+      "rows": 4434
+    }
+  },
+  "synchronization_audit": {
+    "all_synchronized": true,
+    "files": [
+      {
+        "brain_file_path": "project_reports\\Colour_Prediction_Dataset_v11.xlsx",
+        "brain_sha256": "da0290d7307a4d5773755adf153e2c7424766584c2308a34c8122380c9af6ad4",
+        "brain_size_bytes": 590345,
+        "byte_for_byte_exact_match": true,
+        "downloads_file_path": "input\\Colour_Prediction_Dataset_v11.xlsx",
+        "downloads_sha256": "da0290d7307a4d5773755adf153e2c7424766584c2308a34c8122380c9af6ad4",
+        "downloads_size_bytes": 590345,
+        "filename": "Colour_Prediction_Dataset_v11.xlsx",
+        "sha256_match": true,
+        "size_match": true,
+        "status": "SYNCHRONIZED"
+      },
+      {
+        "brain_file_path": "project_reports\\colour_raw_data_v11.csv",
+        "brain_sha256": "9ea5d7101374ff26bda01fcc4703085d77fa7b12423cf761f4e938aee6dd2c7d",
+        "brain_size_bytes": 427740,
+        "byte_for_byte_exact_match": true,
+        "downloads_file_path": "input\\colour_raw_data_v11.csv",
+        "downloads_sha256": "9ea5d7101374ff26bda01fcc4703085d77fa7b12423cf761f4e938aee6dd2c7d",
+        "downloads_size_bytes": 427740,
+        "filename": "colour_raw_data_v11.csv",
+        "sha256_match": true,
+        "size_match": true,
+        "status": "SYNCHRONIZED"
+      },
+      {
+        "brain_file_path": "project_reports\\colour_ml_ready_v11.csv",
+        "brain_sha256": "b24f0f52c41f44635000da91f7b078641241acc4affa6aa5fe14d77f36f2df50",
+        "brain_size_bytes": 551233,
+        "byte_for_byte_exact_match": true,
+        "downloads_file_path": "input\\colour_ml_ready_v11.csv",
+        "downloads_sha256": "b24f0f52c41f44635000da91f7b078641241acc4affa6aa5fe14d77f36f2df50",
+        "downloads_size_bytes": 551233,
+        "filename": "colour_ml_ready_v11.csv",
+        "sha256_match": true,
+        "size_match": true,
+        "status": "SYNCHRONIZED"
+      }
+    ]
+  },
+  "workbook_structure_audit": {
+    "actual_sheet_count": 10,
+    "expected_sheet_count": 10,
+    "sheets_list": [
+      {
+        "header_columns": [
+          "sequence_no",
+          "Period ID",
+          "timestamp",
+          "number",
+          "colour",
+          "size",
+          "colour_original",
+          "fix_note"
+        ],
+        "max_columns": 8,
+        "max_rows": 4435,
+        "non_empty_rows": 4435,
+        "sheet_name": "Raw_Data"
+      },
+      {
+        "header_columns": [
+          "sample_sequence",
+          "Target Period ID",
+          "target_timestamp",
+          "target_number",
+          "target_colour",
+          "target_size",
+          "prev_1_number",
+          "prev_1_colour",
+          "prev_1_size",
+          "prev_2_number",
+          "prev_2_colour",
+          "prev_2_size",
+          "prev_3_number",
+          "prev_3_colour",
+          "prev_3_size",
+          "prev_4_number",
+          "prev_4_colour",
+          "prev_4_size",
+          "prev_5_number",
+          "prev_5_colour",
+          "prev_5_size",
+          "block_id"
+        ],
+        "max_columns": 22,
+        "max_rows": 4340,
+        "non_empty_rows": 4340,
+        "sheet_name": "ML_Ready"
+      },
+      {
+        "header_columns": [
+          "Gap #",
+          "Preceding Period ID",
+          "Preceding Time",
+          "Resuming Period ID",
+          "Resuming Time",
+          "Missing Rounds",
+          "Duration",
+          "Block Before",
+          "Block After"
+        ],
+        "max_columns": 9,
+        "max_rows": 19,
+        "non_empty_rows": 19,
+        "sheet_name": "Missing_Rounds"
+      },
+      {
+        "header_columns": [
+          "COLOUR PREDICTION DATASET SUMMARY (V11 MASTER - AUDITED)",
+          "",
+          "",
+          ""
+        ],
+        "max_columns": 4,
+        "max_rows": 25,
+        "non_empty_rows": 23,
+        "sheet_name": "Summary"
+      },
+      {
+        "header_columns": [
+          "COLOUR PREDICTION DATASET MASTER V11",
+          ""
+        ],
+        "max_columns": 2,
+        "max_rows": 22,
+        "non_empty_rows": 22,
+        "sheet_name": "Read_Me"
+      },
+      {
+        "header_columns": [
+          "PERIOD ID & COLOUR AUDIT REPORT - V11 MASTER",
+          "",
+          ""
+        ],
+        "max_columns": 3,
+        "max_rows": 16,
+        "non_empty_rows": 15,
+        "sheet_name": "Audit"
+      },
+      {
+        "header_columns": [
+          "Period ID Verification & Integrity Audit (V11 Master)",
+          "",
+          ""
+        ],
+        "max_columns": 3,
+        "max_rows": 14,
+        "non_empty_rows": 13,
+        "sheet_name": "ID_Audit"
+      },
+      {
+        "header_columns": [
+          "User-provided Period ID",
+          "Number",
+          "Derived colour",
+          "Derived size",
+          "Verification note"
+        ],
+        "max_columns": 5,
+        "max_rows": 6,
+        "non_empty_rows": 6,
+        "sheet_name": "User_Provided"
+      },
+      {
+        "header_columns": [
+          "sequence_no",
+          "Period ID",
+          "timestamp",
+          "old_number",
+          "new_number",
+          "colour",
+          "size",
+          "confident",
+          "visual_evidence",
+          "source_screenshot"
+        ],
+        "max_columns": 10,
+        "max_rows": 86,
+        "non_empty_rows": 86,
+        "sheet_name": "Change_Log"
+      },
+      {
+        "header_columns": [
+          "8-ROUND VISUAL AUDIT & VERIFICATION RECORD",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "max_columns": 12,
+        "max_rows": 12,
+        "non_empty_rows": 11,
+        "sheet_name": "Audit_8_Rounds"
+      }
+    ],
+    "sheets_match_expected_order": true
+  }
+}

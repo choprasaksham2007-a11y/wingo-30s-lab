@@ -1,0 +1,63 @@
+import openpyxl
+
+v4_path = r"project_reports\Colour_Prediction_Dataset_v4.xlsx"
+v5_path = r"project_reports\Colour_Prediction_Dataset_v5.xlsx"
+
+wb_v4 = openpyxl.load_workbook(v4_path, data_only=True)
+wb_v5 = openpyxl.load_workbook(v5_path, data_only=True)
+
+ws_v4 = wb_v4['Raw_Data']
+ws_v5 = wb_v5['Raw_Data']
+
+print(f"v4 max row: {ws_v4.max_row - 1}")
+print(f"v5 max row: {ws_v5.max_row - 1}")
+
+diffs = []
+rule_violations_v5 = 0
+
+for r in range(2, ws_v5.max_row + 1):
+    seq4 = ws_v4.cell(row=r, column=1).value
+    pid4 = str(ws_v4.cell(row=r, column=2).value)
+    num4 = ws_v4.cell(row=r, column=4).value
+    col4 = ws_v4.cell(row=r, column=5).value
+    sz4 = ws_v4.cell(row=r, column=6).value
+    
+    seq5 = ws_v5.cell(row=r, column=1).value
+    pid5 = str(ws_v5.cell(row=r, column=2).value)
+    num5 = ws_v5.cell(row=r, column=4).value
+    col5 = ws_v5.cell(row=r, column=5).value
+    sz5 = ws_v5.cell(row=r, column=6).value
+    
+    # Check rules in v5
+    exp_sz = 'Small' if num5 <= 4 else 'Big'
+    if num5 == 0: exp_col = 'Red+Violet'
+    elif num5 in (1, 3, 7, 9): exp_col = 'Green'
+    elif num5 in (2, 4, 6, 8): exp_col = 'Red'
+    elif num5 == 5: exp_col = 'Green+Violet'
+    
+    if col5 != exp_col or sz5 != exp_sz:
+        rule_violations_v5 += 1
+        
+    if num4 != num5:
+        diffs.append((seq5, pid5, num4, num5))
+
+print(f"\nTotal differences between v4 and v5: {len(diffs)}")
+print(f"Are all differences in range 1261-1640? {all(1261 <= d[0] <= 1640 for d in diffs)}")
+print(f"Are all differences 8 -> 6? {all(d[2] == 8 and d[3] == 6 for d in diffs)}")
+print(f"Total rule violations in v5: {rule_violations_v5}")
+
+# Check range digit counts in v5
+range_v5_nums = [ws_v5.cell(row=r, column=4).value for r in range(2, ws_v5.max_row + 1) if 1261 <= ws_v5.cell(row=r, column=1).value <= 1640]
+from collections import Counter
+counts_v5 = Counter(range_v5_nums)
+print("\nv5 Digit Counts in range 1261 to 1640:")
+for d in range(10):
+    print(f"  Digit {d}: {counts_v5[d]}")
+
+# Check ML_Ready
+ws_ml_v5 = wb_v5['ML_Ready']
+print(f"\nv5 ML_Ready rows: {ws_ml_v5.max_row - 1}")
+
+# Check Change_Log
+ws_cl_v5 = wb_v5['Change_Log']
+print(f"v5 Change_Log rows: {ws_cl_v5.max_row - 1}")

@@ -1,0 +1,64 @@
+import openpyxl
+import pandas as pd
+
+excel_path = r"project_reports\Colour_Prediction_Dataset.xlsx"
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+
+# 1. Inspect Missing_Rounds sheet
+ws_missing = wb["Missing_Rounds"]
+print("--- MISSING_ROUNDS SHEET CONTENT ---")
+for row in ws_missing.iter_rows(values_only=True):
+    print(row)
+
+# 2. Check for any null / empty cells in Raw_Data
+ws_raw = wb["Raw_Data"]
+headers = [c.value for c in ws_raw[1]]
+print("\n--- NULL / BLANK CELL AUDIT IN RAW_DATA ---")
+null_counts = {h: 0 for h in headers}
+total_rows = 0
+
+for row in ws_raw.iter_rows(min_row=2, values_only=True):
+    total_rows += 1
+    for h, val in zip(headers, row):
+        if val is None or str(val).strip() == "":
+            null_counts[h] += 1
+
+print(f"Total rows audited: {total_rows}")
+for h, cnt in null_counts.items():
+    print(f"  {h:15s}: {cnt} null/blank cells")
+
+# 3. Check gaps in 20261022
+raw_df = pd.read_csv(r"project_reports\colour_raw_data.csv", dtype={'Period ID': str})
+pids = list(raw_df['Period ID'])
+
+d22_pids = [int(p[-5:]) for p in pids if p.startswith("20261022")]
+d23_pids = [int(p[-5:]) for p in pids if p.startswith("20261023")]
+
+print("\n--- CONTINUOUS SEQUENCE ANALYSIS ---")
+print(f"Day 20261022: from {d22_pids[0]} to {d22_pids[-1]}, total present = {len(d22_pids)}")
+gaps_22 = []
+for i in range(len(d22_pids) - 1):
+    diff = d22_pids[i+1] - d22_pids[i]
+    if diff > 1:
+        gaps_22.append((d22_pids[i], d22_pids[i+1], diff - 1))
+
+print(f"Gaps in Day 20261022: {len(gaps_22)}")
+for g in gaps_22:
+    print(f"  Gap between {g[0]} and {g[1]}: missing {g[2]} rounds")
+
+print(f"\nDay 20261023: from {d23_pids[0]} to {d23_pids[-1]}, total present = {len(d23_pids)}")
+gaps_23 = []
+for i in range(len(d23_pids) - 1):
+    diff = d23_pids[i+1] - d23_pids[i]
+    if diff > 1:
+        gaps_23.append((d23_pids[i], d23_pids[i+1], diff - 1))
+
+print(f"Gaps in Day 20261023: {len(gaps_23)}")
+for g in gaps_23:
+    print(f"  Gap between {g[0]} and {g[1]}: missing {g[2]} rounds")
+
+# 4. Check the user's anchor 50494
+print("\n--- ANCHOR CHECK (50494) ---")
+print(f"Highest PID in screenshots: 202610231000{d23_pids[-1]}")
+print(f"User mentioned anchor PID:  20261023100050494")
+print(f"Difference (50494 - 50438): {50494 - d23_pids[-1]} rounds not in screenshots (from 09:09:30 to 09:37:00)")

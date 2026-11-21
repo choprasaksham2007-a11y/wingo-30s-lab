@@ -1,6 +1,6 @@
 # Colour AI workspace
 
-Download [the complete workspace ZIP](https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis/releases/download/v1.1.0/colour-ai-workspace.zip) to get the application, model checkpoints, workbooks, collected rounds, databases and saved predictions together. Open the extracted `colour-ai` folder in VS Code. GitHub also lets you browse the source, tests and Windows launchers in this directory.
+Download [the complete workspace ZIP](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.1.0/colour-ai-workspace.zip) to get the application, model checkpoints, workbooks, collected rounds, databases and saved predictions together. Open the extracted `colour-ai` folder in VS Code. GitHub also lets you browse the source, tests and Windows launchers in this directory.
 
 ## Open the saved prediction viewer
 
@@ -36,4 +36,4 @@ The ZIP preserves the project's directory layout, source, tests, launchers, trai
 
 The virtual environment and Python caches can be rebuilt. Process locks, worker IDs, two raw HTTP capture files and a pending raw-response row were left out. Machine-specific paths were made relative. Three model copies had an embedded workstation directory replaced with an equal-length relative path prefix. The remaining bytes of those models and all bytes of the other nine models were preserved. No model was retrained.
 
-The [original research release](https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis/releases/tag/v1.0.0) has the canonical v19 data and the whitepaper. The VS Code model evaluations used the historical snapshots identified in their protocols.
+The [original research release](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/tag/v1.0.0) has the canonical v19 data and the whitepaper. The VS Code model evaluations used the historical snapshots identified in their protocols.

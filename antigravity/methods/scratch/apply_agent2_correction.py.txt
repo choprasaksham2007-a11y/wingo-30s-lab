@@ -1,0 +1,78 @@
+import openpyxl, shutil, csv
+
+v7_path = r"project_reports\Colour_Prediction_Dataset_v7.xlsx"
+wb = openpyxl.load_workbook(v7_path)
+
+# 1. Raw_Data
+ws_raw = wb['Raw_Data']
+target_row = None
+for r in range(2, ws_raw.max_row+1):
+    if str(ws_raw.cell(row=r, column=2).value) == '20261024100050956':
+        target_row = r
+        break
+
+print(f"Target row in Raw_Data: {target_row}")
+old_num = ws_raw.cell(row=target_row, column=4).value
+ws_raw.cell(row=target_row, column=4).value = 4
+ws_raw.cell(row=target_row, column=8).value = "Batch 6 extraction verified (Agent 2 audit: 2 corrected to 4)"
+print(f"Raw_Data row {target_row}: Number changed from {old_num} to 4")
+
+# 2. ML_Ready
+ws_ml = wb['ML_Ready']
+ml_target_changed = 0
+ml_prev_changed = 0
+
+for r in range(2, ws_ml.max_row+1):
+    tgt_pid = str(ws_ml.cell(row=r, column=2).value)
+    if tgt_pid == '20261024100050956':
+        ws_ml.cell(row=r, column=4).value = 4
+        ml_target_changed += 1
+    
+    # Check if target is after 50956 within the same block
+    suffix = int(tgt_pid[-5:])
+    diff = suffix - 50956
+    if diff == 1:
+        ws_ml.cell(row=r, column=7).value = 4
+        ml_prev_changed += 1
+    elif diff == 2:
+        ws_ml.cell(row=r, column=10).value = 4
+        ml_prev_changed += 1
+    elif diff == 3:
+        ws_ml.cell(row=r, column=13).value = 4
+        ml_prev_changed += 1
+    elif diff == 4:
+        ws_ml.cell(row=r, column=16).value = 4
+        ml_prev_changed += 1
+    elif diff == 5:
+        ws_ml.cell(row=r, column=19).value = 4
+        ml_prev_changed += 1
+
+print(f"ML_Ready updated: target changed = {ml_target_changed}, prev_k changed = {ml_prev_changed}")
+
+# 3. Summary
+ws_sum = wb['Summary']
+# Row 7 is Number 2 (col 4), Row 9 is Number 4 (col 4)
+ws_sum['D7'].value = ws_sum['D7'].value - 1
+ws_sum['D9'].value = ws_sum['D9'].value + 1
+print(f"Summary updated: Number 2 count = {ws_sum['D7'].value}, Number 4 count = {ws_sum['D9'].value}")
+
+wb.save(v7_path)
+shutil.copyfile(v7_path, r"input\Colour_Prediction_Dataset_v7.xlsx")
+
+# Export updated CSVs
+out_raw_csv = r"project_reports\colour_raw_data_v7.csv"
+out_ml_csv = r"project_reports\colour_ml_ready_v7.csv"
+
+with open(out_raw_csv, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    for row in ws_raw.iter_rows(values_only=True):
+        writer.writerow(row)
+shutil.copyfile(out_raw_csv, r"input\colour_raw_data_v7.csv")
+
+with open(out_ml_csv, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    for row in ws_ml.iter_rows(values_only=True):
+        writer.writerow(row)
+shutil.copyfile(out_ml_csv, r"input\colour_ml_ready_v7.csv")
+
+print("Successfully applied Agent 2 correction to all v7 files and Downloads!")

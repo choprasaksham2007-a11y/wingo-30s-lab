@@ -1,0 +1,55 @@
+import json, openpyxl
+
+with open(r"scratch\audit_81_results.json", "r") as f:
+    res = json.load(f)
+
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+ws = wb['Raw_Data']
+
+changelog = []
+for r in res:
+    seq = r["seq"]
+    pid = r["pid"]
+    avg_tr = r.get("avg_tr", 0)
+    votes = r.get("votes", [])
+    
+    # Classification:
+    # tr_fill <= 30 -> 6 (open top-right, single bottom loop)
+    # tr_fill >= 70 -> 8 (two closed loops)
+    if avg_tr <= 30.0:
+        new_num = 6
+        morph = "Open top-right corner, single bottom loop (visual 6)"
+        confident = "Yes"
+    elif avg_tr >= 70.0:
+        new_num = 8
+        morph = "Two closed loops on top and bottom (visual 8)"
+        confident = "Yes"
+    else:
+        new_num = 8
+        morph = "Unverified"
+        confident = "No"
+        
+    source_files = list(set([v["file"] for v in votes]))
+    changelog.append({
+        "sequence_no": seq,
+        "period_id": pid,
+        "old_number": 8,
+        "new_number": new_num,
+        "changed": (new_num != 8),
+        "confident": confident,
+        "avg_tr": avg_tr,
+        "morphology": morph,
+        "sources": source_files
+    })
+
+changed_list = [c for c in changelog if c["changed"]]
+unchanged_list = [c for c in changelog if not c["changed"]]
+unverified_list = [c for c in changelog if c["confident"] == "No"]
+
+print(f"Total audited rows: {len(changelog)}")
+print(f"Total changed (8 -> 6): {len(changed_list)}")
+print(f"Total confirmed as 8: {len(unchanged_list)}")
+print(f"Total unverified: {len(unverified_list)}")
+
+with open(r"scratch\changelog_batch2_6_vs_8.json", "w") as f:
+    json.dump(changelog, f, indent=2)

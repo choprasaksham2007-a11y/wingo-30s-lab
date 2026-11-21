@@ -1,0 +1,59 @@
+import pickle
+import openpyxl
+from collections import defaultdict
+
+# 1. Load existing 500 rows from uploaded Excel
+excel_path = r"project_reports\inputs\input_9f7c60764d.xlsx"
+wb = openpyxl.load_workbook(excel_path)
+ws_raw = wb["Raw_Data"]
+
+existing_data = {}
+for row in ws_raw.iter_rows(min_row=2, values_only=True):
+    # columns: sequence_no, Period ID, timestamp, number, colour, size, source_screenshot, ...
+    seq, pid, ts, num, col, size = row[:6]
+    if pid is not None:
+        pid_clean = str(pid).strip().replace('\u200b', '').replace('\ufeff', '')
+        existing_data[pid_clean] = {
+            "seq": seq,
+            "number": int(num) if num is not None and str(num).isdigit() else None,
+            "colour": col,
+            "size": size,
+            "source": row[6]
+        }
+
+print(f"Existing rows loaded: {len(existing_data)}")
+
+# 2. Load new v2 extracted observations
+with open(r"extraction\data\aligned_v2_observations.pkl", "rb") as pf:
+    new_obs = pickle.load(pf)
+
+grouped_new = defaultdict(list)
+for obs in new_obs:
+    grouped_new[obs.period_id].append(obs)
+
+# 3. Find overlap
+overlap_pids = set(existing_data.keys()).intersection(set(grouped_new.keys()))
+print(f"Overlapping Period IDs between existing Excel and new screenshots: {len(overlap_pids)}")
+sorted_overlap = sorted(list(overlap_pids), key=lambda x: (len(x), x))
+if sorted_overlap:
+    print(f"Overlap range: {sorted_overlap[0]} to {sorted_overlap[-1]}")
+    
+# Check agreement on overlap
+mismatches = 0
+for pid in sorted_overlap:
+    old_row = existing_data[pid]
+    new_row = grouped_new[pid][0] # all obs in new_row agree
+    
+    num_match = (old_row["number"] == new_row.number)
+    size_match = (old_row["size"] == new_row.big_small)
+    # Check colour
+    col_match = True
+    if new_row.colour and old_row["colour"]:
+        col_match = (old_row["colour"].lower() == new_row.colour.lower())
+        
+    if not (num_match and size_match and col_match):
+        mismatches += 1
+        print(f"Mismatch in overlap PID {pid}: Old={old_row} vs New(num={new_row.number}, size={new_row.big_small}, col={new_row.colour})")
+
+if mismatches == 0:
+    print("ALL OVERLAPPING ROWS MATCH 100% PERFECTLY!")

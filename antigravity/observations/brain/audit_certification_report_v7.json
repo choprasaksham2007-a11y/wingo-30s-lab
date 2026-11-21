@@ -1,0 +1,1399 @@
+{
+  "dataset_path": "project_reports\\Colour_Prediction_Dataset_v7.xlsx",
+  "overall_certification": {
+    "certified_zero_errors": true,
+    "pass1_passed": true,
+    "pass2_passed": true
+  },
+  "pass1_game_rules_audit": {
+    "colour_distribution": {
+      "Green": 1292,
+      "Green+Violet": 329,
+      "Red": 1262,
+      "Red+Violet": 327
+    },
+    "digit_distribution": {
+      "0": 327,
+      "1": 326,
+      "2": 295,
+      "3": 334,
+      "4": 314,
+      "5": 329,
+      "6": 338,
+      "7": 312,
+      "8": 315,
+      "9": 320
+    },
+    "pass_status": true,
+    "period_id_format_errors": 0,
+    "rule_violations": 0,
+    "sequence_continuity_errors": 0,
+    "size_distribution": {
+      "Big": 1614,
+      "Small": 1596
+    },
+    "total_rows_audited": 3210
+  },
+  "pass2_visual_screenshot_audit": {
+    "accuracy_rate": 100.0,
+    "batch_audited": "Batch 6 (sequences 2722 to 3210, 489 rounds)",
+    "classification_errors": 0,
+    "colour_mismatches": 0,
+    "details": [
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 4,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 19,
+          "h": 30,
+          "top_left_fill": 21,
+          "top_right_density_pct": 66.7,
+          "type": "single_red_4",
+          "w": 22
+        },
+        "pid": "20261024100050793",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 340,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.18.jpeg",
+        "seq": 2722,
+        "timestamp": "2026-10-24 12:06:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 4,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 1330
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green+Violet",
+          "num": 5,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 29,
+          "h": 16,
+          "top_left_fill": 31,
+          "top_right_density_pct": 57.5,
+          "type": "dual_green_violet",
+          "w": 18
+        },
+        "pid": "20261024100050795",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 854,
+            "v": 258
+          },
+          "glyph": {
+            "g": 203,
+            "r": 0,
+            "v": 170
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.18.jpeg",
+        "seq": 2724,
+        "timestamp": "2026-10-24 12:07:30",
+        "visual_detected": {
+          "colour": "Green+Violet",
+          "num": 5,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1197
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 9,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 30,
+          "h": 31,
+          "top_left_fill": 64,
+          "top_right_density_pct": 80.2,
+          "type": "single_green_9",
+          "w": 21
+        },
+        "pid": "20261024100050796",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 302,
+            "v": 0
+          },
+          "glyph": {
+            "g": 421,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.18.jpeg",
+        "seq": 2725,
+        "timestamp": "2026-10-24 12:08:00",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 9,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1130
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 8,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 52,
+          "h": 30,
+          "top_left_fill": 52,
+          "top_right_density_pct": 77.8,
+          "type": "single_red_8",
+          "w": 20
+        },
+        "pid": "20261024100050797",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 902,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 404,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.18.jpeg",
+        "seq": 2726,
+        "timestamp": "2026-10-24 12:08:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 8,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1063
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 3,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 61,
+          "h": 31,
+          "top_left_fill": 22,
+          "top_right_density_pct": 86.4,
+          "type": "single_green_3",
+          "w": 21
+        },
+        "pid": "20261024100050801",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 404,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.18.jpeg",
+        "seq": 2730,
+        "timestamp": "2026-10-24 12:10:30",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 3,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 795
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 2,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 71,
+          "h": 30,
+          "top_left_fill": 22,
+          "top_right_density_pct": 79.2,
+          "type": "single_red_2",
+          "w": 20
+        },
+        "pid": "20261024100050804",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 47,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 330,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.18 (1).jpeg",
+        "seq": 2733,
+        "timestamp": "2026-10-24 12:12:00",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 2,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 1255
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 6,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 49,
+          "h": 30,
+          "top_left_fill": 62,
+          "top_right_density_pct": 27.8,
+          "type": "single_red_6",
+          "w": 20
+        },
+        "pid": "20261024100050805",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 730,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 354,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.18 (1).jpeg",
+        "seq": 2734,
+        "timestamp": "2026-10-24 12:12:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 6,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1189
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red+Violet",
+          "num": 0,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 24,
+          "h": 16,
+          "top_left_fill": 32,
+          "top_right_density_pct": 77.5,
+          "type": "dual_red_violet",
+          "w": 20
+        },
+        "pid": "20261024100050807",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 706,
+            "v": 262
+          },
+          "glyph": {
+            "g": 0,
+            "r": 204,
+            "v": 181
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.18 (1).jpeg",
+        "seq": 2736,
+        "timestamp": "2026-10-24 12:13:30",
+        "visual_detected": {
+          "colour": "Red+Violet",
+          "num": 0,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 1055
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 7,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 49,
+          "h": 31,
+          "top_left_fill": 0,
+          "top_right_density_pct": 76.5,
+          "type": "single_green_7",
+          "w": 22
+        },
+        "pid": "20261024100050815",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 730,
+            "v": 0
+          },
+          "glyph": {
+            "g": 307,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.19.jpeg",
+        "seq": 2744,
+        "timestamp": "2026-10-24 12:17:30",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 7,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1189
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 1,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 0,
+          "h": 31,
+          "top_left_fill": 14,
+          "top_right_density_pct": 100.0,
+          "type": "single_green_1",
+          "w": 14
+        },
+        "pid": "20261024100050818",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 249,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.19.jpeg",
+        "seq": 2747,
+        "timestamp": "2026-10-24 12:19:00",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 1,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 988
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 9,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 29,
+          "h": 31,
+          "top_left_fill": 68,
+          "top_right_density_pct": 80.2,
+          "type": "single_green_9",
+          "w": 21
+        },
+        "pid": "20261024100050867",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 544,
+            "v": 0
+          },
+          "glyph": {
+            "g": 419,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.20 (1).jpeg",
+        "seq": 2795,
+        "timestamp": "2026-10-24 12:43:30",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 9,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1181
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 6,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 49,
+          "h": 30,
+          "top_left_fill": 63,
+          "top_right_density_pct": 28.4,
+          "type": "single_red_6",
+          "w": 21
+        },
+        "pid": "20261024100050911",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 364,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.28.jpeg",
+        "seq": 2839,
+        "timestamp": "2026-10-24 13:05:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 6,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 724
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 8,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 58,
+          "h": 30,
+          "top_left_fill": 53,
+          "top_right_density_pct": 77.8,
+          "type": "single_red_8",
+          "w": 20
+        },
+        "pid": "20261024100050919",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 407,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.27 (2).jpeg",
+        "seq": 2847,
+        "timestamp": "2026-10-24 13:09:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 8,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 859
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 8,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 53,
+          "h": 30,
+          "top_left_fill": 52,
+          "top_right_density_pct": 79.2,
+          "type": "single_red_8",
+          "w": 20
+        },
+        "pid": "20261024100050992",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 594,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 401,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.31.jpeg",
+        "seq": 2920,
+        "timestamp": "2026-10-24 13:46:00",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 8,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1321
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 9,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 27,
+          "h": 30,
+          "top_left_fill": 66,
+          "top_right_density_pct": 80.2,
+          "type": "single_green_9",
+          "w": 21
+        },
+        "pid": "20261024100050993",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 64,
+            "v": 0
+          },
+          "glyph": {
+            "g": 415,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.31.jpeg",
+        "seq": 2921,
+        "timestamp": "2026-10-24 13:46:30",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 9,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1254
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 7,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 45,
+          "h": 32,
+          "top_left_fill": 0,
+          "top_right_density_pct": 75.6,
+          "type": "single_green_7",
+          "w": 22
+        },
+        "pid": "20261024100051022",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 595,
+            "v": 0
+          },
+          "glyph": {
+            "g": 309,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.32 (1).jpeg",
+        "seq": 2940,
+        "timestamp": "2026-10-24 14:01:00",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 7,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1321
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 6,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 47,
+          "h": 30,
+          "top_left_fill": 64,
+          "top_right_density_pct": 28.4,
+          "type": "single_red_6",
+          "w": 21
+        },
+        "pid": "20261024100051030",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 361,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.32 (1).jpeg",
+        "seq": 2948,
+        "timestamp": "2026-10-24 14:05:00",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 6,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 786
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 6,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 51,
+          "h": 30,
+          "top_left_fill": 63,
+          "top_right_density_pct": 27.2,
+          "type": "single_red_6",
+          "w": 21
+        },
+        "pid": "20261024100051127",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 360,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.36.jpeg",
+        "seq": 3044,
+        "timestamp": "2026-10-24 14:53:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 6,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 920
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 8,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 56,
+          "h": 29,
+          "top_left_fill": 53,
+          "top_right_density_pct": 77.8,
+          "type": "single_red_8",
+          "w": 20
+        },
+        "pid": "20261024100051153",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 277,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 399,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.38 (2).jpeg",
+        "seq": 3070,
+        "timestamp": "2026-10-24 15:06:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 8,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1131
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 9,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 28,
+          "h": 31,
+          "top_left_fill": 67,
+          "top_right_density_pct": 80.2,
+          "type": "single_green_9",
+          "w": 21
+        },
+        "pid": "20261024100051166",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 415,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.36 (1).jpeg",
+        "seq": 3083,
+        "timestamp": "2026-10-24 15:13:00",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 9,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 986
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 8,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 55,
+          "h": 30,
+          "top_left_fill": 51,
+          "top_right_density_pct": 77.8,
+          "type": "single_red_8",
+          "w": 20
+        },
+        "pid": "20261024100051273",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 674,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 402,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.42 (2).jpeg",
+        "seq": 3190,
+        "timestamp": "2026-10-24 16:06:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 8,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1054
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 7,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 49,
+          "h": 31,
+          "top_left_fill": 0,
+          "top_right_density_pct": 79.0,
+          "type": "single_green_7",
+          "w": 22
+        },
+        "pid": "20261024100051277",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 309,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.42 (2).jpeg",
+        "seq": 3194,
+        "timestamp": "2026-10-24 16:08:30",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 7,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 786
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green+Violet",
+          "num": 5,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 26,
+          "h": 16,
+          "top_left_fill": 29,
+          "top_right_density_pct": 60.0,
+          "type": "dual_green_violet",
+          "w": 18
+        },
+        "pid": "20261024100051279",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 237
+          },
+          "glyph": {
+            "g": 211,
+            "r": 0,
+            "v": 164
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.43.jpeg",
+        "seq": 3196,
+        "timestamp": "2026-10-24 16:09:30",
+        "visual_detected": {
+          "colour": "Green+Violet",
+          "num": 5,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 1321
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 1,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 0,
+          "h": 31,
+          "top_left_fill": 15,
+          "top_right_density_pct": 100.0,
+          "type": "single_green_1",
+          "w": 14
+        },
+        "pid": "20261024100051281",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 702,
+            "v": 0
+          },
+          "glyph": {
+            "g": 252,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.43.jpeg",
+        "seq": 3198,
+        "timestamp": "2026-10-24 16:10:30",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 1,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 1188
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 2,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 71,
+          "h": 30,
+          "top_left_fill": 20,
+          "top_right_density_pct": 80.6,
+          "type": "single_red_2",
+          "w": 20
+        },
+        "pid": "20261024100051284",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 594,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 327,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.17.jpeg",
+        "seq": 3201,
+        "timestamp": "2026-10-24 16:12:00",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 2,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 1321
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 4,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 10,
+          "h": 30,
+          "top_left_fill": 20,
+          "top_right_density_pct": 66.7,
+          "type": "single_red_4",
+          "w": 22
+        },
+        "pid": "20261024100051287",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 472,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 333,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.17.jpeg",
+        "seq": 3204,
+        "timestamp": "2026-10-24 16:13:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 4,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 1120
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 3,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 57,
+          "h": 31,
+          "top_left_fill": 18,
+          "top_right_density_pct": 84.0,
+          "type": "single_green_3",
+          "w": 21
+        },
+        "pid": "20261024100051290",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 396,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.17.jpeg",
+        "seq": 3207,
+        "timestamp": "2026-10-24 16:15:00",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 3,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 920
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red+Violet",
+          "num": 0,
+          "size": "Small"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 24,
+          "h": 16,
+          "top_left_fill": 33,
+          "top_right_density_pct": 75.0,
+          "type": "dual_red_violet",
+          "w": 20
+        },
+        "pid": "20261024100051291",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 255
+          },
+          "glyph": {
+            "g": 0,
+            "r": 203,
+            "v": 185
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.17.jpeg",
+        "seq": 3208,
+        "timestamp": "2026-10-24 16:15:30",
+        "visual_detected": {
+          "colour": "Red+Violet",
+          "num": 0,
+          "raw_size_ocr": "Small",
+          "size": "Small"
+        },
+        "yc": 854
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Green",
+          "num": 9,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 29,
+          "h": 31,
+          "top_left_fill": 66,
+          "top_right_density_pct": 81.5,
+          "type": "single_green_9",
+          "w": 21
+        },
+        "pid": "20261024100051292",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 421,
+            "r": 0,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.17.jpeg",
+        "seq": 3209,
+        "timestamp": "2026-10-24 16:16:00",
+        "visual_detected": {
+          "colour": "Green",
+          "num": 9,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 786
+      },
+      {
+        "certified_accurate": true,
+        "checks": {
+          "colour_match": true,
+          "digit_match": true,
+          "size_match": true
+        },
+        "expected": {
+          "colour": "Red",
+          "num": 6,
+          "size": "Big"
+        },
+        "glyph_metrics": {
+          "bottom_left_fill": 49,
+          "h": 30,
+          "top_left_fill": 63,
+          "top_right_density_pct": 27.2,
+          "type": "single_red_6",
+          "w": 21
+        },
+        "pid": "20261024100051293",
+        "pixel_counts": {
+          "dot": {
+            "g": 0,
+            "r": 0,
+            "v": 0
+          },
+          "glyph": {
+            "g": 0,
+            "r": 365,
+            "v": 0
+          }
+        },
+        "screenshot": "WhatsApp Image 2026-10-24 at 16.17.17.jpeg",
+        "seq": 3210,
+        "timestamp": "2026-10-24 16:16:30",
+        "visual_detected": {
+          "colour": "Red",
+          "num": 6,
+          "raw_size_ocr": "Big",
+          "size": "Big"
+        },
+        "yc": 719
+      }
+    ],
+    "digit_coverage": {
+      "0": 2,
+      "1": 2,
+      "2": 2,
+      "3": 2,
+      "4": 2,
+      "5": 2,
+      "6": 5,
+      "7": 3,
+      "8": 5,
+      "9": 5
+    },
+    "six_vs_eight_audit": {
+      "certified_zero_6_8_errors": true,
+      "digit_6_count": 54,
+      "digit_6_tr_density_mean_pct": 27.7,
+      "digit_6_tr_density_range_pct": [
+        23.5,
+        33.3
+      ],
+      "digit_8_count": 48,
+      "digit_8_tr_density_mean_pct": 78.3,
+      "digit_8_tr_density_range_pct": [
+        76.0,
+        79.2
+      ],
+      "overlap_or_ambiguity": false,
+      "separation_gap_pct": 42.7,
+      "total_big_red_in_batch6": 102
+    },
+    "size_label_mismatches": 0,
+    "spot_check_sample_size": 30,
+    "zero_classification_errors_certified": true
+  },
+  "total_rows_in_dataset": 3210
+}

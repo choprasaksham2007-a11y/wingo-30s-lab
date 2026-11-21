@@ -1,0 +1,333 @@
+"""
+Excel Workbook Generator using openpyxl.
+Produces the 5 required sheets with professional styling, auto-column widths,
+and strict preservation of long Period IDs as text.
+"""
+from typing import List, Dict, Any, Optional
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from openpyxl.utils import get_column_letter
+from collections import Counter
+from src.schema import ReconciledRecord, AuditRecord
+
+HEADER_FILL = PatternFill(start_color="1F497D", end_color="1F497D", fill_type="solid")
+HEADER_FONT = Font(name="Calibri", size=11, bold=True, color="FFFFFF")
+TITLE_FONT = Font(name="Calibri", size=14, bold=True, color="1F497D")
+SUBTITLE_FONT = Font(name="Calibri", size=11, italic=True, color="595959")
+REGULAR_FONT = Font(name="Calibri", size=10)
+BOLD_FONT = Font(name="Calibri", size=10, bold=True)
+
+STATUS_FILLS = {
+    "VERIFIED": PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid"),
+    "VERIFIED_DIRECT": PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid"),
+    "VERIFIED_SCREENSHOT": PatternFill(start_color="E2EFDA", end_color="E2EFDA", fill_type="solid"),
+    "RECONSTRUCTED_OVERLAP": PatternFill(start_color="DDEBF7", end_color="DDEBF7", fill_type="solid"),
+    "DERIVED_RULE": PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid"),
+    "REVIEW_NEEDED": PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid"),
+    "UNCERTAIN": PatternFill(start_color="FFF2CC", end_color="FFF2CC", fill_type="solid"),
+    "UNKNOWN": PatternFill(start_color="FCE4D6", end_color="FCE4D6", fill_type="solid"),
+    "CONFLICT": PatternFill(start_color="F8CBAD", end_color="F8CBAD", fill_type="solid"),
+    "FLAGGED": PatternFill(start_color="F8CBAD", end_color="F8CBAD", fill_type="solid"),
+    "USER_PROVIDED": PatternFill(start_color="EAD1DC", end_color="EAD1DC", fill_type="solid"),
+}
+
+THIN_BORDER = Border(
+    left=Side(style='thin', color='D9D9D9'),
+    right=Side(style='thin', color='D9D9D9'),
+    top=Side(style='thin', color='D9D9D9'),
+    bottom=Side(style='thin', color='D9D9D9')
+)
+
+def create_excel_workbook(
+    raw_records: List[ReconciledRecord],
+    ml_records: List[Dict[str, Any]],
+    audit_records: List[AuditRecord],
+    missing_rounds: List[Dict[str, str]],
+    summary_metrics: Dict[str, Any],
+    output_path: str
+):
+    wb = openpyxl.Workbook()
+    wb.remove(wb.active)
+
+    # 1. Sheet 1: Raw_Data
+    ws_raw = wb.create_sheet(title="Raw_Data")
+    _populate_raw_data_sheet(ws_raw, raw_records)
+
+    # 2. Sheet 2: ML_Ready
+    ws_ml = wb.create_sheet(title="ML_Ready")
+    _populate_ml_ready_sheet(ws_ml, ml_records)
+
+    # 3. Sheet 3: Summary
+    ws_summary = wb.create_sheet(title="Summary")
+    _populate_summary_sheet(ws_summary, summary_metrics, raw_records, ml_records)
+
+    # 4. Sheet 4: Missing_Rounds
+    ws_missing = wb.create_sheet(title="Missing_Rounds")
+    _populate_missing_rounds_sheet(ws_missing, missing_rounds)
+
+    # 5. Sheet 5: Audit
+    ws_audit = wb.create_sheet(title="Audit")
+    _populate_audit_sheet(ws_audit, audit_records)
+
+    wb.save(output_path)
+    print(f"Successfully generated Excel workbook at: {output_path}")
+
+
+def _populate_raw_data_sheet(ws, records: List[ReconciledRecord]):
+    headers = [
+        "row_no", "period_id", "number", "big_small", "colour",
+        "timestamp", "source_screenshot", "number_verification",
+        "colour_verification", "overall_verification", "notes"
+    ]
+    ws.append(headers)
+    for col_idx in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col_idx)
+        cell.fill = HEADER_FILL
+        cell.font = HEADER_FONT
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+
+    for r in records:
+        row_vals = [
+            r.row_no,
+            str(r.period_id),
+            r.number if r.number is not None else "",
+            r.big_small or "",
+            r.colour or "",
+            r.timestamp or "",
+            ", ".join(r.source_screenshots) if isinstance(r.source_screenshots, list) else str(r.source_screenshots or ""),
+            r.number_verification,
+            r.colour_verification,
+            r.overall_verification,
+            r.notes
+        ]
+        ws.append(row_vals)
+        current_row = ws.max_row
+        
+        # Explicit text formatting for period_id
+        pid_cell = ws.cell(row=current_row, column=2)
+        pid_cell.number_format = '@'
+        pid_cell.data_type = 's'
+        pid_cell.alignment = Alignment(horizontal="center")
+        
+        # Alignment & Borders
+        for c in range(1, len(headers) + 1):
+            cell = ws.cell(row=current_row, column=c)
+            cell.font = REGULAR_FONT
+            cell.border = THIN_BORDER
+            if c in [1, 3, 4, 5, 6, 8, 9, 10]:
+                cell.alignment = Alignment(horizontal="center")
+                
+        # Status color formatting
+        ov_cell = ws.cell(row=current_row, column=10)
+        if ov_cell.value in STATUS_FILLS:
+            ov_cell.fill = STATUS_FILLS[ov_cell.value]
+        col_ver_cell = ws.cell(row=current_row, column=9)
+        if col_ver_cell.value in STATUS_FILLS:
+            col_ver_cell.fill = STATUS_FILLS[col_ver_cell.value]
+        num_ver_cell = ws.cell(row=current_row, column=8)
+        if num_ver_cell.value in STATUS_FILLS:
+            num_ver_cell.fill = STATUS_FILLS[num_ver_cell.value]
+
+    _autofit_columns(ws)
+
+
+def _populate_ml_ready_sheet(ws, ml_records: List[Dict[str, Any]]):
+    headers = [
+        "period_id",
+        "previous_1_number", "previous_2_number", "previous_3_number", "previous_4_number", "previous_5_number",
+        "previous_1_colour", "previous_2_colour", "previous_3_colour", "previous_4_colour", "previous_5_colour",
+        "previous_1_size", "previous_2_size", "previous_3_size", "previous_4_size", "previous_5_size",
+        "target_number", "target_colour", "target_size"
+    ]
+    ws.append(headers)
+    for col_idx in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col_idx)
+        cell.fill = HEADER_FILL
+        cell.font = HEADER_FONT
+        cell.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+
+    for rec in ml_records:
+        row_vals = [
+            str(rec["period_id"]),
+            rec["previous_1_number"], rec["previous_2_number"], rec["previous_3_number"], rec["previous_4_number"], rec["previous_5_number"],
+            rec["previous_1_colour"], rec["previous_2_colour"], rec["previous_3_colour"], rec["previous_4_colour"], rec["previous_5_colour"],
+            rec["previous_1_size"], rec["previous_2_size"], rec["previous_3_size"], rec["previous_4_size"], rec["previous_5_size"],
+            rec["target_number"], rec["target_colour"], rec["target_size"]
+        ]
+        ws.append(row_vals)
+        current_row = ws.max_row
+        
+        # Enforce text type on target Period ID
+        pid_cell = ws.cell(row=current_row, column=1)
+        pid_cell.number_format = '@'
+        pid_cell.data_type = 's'
+        pid_cell.alignment = Alignment(horizontal="center")
+        
+        for c in range(1, len(headers) + 1):
+            cell = ws.cell(row=current_row, column=c)
+            cell.font = REGULAR_FONT
+            cell.border = THIN_BORDER
+            cell.alignment = Alignment(horizontal="center")
+
+    _autofit_columns(ws)
+
+
+def _populate_summary_sheet(ws, metrics: Dict[str, Any], raw_records: List[ReconciledRecord], ml_records: List[Dict[str, Any]]):
+    ws.column_dimensions['A'].width = 5
+    ws.column_dimensions['B'].width = 44
+    ws.column_dimensions['C'].width = 20
+    ws.column_dimensions['D'].width = 5
+    ws.column_dimensions['E'].width = 25
+    ws.column_dimensions['F'].width = 18
+
+    # Title
+    ws['B2'] = "COLOUR PREDICTION DATASET SUMMARY & AUDIT REPORT"
+    ws['B2'].font = TITLE_FONT
+    ws['B3'] = "Automated Extraction, Cross-Screenshot Reconciliation & ML Pipeline Audit"
+    ws['B3'].font = SUBTITLE_FONT
+
+    # Key Metrics Table
+    ws['B5'] = "Key Ingestion & Integrity Metrics"
+    ws['B5'].font = Font(name="Calibri", size=12, bold=True, color="1F497D")
+    
+    kpi_rows = [
+        ("Total Screenshot Files Processed", metrics.get("total_screenshots", 0)),
+        ("Total Raw Row Observations Extracted", metrics.get("total_observations", 0)),
+        ("Total Distinct Unique Period IDs", len(raw_records)),
+        ("Duplicate Observations Resolved Across Screenshots", metrics.get("duplicate_count", 0)),
+        ("Conflicting Records Identified", metrics.get("conflict_count", 0)),
+        ("Identified Missing Period ID Gaps (Intervals)", metrics.get("missing_rounds_count", 0)),
+        ("Directly Screenshot-Verified Records (Pass 2)", sum(1 for r in raw_records if r.overall_verification == "VERIFIED" and r.number_verification != "USER_PROVIDED")),
+        ("Reconstructed Colours (From Overlapping Screenshots)", sum(1 for r in raw_records if r.colour_verification == "RECONSTRUCTED_OVERLAP")),
+        ("Rule-Derived Colour Records (Icon Occluded)", sum(1 for r in raw_records if r.colour_verification == "DERIVED_RULE")),
+        ("Manually Provided Records (User Supplied)", sum(1 for r in raw_records if r.number_verification == "USER_PROVIDED")),
+        ("Uncertain / Review Needed Records", sum(1 for r in raw_records if r.overall_verification in ["REVIEW_NEEDED", "UNCERTAIN"])),
+        ("Total Eligible ML Training Samples (Lag-5)", len(ml_records))
+    ]
+
+    cur_row = 6
+    for label, val in kpi_rows:
+        ws.cell(row=cur_row, column=2, value=label).font = REGULAR_FONT
+        ws.cell(row=cur_row, column=2).border = THIN_BORDER
+        c_val = ws.cell(row=cur_row, column=3, value=val)
+        c_val.font = BOLD_FONT
+        c_val.alignment = Alignment(horizontal="right")
+        c_val.border = THIN_BORDER
+        cur_row += 1
+
+    # Frequency by Number
+    ws['E5'] = "Distribution by Number (0-9)"
+    ws['E5'].font = Font(name="Calibri", size=12, bold=True, color="1F497D")
+    num_counts = Counter([r.number for r in raw_records if r.number is not None])
+    
+    ws.cell(row=6, column=5, value="Number").font = HEADER_FONT
+    ws.cell(row=6, column=5).fill = HEADER_FILL
+    ws.cell(row=6, column=6, value="Count").font = HEADER_FONT
+    ws.cell(row=6, column=6).fill = HEADER_FILL
+    
+    r_idx = 7
+    for digit in range(10):
+        ws.cell(row=r_idx, column=5, value=f"Number {digit}").border = THIN_BORDER
+        c = ws.cell(row=r_idx, column=6, value=num_counts.get(digit, 0))
+        c.font = BOLD_FONT
+        c.alignment = Alignment(horizontal="right")
+        c.border = THIN_BORDER
+        r_idx += 1
+
+    # Frequency by Colour
+    ws.cell(row=r_idx + 1, column=5, value="Distribution by Colour").font = Font(name="Calibri", size=12, bold=True, color="1F497D")
+    col_counts = Counter([r.colour for r in raw_records if r.colour])
+    
+    ws.cell(row=r_idx + 2, column=5, value="Colour").font = HEADER_FONT
+    ws.cell(row=r_idx + 2, column=5).fill = HEADER_FILL
+    ws.cell(row=r_idx + 2, column=6, value="Count").font = HEADER_FONT
+    ws.cell(row=r_idx + 2, column=6).fill = HEADER_FILL
+    
+    r_col = r_idx + 3
+    for col_name, cnt in col_counts.items():
+        ws.cell(row=r_col, column=5, value=col_name).border = THIN_BORDER
+        c = ws.cell(row=r_col, column=6, value=cnt)
+        c.font = BOLD_FONT
+        c.alignment = Alignment(horizontal="right")
+        c.border = THIN_BORDER
+        r_col += 1
+
+
+def _populate_missing_rounds_sheet(ws, missing_rounds: List[Dict[str, str]]):
+    headers = ["prior_period_id", "subsequent_period_id", "estimated_missing_count", "reason"]
+    ws.append(headers)
+    for col_idx in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col_idx)
+        cell.fill = HEADER_FILL
+        cell.font = HEADER_FONT
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    for mr in missing_rounds:
+        row_vals = [
+            str(mr["prior_period_id"]),
+            str(mr["subsequent_period_id"]),
+            mr["estimated_missing_count"],
+            mr["reason"]
+        ]
+        ws.append(row_vals)
+        cur_row = ws.max_row
+        for col_idx in [1, 2]:
+            c = ws.cell(row=cur_row, column=col_idx)
+            c.number_format = '@'
+            c.data_type = 's'
+            c.alignment = Alignment(horizontal="center")
+        for col_idx in range(1, len(headers) + 1):
+            cell = ws.cell(row=cur_row, column=col_idx)
+            cell.font = REGULAR_FONT
+            cell.border = THIN_BORDER
+
+    _autofit_columns(ws)
+
+
+def _populate_audit_sheet(ws, audit_records: List[AuditRecord]):
+    headers = ["period_id", "check_type", "status", "source_evidence", "description"]
+    ws.append(headers)
+    for col_idx in range(1, len(headers) + 1):
+        cell = ws.cell(row=1, column=col_idx)
+        cell.fill = HEADER_FILL
+        cell.font = HEADER_FONT
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    for ar in audit_records:
+        row_vals = [
+            str(ar.period_id),
+            ar.check_type,
+            ar.status,
+            ar.source_evidence,
+            ar.description
+        ]
+        ws.append(row_vals)
+        cur_row = ws.max_row
+        
+        pid_cell = ws.cell(row=cur_row, column=1)
+        pid_cell.number_format = '@'
+        pid_cell.data_type = 's'
+        pid_cell.alignment = Alignment(horizontal="center")
+        
+        status_cell = ws.cell(row=cur_row, column=3)
+        if status_cell.value in STATUS_FILLS:
+            status_cell.fill = STATUS_FILLS[status_cell.value]
+            
+        for col_idx in range(1, len(headers) + 1):
+            cell = ws.cell(row=cur_row, column=col_idx)
+            cell.font = REGULAR_FONT
+            cell.border = THIN_BORDER
+
+    _autofit_columns(ws)
+
+
+def _autofit_columns(ws):
+    for col in ws.columns:
+        max_len = 0
+        col_letter = get_column_letter(col[0].column)
+        for cell in col:
+            val_str = str(cell.value or '')
+            if '\n' in val_str:
+                val_str = max(val_str.split('\n'), key=len)
+            max_len = max(max_len, len(val_str))
+        ws.column_dimensions[col_letter].width = max(max_len + 3, 12)

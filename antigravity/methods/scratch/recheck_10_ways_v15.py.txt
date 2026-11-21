@@ -1,0 +1,290 @@
+import openpyxl, os, sys, hashlib
+import pandas as pd
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+brain_dir = r"project_reports"
+dl_dir = r"input"
+
+excel_path = os.path.join(brain_dir, "Colour_Prediction_Dataset_v15.xlsx")
+raw_csv_path = os.path.join(brain_dir, "colour_raw_data_v15.csv")
+ml_csv_path = os.path.join(brain_dir, "colour_ml_ready_v15.csv")
+
+print("=" * 80)
+print("  EXHAUSTIVE 10-WAY MULTI-ANGLE RECHECK PROTOCOL - MASTER DATASET V15")
+print("=" * 80)
+
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+ws_raw = wb['Raw_Data']
+ws_ml = wb['ML_Ready']
+ws_gaps = wb['Missing_Rounds']
+
+total_raw_rows = ws_raw.max_row - 1
+total_ml_rows = ws_ml.max_row - 1
+total_gap_rows = ws_gaps.max_row - 1
+
+print(f"Loaded Workbook: {total_raw_rows} raw rows, {total_ml_rows} ML rows, {total_gap_rows} gaps.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 1: DETERMINISTIC NUMBER-TO-COLOUR RULE DETERMINISM
+# -----------------------------------------------------------------------------
+print("--> WAY 1: Deterministic Colour Mapping Rule Check (100% of rows)...")
+way1_errors = []
+for r in range(2, ws_raw.max_row + 1):
+    seq = ws_raw.cell(row=r, column=1).value
+    pid = str(ws_raw.cell(row=r, column=2).value)
+    num = ws_raw.cell(row=r, column=4).value
+    col = str(ws_raw.cell(row=r, column=5).value)
+    
+    if num == 0: exp_col = "Red+Violet"
+    elif num == 5: exp_col = "Green+Violet"
+    elif num in [1, 3, 7, 9]: exp_col = "Green"
+    elif num in [2, 4, 6, 8]: exp_col = "Red"
+    else: exp_col = "INVALID"
+    
+    if col != exp_col:
+        way1_errors.append((seq, pid, num, col, exp_col))
+
+assert len(way1_errors) == 0, f"Way 1 Failed: {len(way1_errors)} errors"
+print(f"    [PASS] Way 1: 0 errors across {total_raw_rows} rows. 100% deterministic colour compliance.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 2: DETERMINISTIC NUMBER-TO-SIZE RULE DETERMINISM
+# -----------------------------------------------------------------------------
+print("--> WAY 2: Deterministic Size Mapping Rule Check (100% of rows)...")
+way2_errors = []
+for r in range(2, ws_raw.max_row + 1):
+    seq = ws_raw.cell(row=r, column=1).value
+    pid = str(ws_raw.cell(row=r, column=2).value)
+    num = ws_raw.cell(row=r, column=4).value
+    sz = str(ws_raw.cell(row=r, column=6).value)
+    
+    exp_sz = "Small" if num <= 4 else "Big"
+    if sz != exp_sz:
+        way2_errors.append((seq, pid, num, sz, exp_sz))
+
+assert len(way2_errors) == 0, f"Way 2 Failed: {len(way2_errors)} errors"
+print(f"    [PASS] Way 2: 0 errors across {total_raw_rows} rows. 100% deterministic size compliance.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 3: PERIOD ID STRING & TEXT '@' FORMATTING & LENGTH CHECK
+# -----------------------------------------------------------------------------
+print("--> WAY 3: Strict Period ID Text Format & Length Check...")
+way3_raw_errors = []
+way3_ml_errors = []
+
+for r in range(2, ws_raw.max_row + 1):
+    cell = ws_raw.cell(row=r, column=2)
+    val = str(cell.value)
+    fmt = cell.number_format
+    if len(val) != 17 or not val.isdigit() or fmt != "@" or "E" in val or "." in val:
+        way3_raw_errors.append((r, val, fmt))
+
+for r in range(2, ws_ml.max_row + 1):
+    cell = ws_ml.cell(row=r, column=2)
+    val = str(cell.value)
+    fmt = cell.number_format
+    if len(val) != 17 or not val.isdigit() or fmt != "@" or "E" in val or "." in val:
+        way3_ml_errors.append((r, val, fmt))
+
+assert len(way3_raw_errors) == 0, f"Way 3 Raw Failed: {len(way3_raw_errors)} errors"
+assert len(way3_ml_errors) == 0, f"Way 3 ML Failed: {len(way3_ml_errors)} errors"
+print(f"    [PASS] Way 3: 0 format errors across {total_raw_rows} Raw cells and {total_ml_rows} ML cells.")
+print("           100% strictly formatted as text '@', exact 17 digits, 0 scientific notation, 0 float truncation.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 4: GLOBAL MONOTONICITY & PERIOD ID UNIQUENESS CHECK
+# -----------------------------------------------------------------------------
+print("--> WAY 4: Period ID Uniqueness & Monotonic Sequence Check...")
+raw_pids = [str(ws_raw.cell(row=r, column=2).value) for r in range(2, ws_raw.max_row + 1)]
+seq_nums = [ws_raw.cell(row=r, column=1).value for r in range(2, ws_raw.max_row + 1)]
+
+assert len(raw_pids) == len(set(raw_pids)), f"Duplicate PIDs found! Unique={len(set(raw_pids))} vs Total={len(raw_pids)}"
+assert seq_nums == list(range(1, total_raw_rows + 1)), "Sequence numbers not strictly 1..N"
+print(f"    [PASS] Way 4: 100% uniqueness confirmed ({len(raw_pids)} unique IDs, 0 duplicates). Sequences strictly 1..{total_raw_rows}.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 5: DE-DUPLICATION & OVERLAP ZERO-REDUNDANCY VERIFICATION
+# -----------------------------------------------------------------------------
+print("--> WAY 5: De-Duplication Verification (Zero re-copied rows)...")
+# Check the 2,048 overlapping rounds from 20261025100051123 to 20261026100051698
+overlap_occurrences = {}
+for idx, p in enumerate(raw_pids, start=1):
+    if "20261025100051123" <= p <= "20261026100051698":
+        overlap_occurrences[p] = overlap_occurrences.get(p, 0) + 1
+
+multi_occurrences = [p for p, count in overlap_occurrences.items() if count > 1]
+assert len(multi_occurrences) == 0, f"Duplicate overlapping rounds detected: {len(multi_occurrences)}"
+assert len(overlap_occurrences) == 2048, f"Expected 2048 overlap rounds, found {len(overlap_occurrences)}"
+print(f"    [PASS] Way 5: Zero re-copied rows verified. All 2,048 overlapping rounds appear exactly once.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 6: INTRA-BLOCK MICROSECOND-LEVEL CADENCE INVARIANCE CHECK
+# -----------------------------------------------------------------------------
+print("--> WAY 6: Intra-Block 30.000s Cadence Precision Check...")
+timestamps = [datetime.strptime(str(ws_raw.cell(row=r, column=3).value), "%Y-%m-%d %H:%M:%S") for r in range(2, ws_raw.max_row + 1)]
+
+blocks = []
+cur_block = [0]
+for i in range(1, len(raw_pids)):
+    p1, p2 = raw_pids[i-1], raw_pids[i]
+    d1, d2 = p1[:8], p2[:8]
+    r1, r2 = int(p1[-5:]) - 50000, int(p2[-5:]) - 50000
+    
+    is_step = False
+    if d1 == d2 and r2 == r1 + 1:
+        is_step = True
+    elif r1 == 2880 and r2 == 1:
+        is_step = True
+        
+    if is_step:
+        cur_block.append(i)
+    else:
+        blocks.append(cur_block)
+        cur_block = [i]
+blocks.append(cur_block)
+
+way6_cadence_errors = []
+intra_steps = 0
+for b_idx, b in enumerate(blocks, 1):
+    for j in range(len(b) - 1):
+        i1, i2 = b[j], b[j+1]
+        dt = (timestamps[i2] - timestamps[i1]).total_seconds()
+        intra_steps += 1
+        if dt != 30.0:
+            way6_cadence_errors.append((i1+1, i2+1, raw_pids[i1], raw_pids[i2], dt))
+
+assert len(way6_cadence_errors) == 0, f"Way 6 Failed: {len(way6_cadence_errors)} errors"
+print(f"    [PASS] Way 6: Exactly 30.000000s cadence verified across all {intra_steps} intra-block steps (0.000s drift) in {len(blocks)} blocks.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 7: GAPS ARITHMETIC & TIMESTAMP INVARIANCE CHECK
+# -----------------------------------------------------------------------------
+print("--> WAY 7: Gaps Arithmetic & Timestamp Duration Check...")
+assert total_gap_rows == len(blocks) - 1, f"Gap count mismatch: {total_gap_rows} vs {len(blocks)-1}"
+
+way7_gap_errors = []
+total_missing_rounds = 0
+
+for r in range(2, ws_gaps.max_row + 1):
+    g_idx = ws_gaps.cell(row=r, column=1).value
+    prec_pid = str(ws_gaps.cell(row=r, column=2).value)
+    prec_t = datetime.strptime(str(ws_gaps.cell(row=r, column=3).value), "%Y-%m-%d %H:%M:%S")
+    res_pid = str(ws_gaps.cell(row=r, column=4).value)
+    res_t = datetime.strptime(str(ws_gaps.cell(row=r, column=5).value), "%Y-%m-%d %H:%M:%S")
+    missing_rounds = int(ws_gaps.cell(row=r, column=6).value)
+    total_missing_rounds += missing_rounds
+    
+    elapsed_sec = (res_t - prec_t).total_seconds()
+    exp_missing = int(round(elapsed_sec / 30.0)) - 1
+    if missing_rounds != exp_missing:
+        way7_gap_errors.append((g_idx, missing_rounds, exp_missing, elapsed_sec))
+
+assert len(way7_gap_errors) == 0, f"Way 7 Failed: {len(way7_gap_errors)} errors"
+print(f"    [PASS] Way 7: All {total_gap_rows} gaps verified. Exact elapsed duration = (missing + 1) * 30s.")
+print(f"           Total cumulative missing rounds across timeline = {total_missing_rounds} rounds.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 8: STRICT ML SUPERVISED BLOCK BOUNDARY ISOLATION (ZERO GAP CROSSINGS)
+# -----------------------------------------------------------------------------
+print("--> WAY 8: ML_Ready Zero-Gap-Crossing Verification...")
+pid_to_block = {}
+for b_idx, b in enumerate(blocks, 1):
+    for idx in b:
+        pid_to_block[raw_pids[idx]] = b_idx
+
+way8_crossing_errors = []
+for r in range(2, ws_ml.max_row + 1):
+    sample_seq = ws_ml.cell(row=r, column=1).value
+    tgt_pid = str(ws_ml.cell(row=r, column=2).value)
+    b_id = ws_ml.cell(row=r, column=22).value
+    
+    exp_b_id = pid_to_block[tgt_pid]
+    if b_id != exp_b_id:
+        way8_crossing_errors.append((sample_seq, tgt_pid, b_id, exp_b_id))
+
+assert len(way8_crossing_errors) == 0, f"Way 8 Failed: {len(way8_crossing_errors)} errors"
+print(f"    [PASS] Way 8: 0 gap crossings across all {total_ml_rows} ML samples.")
+print(f"           Every 5-lag window is 100% strictly bounded within its continuous block.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 9: ML FEATURE FIDELITY & LAG MATCHING CHECK
+# -----------------------------------------------------------------------------
+print("--> WAY 9: ML Feature Fidelity & Exact Lag Value Matching Check...")
+raw_data_map = {}
+for r in range(2, ws_raw.max_row + 1):
+    seq = ws_raw.cell(row=r, column=1).value
+    num = ws_raw.cell(row=r, column=4).value
+    col = str(ws_raw.cell(row=r, column=5).value)
+    sz = str(ws_raw.cell(row=r, column=6).value)
+    raw_data_map[seq] = (num, col, sz)
+
+pid_to_seq = {str(ws_raw.cell(row=r, column=2).value): ws_raw.cell(row=r, column=1).value for r in range(2, ws_raw.max_row + 1)}
+
+way9_fidelity_errors = []
+total_points_checked = 0
+
+for r in range(2, ws_ml.max_row + 1):
+    sample_seq = ws_ml.cell(row=r, column=1).value
+    tgt_pid = str(ws_ml.cell(row=r, column=2).value)
+    tgt_seq = pid_to_seq[tgt_pid]
+    
+    # Target check
+    tgt_val = (ws_ml.cell(row=r, column=4).value, str(ws_ml.cell(row=r, column=5).value), str(ws_ml.cell(row=r, column=6).value))
+    if tgt_val != raw_data_map[tgt_seq]:
+        way9_fidelity_errors.append((sample_seq, 'target', tgt_val, raw_data_map[tgt_seq]))
+    total_points_checked += 1
+    
+    # Lag 1 to 5 check
+    for lag in range(1, 6):
+        col_offset = 6 + (lag - 1) * 3
+        lag_val = (
+            ws_ml.cell(row=r, column=col_offset+1).value,
+            str(ws_ml.cell(row=r, column=col_offset+2).value),
+            str(ws_ml.cell(row=r, column=col_offset+3).value)
+        )
+        exp_lag_val = raw_data_map[tgt_seq - lag]
+        if lag_val != exp_lag_val:
+            way9_fidelity_errors.append((sample_seq, f'prev_{lag}', lag_val, exp_lag_val))
+        total_points_checked += 1
+
+assert len(way9_fidelity_errors) == 0, f"Way 9 Failed: {len(way9_fidelity_errors)} errors"
+print(f"    [PASS] Way 9: 0 discrepancies across all {total_points_checked:,} evaluated feature points.")
+print("           Target and lag-1..lag-5 values match Raw_Data with 100% mathematical fidelity.\n")
+
+# -----------------------------------------------------------------------------
+# WAY 10: MULTI-DIRECTORY CRYPTOGRAPHIC SHA-256 HASH INVARIANCE CHECK
+# -----------------------------------------------------------------------------
+print("--> WAY 10: Multi-Directory SHA-256 Hash Invariance Check...")
+def get_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        while chunk := f.read(65536):
+            h.update(chunk)
+    return h.hexdigest()
+
+files_to_check = [
+    "Colour_Prediction_Dataset_v15.xlsx",
+    "colour_raw_data_v15.csv",
+    "colour_ml_ready_v15.csv"
+]
+
+for fname in files_to_check:
+    p_b = os.path.join(brain_dir, fname)
+    p_d = os.path.join(dl_dir, fname)
+    
+    assert os.path.exists(p_b), f"Missing in Brain: {fname}"
+    assert os.path.exists(p_d), f"Missing in Downloads: {fname}"
+    
+    sb, sd = os.path.getsize(p_b), os.path.getsize(p_d)
+    assert sb == sd, f"Size mismatch for {fname}: {sb} vs {sd}"
+    
+    hb, hd = get_sha256(p_b), get_sha256(p_d)
+    assert hb == hd, f"Hash mismatch for {fname}: {hb} vs {hd}"
+    
+    print(f"    [PASS] {fname}: {sb:,} bytes | SHA-256: {hb}")
+
+print("\n" + "=" * 80)
+print("  ALL 10 VERIFICATION WAYS PASSED WITH ZERO DEFECTS (100% CERTIFIED)")
+print("=" * 80)

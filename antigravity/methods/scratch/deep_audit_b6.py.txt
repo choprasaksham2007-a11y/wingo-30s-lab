@@ -1,0 +1,79 @@
+import cv2, os, winocr, asyncio, sys, json
+from PIL import Image
+import numpy as np
+import openpyxl
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b6_dir = r"extraction\extracted_zip_batch6"
+v7_path = r"project_reports\Colour_Prediction_Dataset_v7.xlsx"
+
+wb = openpyxl.load_workbook(v7_path, data_only=True)
+ws = wb['Raw_Data']
+
+v7_data = {}
+for r in range(2, ws.max_row+1):
+    seq = ws.cell(row=r, column=1).value
+    pid = str(ws.cell(row=r, column=2).value)
+    num = ws.cell(row=r, column=4).value
+    col = ws.cell(row=r, column=5).value
+    sz = ws.cell(row=r, column=6).value
+    v7_data[pid] = {'seq': seq, 'num': num, 'col': col, 'sz': sz}
+
+with open(r"extraction\raw_obs_batch6.json", "r") as f:
+    obs = json.load(f)
+
+async def run_deep_audit():
+    files = sorted([f for f in os.listdir(b6_dir) if f.endswith('.jpeg')])
+    print(f"Indexing all {len(files)} files...")
+    
+    file_ocr = {}
+    for f in files:
+        img = cv2.imread(os.path.join(b6_dir, f))
+        # OCR the number column x=315..375, y=500..1450
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(img[500:1450, 315:375], cv2.COLOR_BGR2RGB)))
+        lines = []
+        for l in res.lines:
+            txt = "".join([w.text.strip() for w in l.words])
+            y_c = 500 + l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+            lines.append((y_c, txt))
+        file_ocr[f] = lines
+
+    print("Checking all 489 Batch 6 PIDs against WinOCR readings...")
+    suspects = []
+    
+    for pid in sorted(obs.keys()):
+        recorded_num = v7_data[pid]['num']
+        seq = v7_data[pid]['seq']
+        
+        ocr_digits = []
+        for o in obs[pid]:
+            f = o['file']
+            yc = o['yc']
+            for y_line, txt in file_ocr[f]:
+                if abs(y_line - yc) < 18 and txt:
+                    # check if txt has a digit
+                    clean = txt.replace('o', '0').replace('O', '0').replace('D', '0')
+                    for char in clean:
+                        if char.isdigit():
+                            ocr_digits.append((int(char), f, yc))
+                            
+        # Compare OCR readings with recorded_num
+        discrepancies = [d for d in ocr_digits if d[0] != recorded_num]
+        if discrepancies:
+            # Check if majority of OCR disagree
+            from collections import Counter
+            c = Counter([d[0] for d in ocr_digits])
+            suspects.append({
+                'seq': seq,
+                'pid': pid,
+                'recorded_num': recorded_num,
+                'ocr_counts': dict(c),
+                'discrepancies': discrepancies
+            })
+            
+    print(f"Total rows with OCR discrepancies in Batch 6: {len(suspects)}")
+    for s in suspects:
+        print(f"Seq {s['seq']:4d} | PID {s['pid']} | Recorded: {s['recorded_num']} | OCR found: {s['ocr_counts']}")
+
+asyncio.run(run_deep_audit())

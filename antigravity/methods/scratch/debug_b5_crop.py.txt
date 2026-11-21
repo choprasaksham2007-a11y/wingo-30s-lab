@@ -1,0 +1,21 @@
+import cv2, numpy as np
+
+im = cv2.imread(r"extraction\extracted_zip_batch5\WhatsApp Image 2026-10-24 at 11.50.39.jpeg")
+# PID 50650 was on this image
+# Let's search around y from 500 to 1400 where Red Big exists:
+for yc in range(550, 1400, 10):
+    crop = im[yc-20:yc+20, 300:390]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords = np.argwhere(r_mask > 0)
+    if len(coords) > 20:
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        if 23 <= h <= 30:
+            print(f"yc={yc}, min_x={min_x} (abs {300+min_x}), w={w}, h={h}")
+            for r in r_mask[min_y:max_y+1, min_x:max_x+1]:
+                print("".join(["#" if p > 0 else " " for p in r]))
+            print("=" * 40)
+            break

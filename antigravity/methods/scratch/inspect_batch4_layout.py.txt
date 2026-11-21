@@ -1,0 +1,16 @@
+import cv2, glob, os
+
+batch4_dir = r"extraction\extracted_zip_batch4"
+images = sorted(glob.glob(os.path.join(batch4_dir, "*.jpeg")))
+print(f"Total images in batch 4: {len(images)}")
+
+sample = cv2.imread(images[0])
+print(f"Image shape: {sample.shape}")
+
+# Let's check a few images shapes
+shapes = set()
+for im_path in images:
+    im = cv2.imread(im_path)
+    if im is not None:
+        shapes.add(im.shape)
+print("Unique image shapes in Batch 4:", shapes)

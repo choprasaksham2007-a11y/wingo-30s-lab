@@ -1,0 +1,71 @@
+import cv2, os, numpy as np, json, sys
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b6_dir = r"extraction\extracted_zip_batch6"
+with open(r"extraction\raw_obs_batch6.json", "r") as f:
+    obs = json.load(f)
+
+# Find all PIDs where BS is Big and color is Red
+big_red_pids = []
+for p, o_list in obs.items():
+    # check if majority is Big Red
+    is_big = any(o.get('size') == 'Big' or o.get('bs_ocr') == 'Big' for o in o_list)
+    is_red = any(o.get('col') == 'Red' for o in o_list)
+    if is_big and is_red:
+        big_red_pids.append(p)
+
+big_red_pids = sorted(list(set(big_red_pids)))
+print(f"Total Big Red candidates: {len(big_red_pids)}")
+
+audit_results = {}
+for p in big_red_pids:
+    votes = []
+    for item in obs[p]:
+        fname = item['file']
+        yc = item['yc']
+        img = cv2.imread(os.path.join(b6_dir, fname))
+        if img is None: continue
+        
+        crop = img[yc-22:yc+22, 320:385]
+        hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+        r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+        coords = np.argwhere(r_mask > 0)
+        if len(coords) < 15: continue
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        h, w = glyph.shape
+        if h < 20: continue
+        
+        # Upper right quadrant: y from 15% to 45% of height, x from 60% of width
+        top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+        tr_fill = cv2.countNonZero(top_right_box)
+        box_area = top_right_box.shape[0] * top_right_box.shape[1]
+        pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+        
+        # In 8, top right has a loop wall (pct > 40%)
+        # In 6, top right is open (pct < 20%)
+        decision = 8 if pct > 35.0 else 6
+        votes.append((decision, pct, tr_fill, box_area, fname))
+        
+    if votes:
+        d_counts = [v[0] for v in votes]
+        avg_pct = np.mean([v[1] for v in votes])
+        final_d = 8 if avg_pct > 35.0 else 6
+        audit_results[p] = {
+            "final_d": final_d,
+            "avg_pct": avg_pct,
+            "votes": votes
+        }
+
+six_count = sum(1 for v in audit_results.values() if v["final_d"] == 6)
+eight_count = sum(1 for v in audit_results.values() if v["final_d"] == 8)
+print(f"Audited Big Red Results: 6s = {six_count}, 8s = {eight_count}")
+
+# Check distribution around the boundary (pct between 20 and 45)
+ambiguous = [p for p, v in audit_results.items() if 20 <= v["avg_pct"] <= 45]
+print(f"Ambiguous cases (pct 20..45): {len(ambiguous)}")
+for p in ambiguous:
+    v = audit_results[p]
+    print(f"PID {p}: final={v['final_d']}, avg_pct={v['avg_pct']:.1f}%")

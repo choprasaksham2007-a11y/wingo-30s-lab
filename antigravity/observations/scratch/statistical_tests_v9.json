@@ -1,0 +1,79 @@
+{
+  "chi_square_uniform": {
+    "degrees_of_freedom": 9,
+    "is_uniform": true,
+    "p_value": 0.5713,
+    "statistic": 7.6349
+  },
+  "colour_distribution": {
+    "Green": 1498,
+    "Green+Violet": 387,
+    "Red": 1453,
+    "Red+Violet": 398
+  },
+  "digit_distribution": {
+    "0": 398,
+    "1": 385,
+    "2": 341,
+    "3": 389,
+    "4": 357,
+    "5": 387,
+    "6": 382,
+    "7": 366,
+    "8": 373,
+    "9": 358
+  },
+  "digit_percentages": {
+    "0": 10.65,
+    "1": 10.31,
+    "2": 9.13,
+    "3": 10.41,
+    "4": 9.56,
+    "5": 10.36,
+    "6": 10.22,
+    "7": 9.8,
+    "8": 9.98,
+    "9": 9.58
+  },
+  "first_order_transition_matrix": {
+    "P_Big_to_Big": 0.504,
+    "P_Big_to_Small": 0.496,
+    "P_Small_to_Big": 0.4957,
+    "P_Small_to_Small": 0.5043,
+    "counts": {
+      "Big_to_Big": 936,
+      "Big_to_Small": 921,
+      "Small_to_Big": 922,
+      "Small_to_Small": 938
+    }
+  },
+  "size_distribution": {
+    "big": 1866,
+    "big_pct": 49.95,
+    "chi_square": 0.0043,
+    "p_value": 0.9478,
+    "small": 1870,
+    "small_pct": 50.05
+  },
+  "streak_analysis": {
+    "longest_big_streak": 11,
+    "longest_green_family_streak": 11,
+    "longest_number_repeat": {
+      "digit": 5,
+      "end_seq": 683,
+      "length": 4,
+      "start_seq": 680
+    },
+    "longest_pure_green_streak": 8,
+    "longest_pure_red_streak": 13,
+    "longest_red_family_streak": 13,
+    "longest_small_streak": 9,
+    "number_repeat_breakdown": {
+      "2": 283,
+      "3": 30,
+      "4": 5,
+      "5+": 0
+    }
+  },
+  "total_rows": 3736
+}

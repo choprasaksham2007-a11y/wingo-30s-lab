@@ -1,0 +1,89 @@
+import json, os, cv2, numpy as np, sys
+from collections import Counter
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b7_dir = r"extraction\extracted_zip_batch7"
+with open(r"extraction\raw_obs_batch7.json", "r") as f:
+    obs = json.load(f)
+
+new_pids = sorted([p for p in obs.keys() if int(p[-5:]) >= 51294])
+print(f"Auditing {len(new_pids)} new rounds in Batch 7...")
+
+sixes, eights, twos, fours, ones, threes, sevens, nines, zeros, fives = [], [], [], [], [], [], [], [], [], []
+
+for pid in new_pids:
+    items = obs[pid]
+    d = items[0]['digit']
+    if d == 6: sixes.append(pid)
+    elif d == 8: eights.append(pid)
+    elif d == 2: twos.append(pid)
+    elif d == 4: fours.append(pid)
+    elif d == 1: ones.append(pid)
+    elif d == 3: threes.append(pid)
+    elif d == 7: sevens.append(pid)
+    elif d == 9: nines.append(pid)
+    elif d == 0: zeros.append(pid)
+    elif d == 5: fives.append(pid)
+
+print("\n--- NEW ROUNDS DIGIT COUNTS ---")
+print(f"0s (Red+Violet Small): {len(zeros)}")
+print(f"1s (Green Small):      {len(ones)}")
+print(f"2s (Red Small):        {len(twos)}")
+print(f"3s (Green Small):      {len(threes)}")
+print(f"4s (Red Small):        {len(fours)}")
+print(f"5s (Green+Violet Big): {len(fives)}")
+print(f"6s (Red Big):          {len(sixes)}")
+print(f"7s (Green Big):        {len(sevens)}")
+print(f"8s (Red Big):          {len(eights)}")
+print(f"9s (Green Big):        {len(nines)}")
+total = len(zeros)+len(ones)+len(twos)+len(threes)+len(fours)+len(fives)+len(sixes)+len(sevens)+len(eights)+len(nines)
+print(f"Total new: {total}")
+
+# Audit 6 vs 8 on new rounds
+print("\n--- DETAILED AUDIT: 6 vs 8 on new rounds ---")
+for pid in sixes + eights:
+    items = obs[pid]
+    # Check notes
+    notes = [it['note'] for it in items]
+    ocrs = [it.get('ocr_digit') for it in items if it.get('ocr_digit') is not None]
+    # Let's inspect the actual glyph
+    for it in items[:1]:
+        fname = it['file']
+        yc = it['yc']
+        im = cv2.imread(os.path.join(b7_dir, fname))
+        crop = im[yc-22:yc+22, 320:385]
+        hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+        r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+        coords = np.argwhere(r_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        h, w = glyph.shape
+        top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+        tr_fill = cv2.countNonZero(top_right_box)
+        box_area = top_right_box.shape[0] * top_right_box.shape[1]
+        pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+        if 20 <= pct <= 45:
+            print(f"  Boundary 6/8: PID {pid} (digit {it['digit']}): pct={pct:.1f}%, OCR={ocrs}, file={fname}")
+
+# Audit 2 vs 4 on new rounds
+print("\n--- DETAILED AUDIT: 2 vs 4 on new rounds ---")
+for pid in twos + fours:
+    items = obs[pid]
+    for it in items[:1]:
+        fname = it['file']
+        yc = it['yc']
+        im = cv2.imread(os.path.join(b7_dir, fname))
+        crop = im[yc-22:yc+22, 320:385]
+        hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+        r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+        coords = np.argwhere(r_mask > 0)
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        h, w = glyph.shape
+        bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+        ocrs = [it.get('ocr_digit') for it in items if it.get('ocr_digit') is not None]
+        if 18 <= bot_left <= 26:
+            print(f"  Boundary 2/4: PID {pid} (digit {it['digit']}): bl={bot_left}, OCR={ocrs}, file={fname}")

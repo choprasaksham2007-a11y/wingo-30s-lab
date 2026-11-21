@@ -1,0 +1,27 @@
+import cv2, os, numpy as np
+
+# Let's inspect digit 3 from Batch 3 and Batch 4
+# In Batch 3, PID 51778 was digit 3, or PID 52261 was digit 3
+# In Batch 4, let's look at crop_50148 (which was 1) and another row that is 3!
+# How do we find a row in Batch 4 that is visually 3?
+# Let's write a script to inspect crops of Green Small rows in Batch 4!
+batch4_dir = r"extraction\extracted_zip_batch4"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+tight = np.load(r"extraction\tight_templates.npy", allow_pickle=True).item()
+
+im = cv2.imread(os.path.join(batch4_dir, "WhatsApp Image 2026-10-24 at 10.46.29.jpeg"))
+
+# On this image:
+# y=805: 50151 -> 0
+# y=865: 50150 -> 2
+# y=926: 50149 -> 2
+# y=984: 50148 -> 1
+# y=1045: 50147 -> 0
+# y=1105: 50146 -> 1
+# y=1165: 50145 -> 4
+# y=1225: 50144 -> 5
+# y=1284: 50143 -> 4
+# y=1344: 50142 -> 2
+# None of these were 3! Let's check image 2: WhatsApp Image 2026-10-24 at 10.46.29 (1).jpeg
+im2 = cv2.imread(os.path.join(batch4_dir, "WhatsApp Image 2026-10-24 at 10.46.29 (1).jpeg"))
+print("Image 2 loaded successfully")

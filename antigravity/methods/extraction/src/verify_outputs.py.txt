@@ -1,0 +1,113 @@
+"""
+Automated validation and sanity test suite for generated Excel and CSV exports.
+Ensures zero data truncation, exact text preservation, and strict Excel/CSV parity.
+"""
+import csv
+import openpyxl
+from typing import List, Dict, Tuple
+
+def verify_all_artifacts(excel_path: str, raw_csv_path: str, ml_csv_path: str, audit_csv_path: str) -> Tuple[bool, List[str]]:
+    errors = []
+    print(f"--- Starting Final Automated Quality Verification ---")
+    print(f"Verifying Excel: {excel_path}")
+    print(f"Verifying CSVs: {raw_csv_path}, {ml_csv_path}, {audit_csv_path}")
+
+    # 1. Load Excel
+    try:
+        wb = openpyxl.load_workbook(excel_path, data_only=False)
+    except Exception as e:
+        return False, [f"Failed to open Excel workbook: {e}"]
+
+    expected_sheets = ["Raw_Data", "ML_Ready", "Summary", "Missing_Rounds", "Audit"]
+    for s in expected_sheets:
+        if s not in wb.sheetnames:
+            errors.append(f"Missing required sheet in Excel: '{s}'")
+
+    if errors:
+        return False, errors
+
+    # 2. Check Raw_Data Period IDs
+    ws_raw = wb["Raw_Data"]
+    raw_rows = list(ws_raw.iter_rows(values_only=True))
+    if len(raw_rows) <= 1:
+        errors.append("Raw_Data sheet is empty or contains only headers.")
+    else:
+        headers = raw_rows[0]
+        pid_idx = headers.index("period_id")
+        pids = []
+        for r_idx, row in enumerate(raw_rows[1:], start=2):
+            pid_val = row[pid_idx]
+            if pid_val is None:
+                errors.append(f"Row {r_idx} in Raw_Data has null period_id")
+                continue
+            pid_str = str(pid_val).strip()
+            # Check for scientific notation leakage (e.g. 2.0261E+16)
+            if "E+" in pid_str.upper() or "E-" in pid_str.upper():
+                errors.append(f"CRITICAL: Period ID converted to scientific notation at row {r_idx}: {pid_str}")
+            if "." in pid_str:
+                errors.append(f"CRITICAL: Period ID treated as floating-point at row {r_idx}: {pid_str}")
+            pids.append(pid_str)
+
+        # Check uniqueness
+        if len(pids) != len(set(pids)):
+            errors.append(f"Duplicate Period IDs found in Raw_Data: {len(pids) - len(set(pids))} duplicates")
+
+    # 3. Check ML_Ready temporal integrity
+    ws_ml = wb["ML_Ready"]
+    ml_rows = list(ws_ml.iter_rows(values_only=True))
+    if len(ml_rows) > 1:
+        headers_ml = ml_rows[0]
+        pid_idx = headers_ml.index("period_id")
+        for r_idx, row in enumerate(ml_rows[1:], start=2):
+            pid_val = str(row[pid_idx]).strip()
+            if "E+" in pid_val.upper() or "." in pid_val:
+                errors.append(f"CRITICAL: Period ID in ML_Ready has invalid format at row {r_idx}: {pid_val}")
+
+    # 4. Programmatic Parity: Compare Excel with CSV exports
+    _check_sheet_csv_parity(ws_raw, raw_csv_path, "Raw_Data", errors)
+    if "ML_Ready" in wb.sheetnames:
+        _check_sheet_csv_parity(ws_ml, ml_csv_path, "ML_Ready", errors)
+    if "Audit" in wb.sheetnames:
+        _check_sheet_csv_parity(wb["Audit"], audit_csv_path, "Audit", errors)
+
+    is_success = (len(errors) == 0)
+    if is_success:
+        print("[SUCCESS] All automated quality checks passed with 100% data integrity!")
+    else:
+        print(f"[FAIL] Found {len(errors)} issues during verification:")
+        for err in errors:
+            print(f"  - {err}")
+
+    return is_success, errors
+
+
+def _check_sheet_csv_parity(ws, csv_path: str, sheet_name: str, errors: List[str]):
+    try:
+        with open(csv_path, mode="r", encoding="utf-8-sig") as f:
+            reader = list(csv.reader(f))
+    except Exception as e:
+        errors.append(f"Failed to read CSV '{csv_path}': {e}")
+        return
+
+    excel_rows = []
+    for r in ws.iter_rows(values_only=True):
+        if any(cell is not None and str(cell).strip() != "" for cell in r):
+            excel_rows.append([str(c or "").strip() for c in r])
+
+    if len(excel_rows) != len(reader):
+        errors.append(f"Parity mismatch in {sheet_name}: Excel has {len(excel_rows)} rows, but CSV has {len(reader)} rows.")
+        return
+
+    for r_idx in range(len(reader)):
+        e_row = excel_rows[r_idx]
+        c_row = reader[r_idx]
+        if len(e_row) != len(c_row):
+            errors.append(f"Row {r_idx+1} column count mismatch in {sheet_name}: Excel={len(e_row)}, CSV={len(c_row)}")
+            break
+        for c_idx in range(len(c_row)):
+            e_val = str(e_row[c_idx]).strip()
+            c_val = str(c_row[c_idx]).strip()
+            if e_val != c_val:
+                errors.append(f"Cell value mismatch in {sheet_name} at row {r_idx+1}, col {c_idx+1}: Excel='{e_val}' vs CSV='{c_val}'")
+                if len(errors) > 10:
+                    return

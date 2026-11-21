@@ -1,0 +1,35 @@
+import openpyxl, json, cv2, os, asyncio, winocr
+from PIL import Image
+import numpy as np
+
+# Load reconciled_batch2_refined.json if exists
+b2_json_path = r"extraction\reconciled_batch2_refined.json"
+with open(b2_json_path, "r") as f:
+    b2_data = json.load(f)
+
+print(f"Total entries in reconciled_batch2_refined.json: {len(b2_data)}")
+sample_pid = list(b2_data.keys())[0]
+print("Sample entry:", sample_pid, b2_data[sample_pid])
+
+# Load v4 workbook
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+ws = wb['Raw_Data']
+
+eights_in_scope = []
+for r in range(2, ws.max_row + 1):
+    seq = ws.cell(row=r, column=1).value
+    if 1261 <= seq <= 1640:
+        num = ws.cell(row=r, column=4).value
+        if num == 8:
+            pid = str(ws.cell(row=r, column=2).value)
+            eights_in_scope.append({
+                "seq": seq,
+                "excel_row": r,
+                "pid": pid,
+                "sources": b2_data.get(pid, {}).get("sources", [])
+            })
+
+print(f"Total eights in scope: {len(eights_in_scope)}")
+print("First 5 eights with sources:")
+for e in eights_in_scope[:5]:
+    print(e)

@@ -1,0 +1,8 @@
+import pickle
+
+with open(r"extraction\data\aligned_v2_observations.pkl", "rb") as pf:
+    all_obs = pickle.load(pf)
+
+for o in all_obs:
+    if o.period_id == "20261022100052061":
+        print(f"Source: {o.source_screenshot}, Number: {o.number}, Col: {o.colour}, Notes: {o.notes}")

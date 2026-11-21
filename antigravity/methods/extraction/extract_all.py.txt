@@ -1,0 +1,164 @@
+"""
+Comprehensive Extractor for all 99 screenshots.
+Extracts: Period ID (exact 17-digit string), Number (template correlation), Big/Small, and Colour.
+"""
+import os
+import glob
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+import numpy as np
+from src.schema import RawObservation
+from src.color_rules import derive_size_from_number, derive_colour_from_number
+
+zip_dir = r"extraction\extracted_zip"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+def classify_number(num_crop):
+    best_digit = None
+    best_score = -1.0
+    for digit, tpl in templates.items():
+        res = cv2.matchTemplate(num_crop, tpl, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        if max_val > best_score:
+            best_score = max_val
+            best_digit = digit
+    return best_digit, best_score
+
+def detect_dot(img, yc):
+    # Dot crop around x: 600 to 670, y: yc-25 to yc+25
+    dot_crop = img[yc-25:yc+25, 600:670]
+    hsv = cv2.cvtColor(dot_crop, cv2.COLOR_BGR2HSV)
+    
+    # Masks
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    # Check if obscured by floating icon
+    # Floating icons produce massive red/orange counts (>800 pixels) or distort the area
+    # Normal dot is around 250 to 350 pixels total
+    total_color = g_cnt + r_cnt + v_cnt
+    if total_color > 700:
+        # Icon occlusion
+        return None, True, "Dot obscured by floating icon"
+        
+    if v_cnt > 100 and r_cnt > 100:
+        return "Red+Violet", False, "Direct dot visible"
+    elif v_cnt > 100 and g_cnt > 100:
+        return "Green+Violet", False, "Direct dot visible"
+    elif r_cnt > 150:
+        return "Red", False, "Direct dot visible"
+    elif g_cnt > 150:
+        return "Green", False, "Direct dot visible"
+    elif v_cnt > 150:
+        return "Violet", False, "Direct dot visible"
+    elif total_color < 50:
+        # No dot detected or covered
+        return None, True, "Dot not detected"
+    else:
+        return None, True, "Uncertain dot pixels"
+
+async def extract_screenshot(file_path):
+    img = cv2.imread(file_path)
+    fname = os.path.basename(file_path)
+    
+    # 1. OCR Period ID strip
+    pid_strip = img[580:1350, 45:280]
+    pil_pid = Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))
+    res_pid = await winocr.recognize_pil(pil_pid)
+    
+    pids_found = []
+    for line in res_pid.lines:
+        line_txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+        # Extract digits
+        cleaned = "".join([c for c in line_txt if c.isdigit()])
+        if len(cleaned) == 17:
+            pids_found.append((line.words[0].bounding_rect.y, cleaned))
+            
+    # Sort PIDs by vertical y coordinate
+    pids_found.sort(key=lambda x: x[0])
+    
+    # 2. OCR Big/Small strip
+    bs_strip = img[580:1350, 460:570]
+    pil_bs = Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB))
+    res_bs = await winocr.recognize_pil(pil_bs)
+    bss_found = []
+    for line in res_bs.lines:
+        txt = " ".join([w.text.strip() for w in line.words])
+        if "Big" in txt or "Small" in txt:
+            val = "Big" if "Big" in txt else "Small"
+            bss_found.append((line.words[0].bounding_rect.y, val))
+    bss_found.sort(key=lambda x: x[0])
+    
+    observations = []
+    
+    # We expect 10 rows: k = 0..9
+    # If pids_found has 10 items, we map row k directly
+    # If pids_found has slightly fewer due to spacing or icon occlusion, we align by y-position
+    for k in range(10):
+        expected_y = 28 + k * 76.6
+        yc = int(617 + k * 76.6)
+        
+        # Match PID closest to expected_y
+        pid_val = None
+        for y_pos, p_txt in pids_found:
+            if abs(y_pos - expected_y) < 35:
+                pid_val = p_txt
+                break
+                
+        # Match Big/Small closest to expected_y
+        bs_val = None
+        for y_pos, b_txt in bss_found:
+            if abs(y_pos - expected_y) < 35:
+                bs_val = b_txt
+                break
+                
+        # Number classification
+        num_crop = img[yc-20:yc+20, 345:385]
+        num_val, num_score = classify_number(num_crop)
+        
+        # Verify size with number
+        if bs_val is None and num_val is not None:
+            bs_val = derive_size_from_number(num_val)
+            
+        # Color dot detection
+        dot_color, is_occ, dot_notes = detect_dot(img, yc)
+        
+        if pid_val is not None:
+            observations.append(RawObservation(
+                source_screenshot=fname,
+                period_id=pid_val,
+                number=num_val,
+                big_small=bs_val,
+                colour=dot_color,
+                row_index_in_screenshot=k,
+                is_occluded=is_occ,
+                ocr_confidence=round(num_score * 100, 1),
+                notes=dot_notes
+            ))
+            
+    return observations
+
+async def run_all_extractions():
+    files = sorted(glob.glob(os.path.join(zip_dir, "*.jpeg")))
+    print(f"Extracting {len(files)} screenshots...")
+    all_obs = []
+    for idx, f in enumerate(files):
+        obs = await extract_screenshot(f)
+        all_obs.extend(obs)
+        if (idx + 1) % 15 == 0 or idx == len(files) - 1:
+            print(f"Extracted {idx+1}/{len(files)}: total observations = {len(all_obs)}")
+            
+    import pickle
+    with open(r"extraction\data\all_raw_observations.pkl", "wb") as pf:
+        pickle.dump(all_obs, pf)
+    print("Saved all_raw_observations.pkl successfully!")
+
+if __name__ == "__main__":
+    asyncio.run(run_all_extractions())

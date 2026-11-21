@@ -1,0 +1,736 @@
+[
+  {
+    "current_col": "Red",
+    "current_num": 7,
+    "current_size": "Big",
+    "pid": "20261022100052109",
+    "seq": 528,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.34.00 (3).jpeg",
+      "WhatsApp Image 2026-10-23 at 09.34.08 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 0,
+          "red": 1674,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.00 (3).jpeg",
+        "is_occluded": true,
+        "num_colors": {
+          "green": 379,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1294
+      },
+      {
+        "dot_colors": {
+          "green": 264,
+          "red": 312,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.08 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 391,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1083
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 7,
+    "current_size": "Big",
+    "pid": "20261022100052179",
+    "seq": 598,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.34.03.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 296,
+          "red": 179,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.03.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 384,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 3,
+    "current_size": "Small",
+    "pid": "20261022100052229",
+    "seq": 647,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.34.04 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 125,
+          "red": 502,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.04 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 512,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1232
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 9,
+    "current_size": "Big",
+    "pid": "20261022100052259",
+    "seq": 677,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.34.05 (1).jpeg",
+      "WhatsApp Image 2026-10-23 at 09.34.06.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 198,
+          "red": 324,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.05 (1).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 526,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1228
+      },
+      {
+        "dot_colors": {
+          "green": 0,
+          "red": 2363,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.06.jpeg",
+        "is_occluded": true,
+        "num_colors": {
+          "green": 533,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1151
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 3,
+    "current_size": "Small",
+    "pid": "20261022100052277",
+    "seq": 695,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.34.06 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 295,
+          "red": 475,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.06 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 502,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1294
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 7,
+    "current_size": "Big",
+    "pid": "20261022100052278",
+    "seq": 696,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.34.06 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 296,
+          "red": 179,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.06 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 384,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 9,
+    "current_size": "Big",
+    "pid": "20261022100052298",
+    "seq": 716,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.34.07 (1).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 296,
+          "red": 179,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.34.07 (1).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 536,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 3,
+    "current_size": "Small",
+    "pid": "20261022100052356",
+    "seq": 773,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.56 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 268,
+          "red": 156,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.56 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 510,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1224
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 7,
+    "current_size": "Big",
+    "pid": "20261022100052844",
+    "seq": 876,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.28 (1).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 180,
+          "red": 369,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.28 (1).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 385,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1229
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 1,
+    "current_size": "Small",
+    "pid": "20261022100052853",
+    "seq": 885,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.28 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 180,
+          "red": 369,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.28 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 325,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1229
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 1,
+    "current_size": "Small",
+    "pid": "20261022100052863",
+    "seq": 895,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.29.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 180,
+          "red": 369,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.29.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 325,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1229
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 3,
+    "current_size": "Small",
+    "pid": "20261022100052873",
+    "seq": 905,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.41.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 180,
+          "red": 369,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.41.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 509,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1229
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 1,
+    "current_size": "Small",
+    "pid": "20261023100050003",
+    "seq": 915,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.41 (1).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 180,
+          "red": 369,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.41 (1).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 325,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1229
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 9,
+    "current_size": "Big",
+    "pid": "20261023100050043",
+    "seq": 955,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.43.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 296,
+          "red": 179,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.43.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 538,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 7,
+    "current_size": "Big",
+    "pid": "20261023100050053",
+    "seq": 965,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.43 (1).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 296,
+          "red": 179,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.43 (1).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 384,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 7,
+    "current_size": "Big",
+    "pid": "20261023100050063",
+    "seq": 975,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.43 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 296,
+          "red": 179,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.43 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 384,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 3,
+    "current_size": "Small",
+    "pid": "20261023100050073",
+    "seq": 985,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.44.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 296,
+          "red": 179,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.44.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 517,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 7,
+    "current_size": "Big",
+    "pid": "20261023100050104",
+    "seq": 1006,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.45.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 109,
+          "red": 192,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.45.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 390,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1099
+      }
+    ]
+  },
+  {
+    "current_col": "Red+Violet",
+    "current_num": 5,
+    "current_size": "Big",
+    "pid": "20261023100050124",
+    "seq": 1026,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.45 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 185,
+          "red": 190,
+          "violet": 217
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.45 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 266,
+          "red": 0,
+          "violet": 227
+        },
+        "yc": 1099
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 1,
+    "current_size": "Small",
+    "pid": "20261023100050134",
+    "seq": 1036,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.46.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 109,
+          "red": 190,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.46.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 321,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1099
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 1,
+    "current_size": "Small",
+    "pid": "20261023100050273",
+    "seq": 1095,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.47 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 264,
+          "red": 312,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.47 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 328,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1083
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 3,
+    "current_size": "Small",
+    "pid": "20261023100050283",
+    "seq": 1105,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.48.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 264,
+          "red": 312,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.48.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 521,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1083
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 3,
+    "current_size": "Small",
+    "pid": "20261023100050301",
+    "seq": 1123,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.48 (2).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 217,
+          "red": 281,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.48 (2).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 516,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1227
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 7,
+    "current_size": "Big",
+    "pid": "20261023100050341",
+    "seq": 1163,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.50 (1).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 237,
+          "red": 241,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.50 (1).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 381,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1226
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 1,
+    "current_size": "Small",
+    "pid": "20261023100050400",
+    "seq": 1222,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.52.jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 236,
+          "red": 241,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.52.jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 328,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1226
+      }
+    ]
+  },
+  {
+    "current_col": "Red",
+    "current_num": 1,
+    "current_size": "Small",
+    "pid": "20261023100050410",
+    "seq": 1232,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 09.33.52 (1).jpeg"
+    ],
+    "visual_details": [
+      {
+        "dot_colors": {
+          "green": 236,
+          "red": 241,
+          "violet": 0
+        },
+        "file": "WhatsApp Image 2026-10-23 at 09.33.52 (1).jpeg",
+        "is_occluded": false,
+        "num_colors": {
+          "green": 328,
+          "red": 0,
+          "violet": 0
+        },
+        "yc": 1226
+      }
+    ]
+  }
+]

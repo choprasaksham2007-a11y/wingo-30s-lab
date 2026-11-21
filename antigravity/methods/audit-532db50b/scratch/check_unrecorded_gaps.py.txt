@@ -1,0 +1,79 @@
+import openpyxl
+import pandas as pd
+from datetime import datetime
+
+def check_unrecorded_gaps(filepath, label):
+    print("=" * 80)
+    print(f"CHECKING FOR UNRECORDED GAPS IN RAW_DATA: {label}")
+    print("=" * 80)
+    wb = openpyxl.load_workbook(filepath, data_only=True)
+    ws_raw = wb['Raw_Data']
+    headers = [cell.value for cell in ws_raw[1]]
+    
+    rows = []
+    for r in range(2, ws_raw.max_row+1):
+        rows.append({headers[c-1]: ws_raw.cell(r, c).value for c in range(1, len(headers)+1)})
+    df = pd.DataFrame(rows)
+    
+    # Documented gaps
+    ws_miss = wb['Missing_Rounds']
+    m_headers = [cell.value for cell in ws_miss[1]]
+    documented_gap_pairs = set()
+    for r in range(2, ws_miss.max_row+1):
+        row_vals = [ws_miss.cell(r, c).value for c in range(1, ws_miss.max_column+1)]
+        if not any(v is not None for v in row_vals) or any(str(v).startswith("Total") for v in row_vals if v is not None):
+            continue
+        row_dict = {m_headers[c-1]: ws_miss.cell(r, c).value for c in range(1, len(m_headers)+1)}
+        if 'Before Period ID' in row_dict:
+            documented_gap_pairs.add((str(row_dict['Before Period ID']), str(row_dict['After Period ID'])))
+        elif 'prior_period_id' in row_dict:
+            documented_gap_pairs.add((str(row_dict['prior_period_id']), str(row_dict['subsequent_period_id'])))
+            
+    # Check consecutive differences
+    unrecorded_gaps = []
+    for i in range(len(df) - 1):
+        curr_row = df.iloc[i]
+        next_row = df.iloc[i+1]
+        
+        curr_id = str(curr_row['Period ID'])
+        next_id = str(next_row['Period ID'])
+        
+        # Check sequence_no
+        seq_diff = next_row['sequence_no'] - curr_row['sequence_no']
+        if seq_diff != 1:
+            print(f"Sequence gap at row {i+2}: {curr_row['sequence_no']} -> {next_row['sequence_no']}")
+            
+        # Parse Period ID: e.g. 20261022 1000 51582
+        # Date part: first 8 digits (YYYYMMDD)
+        # Game code: next 4 digits (1000)
+        # Period number: last 5 digits (51582)
+        date_curr = curr_id[:8]
+        date_next = next_id[:8]
+        
+        round_curr = int(curr_id[12:])
+        round_next = int(next_id[12:])
+        
+        # Parse timestamps
+        t_curr = datetime.strptime(str(curr_row['timestamp']), '%Y-%m-%d %H:%M:%S')
+        t_next = datetime.strptime(str(next_row['timestamp']), '%Y-%m-%d %H:%M:%S')
+        t_delta_sec = (t_next - t_curr).total_seconds()
+        
+        # In a 30-second game, consecutive rounds have delta 30 seconds
+        is_consecutive = (t_delta_sec == 30)
+        
+        if not is_consecutive:
+            is_documented = (curr_id, next_id) in documented_gap_pairs
+            if not is_documented:
+                unrecorded_gaps.append((i, curr_id, next_id, t_delta_sec, t_delta_sec / 30 - 1))
+                
+    print(f"Total consecutive row pairs checked: {len(df) - 1}")
+    print(f"Documented gaps count: {len(documented_gap_pairs)}")
+    print(f"Unrecorded gaps detected: {len(unrecorded_gaps)}")
+    if unrecorded_gaps:
+        print("Unrecorded gaps:", unrecorded_gaps)
+    else:
+        print("ALL GAPS IN RAW_DATA ARE 100% ACCOUNTED FOR IN MISSING_ROUNDS!")
+    wb.close()
+
+check_unrecorded_gaps(r'project_reports\Colour_Prediction_Dataset_v3.xlsx', 'Colour_Prediction_Dataset_v3.xlsx')
+check_unrecorded_gaps(r'project_reports\Colour_Prediction_Dataset_corrected.xlsx', 'Colour_Prediction_Dataset_corrected.xlsx')

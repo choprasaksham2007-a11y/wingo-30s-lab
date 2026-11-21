@@ -1,0 +1,46 @@
+import csv
+from datetime import datetime, timedelta
+
+uploaded_csv = r'project_reports\inputs\input_8a9e44d71a.csv'
+v15_csv = r'project_reports\colour_raw_data_v15.csv'
+
+with open(v15_csv, 'r', encoding='utf-8') as f:
+    reader = csv.reader(f)
+    v15_header = next(reader)
+    v15_rows = list(reader)
+
+v15_pids = set(r[1] for r in v15_rows)
+last_v15_row = v15_rows[-1]
+last_v15_pid = last_v15_row[1]
+last_v15_ts = datetime.strptime(last_v15_row[2], "%Y-%m-%d %H:%M:%S")
+
+with open(uploaded_csv, 'r', encoding='utf-8', errors='replace') as f:
+    reader = csv.reader(f)
+    up_header = next(reader)
+    up_rows = list(reader)
+
+new_rows = [r for r in up_rows if r[0].strip() not in v15_pids]
+print(f"Total new rows extracted: {len(new_rows)}")
+
+# Check sorting of new rows
+pids = [r[0].strip() for r in new_rows]
+is_sorted = pids == sorted(pids)
+print(f"Are new rows strictly sorted ascending by PID? {is_sorted}")
+
+# Analyze continuity and gaps starting from last v15 row
+# In 30s game: PID format is YYYYMMDD + 10005 + 4-digit round
+# daily round number is the last 4 digits (e.g. 50461 -> round 461; 51004 -> round 1004)
+# Let's verify how timestamps are derived across days and rounds
+def parse_pid_dt(pid_str):
+    date_part = pid_str[:8] # YYYYMMDD
+    round_part = int(pid_str[12:]) - 50000 # round index 1-based (or offset from 50000)
+    # Let's verify against v15 timestamps
+    return date_part, round_part
+
+print(f"Last v15 row: PID={last_v15_pid}, TS={last_v15_ts}")
+print(f"First new row: PID={new_rows[0][0]}, daily_round={new_rows[0][3]}")
+
+# Let's check how v15 mapped PID to timestamp
+for r in v15_rows[-5:]:
+    print(f"v15 sample: PID={r[1]}, TS={r[2]}, Num={r[3]}, Col={r[4]}, Size={r[5]}")
+

@@ -1,0 +1,23 @@
+import cv2, os, asyncio, winocr, glob
+from PIL import Image
+
+b1_dir = r"extraction\extracted_zip"
+b2_dir = r"extraction\extracted_zip_batch2"
+
+async def inspect_full_screens():
+    files2 = sorted(glob.glob(os.path.join(b2_dir, "*.jpeg")))
+    print("--- Inspecting Batch 2 Files ---")
+    for f in [files2[0], files2[1], files2[2], files2[-1]]:
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        # OCR the entire top portion: header, game title, countdown, current period, etc.
+        top_crop = im[0:550, 0:im.shape[1]]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(top_crop, cv2.COLOR_BGR2RGB)))
+        lines = [" ".join([w.text for w in l.words]) for l in res.lines]
+        print(f"\nFile: {fname}")
+        print("Top area OCR lines:")
+        for l in lines:
+            if any(k in l.lower() for k in ["win", "go", "period", "2026", "time", "count", "record", "how"]):
+                print("  ", l)
+
+asyncio.run(inspect_full_screens())

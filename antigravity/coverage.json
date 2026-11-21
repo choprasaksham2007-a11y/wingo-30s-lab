@@ -1,0 +1,36 @@
+{
+  "source_files": 3108,
+  "scopes": {
+    "brain": 1786,
+    "scratch": 254,
+    "extraction": 657,
+    "audit-ec87b674": 82,
+    "audit-4ac01a10": 58,
+    "audit-e07028d8": 68,
+    "audit-88b6d29a": 85,
+    "audit-581e03a2": 56,
+    "audit-532db50b": 62
+  },
+  "decisions": {
+    "normalized tables": 65,
+    "already in public release": 16,
+    "published": 356,
+    "editor metadata": 19,
+    "identical source bytes": 16,
+    "existing editorial coverage": 5,
+    "source imagery retained privately": 538,
+    "local operational, private-input or generator investigation script": 55,
+    "generated Python cache": 10,
+    "decoded observation states": 3,
+    "decoded numeric glyph templates": 2,
+    "private session or tool record": 2013,
+    "private source-media archive": 10
+  },
+  "distinct_normalized_tables": 163,
+  "unique_additional_rows_including_headers": 31192,
+  "distinct_public_csv_row_references": 395223,
+  "images_decoded": 538,
+  "distinct_extracted_observation_states": 2922,
+  "distinct_glyph_arrays": 20,
+  "raw_snapshot_versions": 20
+}

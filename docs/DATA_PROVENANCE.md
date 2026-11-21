@@ -22,6 +22,8 @@ The workbook has 88,916 data rows in `Raw_Data`, 88,911 in `ML_Ready`, and an em
 
 ## Earlier snapshot reconstructed from the supplied ZIP
 
+The Antigravity v18 raw CSV is a separate earlier snapshot. It contains 10,992 periods shared with v19. Comparing the two raw exports by period ID identifies 14 previously recorded digits that changed in v19. The zero-disagreement result below applies specifically to the later ChatGPT comparison matrix. [Antigravity version history](../antigravity/dataset-history.csv) · [Changed periods](../antigravity/v18-v19-digit-changes.csv)
+
 The three downloaded evidence ZIP copies are byte-identical. One was extracted into a private preparation directory after hashing; all seven entries in its supplied checksum manifest matched. The ZIP also contains the manifest itself. Internal research handoffs remain private; the earlier public-style analysis report is archived with a status banner.
 
 `WinGo_same_time_every_day.csv` is a derived pivot, not a second independent raw dataset. Its 2,880 clock-slot rows and 31 date columns reconstruct **88,865 observations**: **88,816 five-digit premiums plus 49 one-digit premiums**.

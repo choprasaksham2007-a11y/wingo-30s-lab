@@ -1,0 +1,126 @@
+import json, openpyxl
+from datetime import datetime, timedelta
+
+# Load existing v3 data from Raw_Data
+wb_v3 = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v3.xlsx", data_only=True)
+ws_v3 = wb_v3['Raw_Data']
+
+v3_records = []
+for r in range(2, ws_v3.max_row + 1):
+    pid = str(ws_v3.cell(row=r, column=2).value)
+    ts = str(ws_v3.cell(row=r, column=3).value)
+    num = int(ws_v3.cell(row=r, column=4).value)
+    col = str(ws_v3.cell(row=r, column=5).value)
+    sz = str(ws_v3.cell(row=r, column=6).value)
+    col_orig = str(ws_v3.cell(row=r, column=7).value or col)
+    note = str(ws_v3.cell(row=r, column=8).value or "Original extraction verified")
+    v3_records.append({
+        "period_id": pid,
+        "timestamp": ts,
+        "number": num,
+        "colour": col,
+        "size": sz,
+        "colour_original": col_orig,
+        "fix_note": note
+    })
+
+print(f"Loaded {len(v3_records)} records from v3.")
+
+# Load Batch 4
+with open(r"extraction\reconciled_batch4_calibrated.json", "r") as f:
+    b4_data = json.load(f)
+
+print(f"Loaded {len(b4_data)} records from Batch 4.")
+
+# Combine all records
+all_records = list(v3_records)
+existing_pids = set(r["period_id"] for r in v3_records)
+new_b4_count = 0
+
+for pid in sorted(b4_data.keys()):
+    if pid not in existing_pids:
+        item = b4_data[pid]
+        all_records.append({
+            "period_id": pid,
+            "timestamp": item["timestamp"],
+            "number": item["number"],
+            "colour": item["colour"],
+            "size": item["size"],
+            "colour_original": item["colour"],
+            "fix_note": "Batch 4 extraction verified"
+        })
+        new_b4_count += 1
+
+print(f"Added {new_b4_count} new records from Batch 4.")
+print(f"Total merged records: {len(all_records)}")
+
+# Sort by Period ID
+all_records.sort(key=lambda r: int(r["period_id"]))
+
+# Check consecutive periods across day boundaries
+def is_consecutive(pid1, pid2):
+    p1 = int(pid1)
+    p2 = int(pid2)
+    s1 = int(pid1[-5:])
+    s2 = int(pid2[-5:])
+    
+    # Same day normal step
+    if p2 == p1 + 1 and s2 == s1 + 1:
+        return True
+    # Day rollover: 52880 -> 50001 next day
+    if s1 == 52880 and s2 == 50001:
+        d1 = datetime.strptime(pid1[:8], "%Y%m%d")
+        d2 = datetime.strptime(pid2[:8], "%Y%m%d")
+        if (d2 - d1).days == 1:
+            return True
+    return False
+
+# Find all blocks and gaps
+blocks = []
+gaps = []
+
+current_block = [all_records[0]]
+
+for i in range(1, len(all_records)):
+    prev_rec = all_records[i-1]
+    curr_rec = all_records[i]
+    
+    if is_consecutive(prev_rec["period_id"], curr_rec["period_id"]):
+        current_block.append(curr_rec)
+    else:
+        # End of current block
+        blocks.append(current_block)
+        
+        # Calculate missing rounds
+        p1 = prev_rec["period_id"]
+        p2 = curr_rec["period_id"]
+        t1 = datetime.strptime(prev_rec["timestamp"], "%Y-%m-%d %H:%M:%S")
+        t2 = datetime.strptime(curr_rec["timestamp"], "%Y-%m-%d %H:%M:%S")
+        
+        # Missing rounds count based on seconds difference
+        sec_diff = int((t2 - t1).total_seconds())
+        missing_count = (sec_diff // 30) - 1
+        
+        gaps.append({
+            "gap_index": len(gaps) + 1,
+            "from_pid": p1,
+            "to_pid": p2,
+            "from_time": prev_rec["timestamp"],
+            "to_time": curr_rec["timestamp"],
+            "missing_rounds": missing_count,
+            "duration_sec": sec_diff
+        })
+        current_block = [curr_rec]
+
+blocks.append(current_block)
+
+print(f"\n==========================================")
+print(f"TOTAL BLOCKS: {len(blocks)}")
+print(f"TOTAL GAPS: {len(gaps)}")
+print(f"==========================================")
+
+for idx, b in enumerate(blocks, 1):
+    print(f"Block {idx}: {len(b)} rounds | {b[0]['period_id']} ({b[0]['timestamp']}) -> {b[-1]['period_id']} ({b[-1]['timestamp']})")
+    if idx <= len(gaps):
+        g = gaps[idx-1]
+        print(f"  [GAP {g['gap_index']}: {g['missing_rounds']} missing rounds | {g['duration_sec']}s ({timedelta(seconds=g['duration_sec'])}) | {g['from_time']} -> {g['to_time']}]")

@@ -1,0 +1,106 @@
+import json, os, sys
+from collections import Counter, defaultdict
+import pandas as pd
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+raw_b7_path = r"extraction\raw_obs_batch7.json"
+v7_xlsx_path = r"project_reports\Colour_Prediction_Dataset_v7.xlsx"
+
+with open(raw_b7_path, "r") as f:
+    obs = json.load(f)
+
+v7_df = pd.read_excel(v7_xlsx_path, sheet_name='Raw_Data')
+v7_map = {}
+for _, row in v7_df.iterrows():
+    v7_map[str(row['Period ID'])] = {
+        'seq': row['sequence_no'],
+        'number': row['number'],
+        'colour': row['colour'],
+        'size': row['size'],
+        'timestamp': str(row['timestamp'])
+    }
+
+print(f"Total PIDs in Batch 7: {len(obs)}")
+pids_sorted = sorted(obs.keys())
+print(f"Batch 7 Range: {pids_sorted[0]} to {pids_sorted[-1]}")
+
+# 1. Internal conflict check
+internal_conflicts = []
+reconciled_b7 = {}
+digit_counter = Counter()
+
+for pid in pids_sorted:
+    items = obs[pid]
+    digits = [it['digit'] for it in items]
+    c = Counter(digits)
+    best_digit = c.most_common(1)[0][0]
+    
+    if len(c) > 1:
+        internal_conflicts.append((pid, dict(c), items))
+        
+    # Check OCR digit agreement
+    ocr_digits = [it['ocr_digit'] for it in items if it.get('ocr_digit') is not None]
+    c_ocr = Counter(ocr_digits)
+    
+    # Game rules
+    sz = "Small" if best_digit <= 4 else "Big"
+    if best_digit == 0: col = "Red+Violet"
+    elif best_digit == 5: col = "Green+Violet"
+    elif best_digit in [1, 3, 7, 9]: col = "Green"
+    else: col = "Red"
+    
+    digit_counter[best_digit] += 1
+    
+    reconciled_b7[pid] = {
+        'pid': pid,
+        'number': best_digit,
+        'colour': col,
+        'size': sz,
+        'sources': list(set(it['file'] for it in items)),
+        'obs_count': len(items),
+        'digit_votes': dict(c),
+        'ocr_votes': dict(c_ocr)
+    }
+
+print(f"Internal conflicts in Batch 7: {len(internal_conflicts)}")
+for pid, c, items in internal_conflicts:
+    print(f"  Conflict on {pid}: votes={c}")
+    for it in items:
+        print(f"    {it['file']}: d={it['digit']}, bs={it['bs_ocr']}, ocr={it.get('ocr_digit')}, note={it['note']}")
+
+# 2. Overlap check with v7 dataset
+overlap_pids = [p for p in pids_sorted if p in v7_map]
+new_pids = [p for p in pids_sorted if p not in v7_map]
+
+print(f"\nOverlap PIDs with v7: {len(overlap_pids)} (from {overlap_pids[0]} to {overlap_pids[-1]})")
+print(f"New PIDs in Batch 7: {len(new_pids)} (from {new_pids[0]} to {new_pids[-1]})")
+
+overlap_mismatches = []
+for p in overlap_pids:
+    v7_val = v7_map[p]['number']
+    b7_val = reconciled_b7[p]['number']
+    if v7_val != b7_val:
+        overlap_mismatches.append((p, v7_map[p], reconciled_b7[p]))
+
+print(f"\nOverlap mismatches between v7 and Batch 7: {len(overlap_mismatches)}")
+for p, v7_info, b7_info in overlap_mismatches:
+    print(f"  PID {p}: v7 had {v7_info['number']} ({v7_info['colour']}, {v7_info['size']}) vs b7 extracted {b7_info['number']} ({b7_info['colour']}, {b7_info['size']})")
+    print(f"    b7 sources: {b7_info['sources']}, votes={b7_info['digit_votes']}, ocr={b7_info['ocr_votes']}")
+
+# 3. OCR digit disagreement check on new PIDs
+ocr_mismatches = []
+for p in new_pids:
+    b7_val = reconciled_b7[p]['number']
+    ocr_v = reconciled_b7[p]['ocr_votes']
+    if ocr_v and (b7_val not in ocr_v or ocr_v[b7_val] < sum(ocr_v.values()) / 2.0):
+        ocr_mismatches.append((p, b7_val, ocr_v, reconciled_b7[p]['sources']))
+
+print(f"\nOCR digit vs classifier mismatches on new PIDs: {len(ocr_mismatches)}")
+for p, b7_val, ocr_v, src in ocr_mismatches:
+    print(f"  PID {p}: classifier={b7_val}, OCR={ocr_v}, sources={src}")
+
+print("\nDigit distribution across all 406 Batch 7 rounds:")
+for d in range(10):
+    print(f"  Digit {d}: {digit_counter[d]}")

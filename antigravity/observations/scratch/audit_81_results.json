@@ -1,0 +1,1459 @@
+[
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050446",
+    "seq": 1268,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 1064
+      }
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "detected": 8,
+    "pid": "20261023100050452",
+    "seq": 1274,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 605
+      }
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "detected": 8,
+    "pid": "20261023100050455",
+    "seq": 1277,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.51.jpeg",
+        "h": 34,
+        "tr_fill": 27,
+        "w": 24,
+        "yc": 1140
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050463",
+    "seq": 1285,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.52.jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1294
+      }
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "detected": 8,
+    "pid": "20261023100050469",
+    "seq": 1291,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.52.jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 834
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050473",
+    "seq": 1295,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.52 (1).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1294
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050474",
+    "seq": 1296,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.52 (1).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "detected": 8,
+    "pid": "20261023100050477",
+    "seq": 1299,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.52 (1).jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 988
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050486",
+    "seq": 1308,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.53.jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 1064
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050491",
+    "seq": 1313,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.53.jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 681
+      }
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "detected": 8,
+    "pid": "20261023100050503",
+    "seq": 1325,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.53 (2).jpeg",
+        "h": 34,
+        "tr_fill": 75,
+        "w": 23,
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050511",
+    "seq": 1333,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.53 (2).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 605
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050513",
+    "seq": 1335,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.54.jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "detected": 8,
+    "pid": "20261023100050525",
+    "seq": 1347,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg",
+        "h": 34,
+        "tr_fill": 30,
+        "w": 23,
+        "yc": 1064
+      }
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "detected": 8,
+    "pid": "20261023100050526",
+    "seq": 1348,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 988
+      }
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "detected": 8,
+    "pid": "20261023100050527",
+    "seq": 1349,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 911
+      }
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "detected": 8,
+    "pid": "20261023100050529",
+    "seq": 1351,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg",
+        "h": 34,
+        "tr_fill": 75,
+        "w": 23,
+        "yc": 757
+      }
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "detected": 8,
+    "pid": "20261023100050531",
+    "seq": 1353,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 605
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050532",
+    "seq": 1354,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.55.jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1294
+      }
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "detected": 8,
+    "pid": "20261023100050541",
+    "seq": 1363,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.55.jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 605
+      }
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "detected": 8,
+    "pid": "20261023100050549",
+    "seq": 1371,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.56.jpeg",
+        "h": 34,
+        "tr_fill": 30,
+        "w": 23,
+        "yc": 757
+      }
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "detected": 8,
+    "pid": "20261023100050554",
+    "seq": 1376,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.56 (1).jpeg",
+        "h": 34,
+        "tr_fill": 27,
+        "w": 24,
+        "yc": 1140
+      }
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "detected": 8,
+    "pid": "20261023100050565",
+    "seq": 1387,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.56 (2).jpeg",
+        "h": 34,
+        "tr_fill": 30,
+        "w": 23,
+        "yc": 1064
+      }
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "detected": 8,
+    "pid": "20261023100050566",
+    "seq": 1388,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.56 (2).jpeg",
+        "h": 34,
+        "tr_fill": 28,
+        "w": 23,
+        "yc": 988
+      }
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "detected": 8,
+    "pid": "20261023100050568",
+    "seq": 1390,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.56 (2).jpeg",
+        "h": 34,
+        "tr_fill": 27,
+        "w": 23,
+        "yc": 834
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050570",
+    "seq": 1392,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.56 (2).jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 682
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050582",
+    "seq": 1404,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.57 (1).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1306
+      }
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "detected": 8,
+    "pid": "20261023100050588",
+    "seq": 1410,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.57 (1).jpeg",
+        "h": 33,
+        "tr_fill": 27,
+        "w": 23,
+        "yc": 847
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050590",
+    "seq": 1412,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.57 (1).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 694
+      }
+    ]
+  },
+  {
+    "avg_tr": 26.0,
+    "detected": 8,
+    "pid": "20261023100050594",
+    "seq": 1416,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.59.jpeg",
+        "h": 34,
+        "tr_fill": 26,
+        "w": 23,
+        "yc": 1140
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050595",
+    "seq": 1417,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.59.jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 1064
+      }
+    ]
+  },
+  {
+    "avg_tr": 26.0,
+    "detected": 8,
+    "pid": "20261023100050604",
+    "seq": 1426,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.58.jpeg",
+        "h": 34,
+        "tr_fill": 26,
+        "w": 23,
+        "yc": 1140
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050605",
+    "seq": 1427,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.58.jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 1064
+      }
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "detected": 8,
+    "pid": "20261023100050620",
+    "seq": 1442,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.59 (1).jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 606
+      }
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "detected": 8,
+    "pid": "20261023100050624",
+    "seq": 1446,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.00.jpeg",
+        "h": 34,
+        "tr_fill": 75,
+        "w": 23,
+        "yc": 1066
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050634",
+    "seq": 1456,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01 (1).jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 1064
+      }
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "detected": 8,
+    "pid": "20261023100050635",
+    "seq": 1457,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01 (1).jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 988
+      }
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "detected": 8,
+    "pid": "20261023100050638",
+    "seq": 1460,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01 (1).jpeg",
+        "h": 34,
+        "tr_fill": 30,
+        "w": 23,
+        "yc": 757
+      }
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "detected": 8,
+    "pid": "20261023100050639",
+    "seq": 1461,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01 (1).jpeg",
+        "h": 34,
+        "tr_fill": 28,
+        "w": 23,
+        "yc": 682
+      }
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "detected": 8,
+    "pid": "20261023100050643",
+    "seq": 1465,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.00 (1).jpeg",
+        "h": 34,
+        "tr_fill": 28,
+        "w": 23,
+        "yc": 1166
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050645",
+    "seq": 1467,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.00 (1).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1013
+      }
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "detected": 8,
+    "pid": "20261023100050647",
+    "seq": 1469,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.00 (1).jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 860
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050650",
+    "seq": 1472,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.00 (1).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 630
+      }
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "detected": 8,
+    "pid": "20261023100050653",
+    "seq": 1475,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.00 (2).jpeg",
+        "h": 34,
+        "tr_fill": 27,
+        "w": 23,
+        "yc": 1146
+      }
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "detected": 8,
+    "pid": "20261023100050662",
+    "seq": 1484,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01.jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 1223
+      }
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "detected": 8,
+    "pid": "20261023100050663",
+    "seq": 1485,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01.jpeg",
+        "h": 34,
+        "tr_fill": 27,
+        "w": 23,
+        "yc": 1146
+      }
+    ]
+  },
+  {
+    "avg_tr": 71.0,
+    "detected": 8,
+    "pid": "20261023100050665",
+    "seq": 1487,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01.jpeg",
+        "h": 34,
+        "tr_fill": 71,
+        "w": 22,
+        "yc": 994
+      }
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "detected": 8,
+    "pid": "20261023100050667",
+    "seq": 1489,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01.jpeg",
+        "h": 34,
+        "tr_fill": 75,
+        "w": 23,
+        "yc": 840
+      }
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "detected": 8,
+    "pid": "20261023100050672",
+    "seq": 1494,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.01 (2).jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 1217
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.5,
+    "detected": 8,
+    "pid": "20261023100050681",
+    "seq": 1503,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.02.jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 1294
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.03.jpeg",
+        "h": 34,
+        "tr_fill": 73,
+        "w": 23,
+        "yc": 1325
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050682",
+    "seq": 1504,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.02.jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1217
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.03.jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1249
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050702",
+    "seq": 1524,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.02 (2).jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 1302
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.03 (1).jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 1165
+      }
+    ]
+  },
+  {
+    "avg_tr": 73.5,
+    "detected": 8,
+    "pid": "20261023100050705",
+    "seq": 1527,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.02 (2).jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 1072
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.03 (1).jpeg",
+        "h": 34,
+        "tr_fill": 75,
+        "w": 23,
+        "yc": 936
+      }
+    ]
+  },
+  {
+    "avg_tr": 71.5,
+    "detected": 8,
+    "pid": "20261023100050710",
+    "seq": 1532,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.02 (2).jpeg",
+        "h": 34,
+        "tr_fill": 71,
+        "w": 22,
+        "yc": 689
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.04.jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 1312
+      }
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "detected": 8,
+    "pid": "20261023100050711",
+    "seq": 1533,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.04.jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 1235
+      }
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "detected": 8,
+    "pid": "20261023100050729",
+    "seq": 1551,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.04 (1).jpeg",
+        "h": 34,
+        "tr_fill": 75,
+        "w": 23,
+        "yc": 609
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050730",
+    "seq": 1552,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1326
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050732",
+    "seq": 1554,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 24,
+        "yc": 1172
+      }
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "detected": 8,
+    "pid": "20261023100050735",
+    "seq": 1557,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg",
+        "h": 34,
+        "tr_fill": 28,
+        "w": 23,
+        "yc": 942
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050738",
+    "seq": 1560,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 713
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050739",
+    "seq": 1561,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 636
+      }
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "detected": 8,
+    "pid": "20261023100050746",
+    "seq": 1568,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.05 (1).jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 866
+      }
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "detected": 8,
+    "pid": "20261023100050751",
+    "seq": 1573,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.05.jpeg",
+        "h": 34,
+        "tr_fill": 30,
+        "w": 23,
+        "yc": 1225
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050760",
+    "seq": 1582,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.05 (2).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1302
+      }
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "detected": 8,
+    "pid": "20261023100050762",
+    "seq": 1584,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.05 (2).jpeg",
+        "h": 34,
+        "tr_fill": 27,
+        "w": 23,
+        "yc": 1148
+      }
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "detected": 8,
+    "pid": "20261023100050777",
+    "seq": 1599,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.06 (1).jpeg",
+        "h": 34,
+        "tr_fill": 30,
+        "w": 23,
+        "yc": 765
+      }
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "detected": 8,
+    "pid": "20261023100050779",
+    "seq": 1601,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.06 (1).jpeg",
+        "h": 34,
+        "tr_fill": 75,
+        "w": 23,
+        "yc": 612
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050784",
+    "seq": 1606,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.06.jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 990
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050785",
+    "seq": 1607,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.06.jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 914
+      }
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "detected": 8,
+    "pid": "20261023100050792",
+    "seq": 1614,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.06 (2).jpeg",
+        "h": 33,
+        "tr_fill": 28,
+        "w": 23,
+        "yc": 1143
+      }
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "detected": 8,
+    "pid": "20261023100050795",
+    "seq": 1617,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.06 (2).jpeg",
+        "h": 34,
+        "tr_fill": 27,
+        "w": 23,
+        "yc": 914
+      }
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "detected": 8,
+    "pid": "20261023100050796",
+    "seq": 1618,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.06 (2).jpeg",
+        "h": 34,
+        "tr_fill": 30,
+        "w": 23,
+        "yc": 837
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050797",
+    "seq": 1619,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.06 (2).jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 760
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050805",
+    "seq": 1627,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.58 (1).jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 1064
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07 (1).jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 914
+      }
+    ]
+  },
+  {
+    "avg_tr": 28.5,
+    "detected": 8,
+    "pid": "20261023100050807",
+    "seq": 1629,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.58 (1).jpeg",
+        "h": 34,
+        "tr_fill": 28,
+        "w": 23,
+        "yc": 911
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07 (1).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 760
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.333333333333332,
+    "detected": 8,
+    "pid": "20261023100050809",
+    "seq": 1631,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.58 (1).jpeg",
+        "h": 34,
+        "tr_fill": 30,
+        "w": 23,
+        "yc": 757
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07 (1).jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 608
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07.jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 1294
+      }
+    ]
+  },
+  {
+    "avg_tr": 73.5,
+    "detected": 8,
+    "pid": "20261023100050811",
+    "seq": 1633,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.06.58 (1).jpeg",
+        "h": 34,
+        "tr_fill": 76,
+        "w": 23,
+        "yc": 605
+      },
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07.jpeg",
+        "h": 34,
+        "tr_fill": 71,
+        "w": 22,
+        "yc": 1140
+      }
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "detected": 8,
+    "pid": "20261023100050815",
+    "seq": 1637,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07.jpeg",
+        "h": 34,
+        "tr_fill": 72,
+        "w": 22,
+        "yc": 834
+      }
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "detected": 8,
+    "pid": "20261023100050816",
+    "seq": 1638,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07.jpeg",
+        "h": 34,
+        "tr_fill": 75,
+        "w": 23,
+        "yc": 757
+      }
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "detected": 8,
+    "pid": "20261023100050817",
+    "seq": 1639,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07.jpeg",
+        "h": 34,
+        "tr_fill": 74,
+        "w": 23,
+        "yc": 681
+      }
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "detected": 8,
+    "pid": "20261023100050818",
+    "seq": 1640,
+    "status": "verified",
+    "votes": [
+      {
+        "decision": 8,
+        "file": "WhatsApp Image 2026-10-23 at 22.07.07.jpeg",
+        "h": 34,
+        "tr_fill": 29,
+        "w": 23,
+        "yc": 605
+      }
+    ]
+  }
+]

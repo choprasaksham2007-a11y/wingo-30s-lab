@@ -1,0 +1,7 @@
+import glob, os
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+files = sorted(glob.glob(os.path.join(batch3_dir, "*.jpeg")))
+print("Last 10 files in batch3:")
+for f in files[-10:]:
+    print(" ", os.path.basename(f))

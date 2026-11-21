@@ -1,0 +1,1065 @@
+[
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050446",
+    "sequence_no": 1268,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050452",
+    "sequence_no": 1274,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.46 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050455",
+    "sequence_no": 1277,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.51.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050463",
+    "sequence_no": 1285,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.52.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050469",
+    "sequence_no": 1291,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.52.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050473",
+    "sequence_no": 1295,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.52 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050474",
+    "sequence_no": 1296,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.52 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050477",
+    "sequence_no": 1299,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.52 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050486",
+    "sequence_no": 1308,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.53.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050491",
+    "sequence_no": 1313,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.53.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050503",
+    "sequence_no": 1325,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.53 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050511",
+    "sequence_no": 1333,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.53 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050513",
+    "sequence_no": 1335,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.54.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050525",
+    "sequence_no": 1347,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050526",
+    "sequence_no": 1348,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050527",
+    "sequence_no": 1349,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050529",
+    "sequence_no": 1351,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050531",
+    "sequence_no": 1353,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050532",
+    "sequence_no": 1354,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.55.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050541",
+    "sequence_no": 1363,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.55.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050549",
+    "sequence_no": 1371,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.56.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050554",
+    "sequence_no": 1376,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.56 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050565",
+    "sequence_no": 1387,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.56 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050566",
+    "sequence_no": 1388,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.56 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050568",
+    "sequence_no": 1390,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.56 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050570",
+    "sequence_no": 1392,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.56 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050582",
+    "sequence_no": 1404,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.57 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050588",
+    "sequence_no": 1410,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.57 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050590",
+    "sequence_no": 1412,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.57 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 26.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050594",
+    "sequence_no": 1416,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.59.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050595",
+    "sequence_no": 1417,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.59.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 26.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050604",
+    "sequence_no": 1426,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.58.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050605",
+    "sequence_no": 1427,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.58.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050620",
+    "sequence_no": 1442,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.06.59 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050624",
+    "sequence_no": 1446,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.00.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050634",
+    "sequence_no": 1456,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050635",
+    "sequence_no": 1457,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050638",
+    "sequence_no": 1460,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050639",
+    "sequence_no": 1461,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050643",
+    "sequence_no": 1465,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.00 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050645",
+    "sequence_no": 1467,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.00 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050647",
+    "sequence_no": 1469,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.00 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050650",
+    "sequence_no": 1472,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.00 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050653",
+    "sequence_no": 1475,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.00 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 76.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050662",
+    "sequence_no": 1484,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050663",
+    "sequence_no": 1485,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 71.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050665",
+    "sequence_no": 1487,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050667",
+    "sequence_no": 1489,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050672",
+    "sequence_no": 1494,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.01 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.5,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050681",
+    "sequence_no": 1503,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.03.jpeg",
+      "WhatsApp Image 2026-10-23 at 22.07.02.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050682",
+    "sequence_no": 1504,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.03.jpeg",
+      "WhatsApp Image 2026-10-23 at 22.07.02.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050702",
+    "sequence_no": 1524,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.02 (2).jpeg",
+      "WhatsApp Image 2026-10-23 at 22.07.03 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 73.5,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050705",
+    "sequence_no": 1527,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.02 (2).jpeg",
+      "WhatsApp Image 2026-10-23 at 22.07.03 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 71.5,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050710",
+    "sequence_no": 1532,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.02 (2).jpeg",
+      "WhatsApp Image 2026-10-23 at 22.07.04.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050711",
+    "sequence_no": 1533,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.04.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050729",
+    "sequence_no": 1551,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.04 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050730",
+    "sequence_no": 1552,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050732",
+    "sequence_no": 1554,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050735",
+    "sequence_no": 1557,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050738",
+    "sequence_no": 1560,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050739",
+    "sequence_no": 1561,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.04 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050746",
+    "sequence_no": 1568,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.05 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050751",
+    "sequence_no": 1573,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.05.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050760",
+    "sequence_no": 1582,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.05 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050762",
+    "sequence_no": 1584,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.05 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050777",
+    "sequence_no": 1599,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.06 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050779",
+    "sequence_no": 1601,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.06 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050784",
+    "sequence_no": 1606,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.06.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050785",
+    "sequence_no": 1607,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.06.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 28.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050792",
+    "sequence_no": 1614,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.06 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 27.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050795",
+    "sequence_no": 1617,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.06 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 30.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050796",
+    "sequence_no": 1618,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.06 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050797",
+    "sequence_no": 1619,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.06 (2).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050805",
+    "sequence_no": 1627,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.07 (1).jpeg",
+      "WhatsApp Image 2026-10-23 at 22.06.58 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 28.5,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050807",
+    "sequence_no": 1629,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.07 (1).jpeg",
+      "WhatsApp Image 2026-10-23 at 22.06.58 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.333333333333332,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050809",
+    "sequence_no": 1631,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.07.jpeg",
+      "WhatsApp Image 2026-10-23 at 22.07.07 (1).jpeg",
+      "WhatsApp Image 2026-10-23 at 22.06.58 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 73.5,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050811",
+    "sequence_no": 1633,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.07.jpeg",
+      "WhatsApp Image 2026-10-23 at 22.06.58 (1).jpeg"
+    ]
+  },
+  {
+    "avg_tr": 72.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050815",
+    "sequence_no": 1637,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.07.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 75.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050816",
+    "sequence_no": 1638,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.07.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 74.0,
+    "changed": false,
+    "confident": "Yes",
+    "morphology": "Two closed loops on top and bottom (visual 8)",
+    "new_number": 8,
+    "old_number": 8,
+    "period_id": "20261023100050817",
+    "sequence_no": 1639,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.07.jpeg"
+    ]
+  },
+  {
+    "avg_tr": 29.0,
+    "changed": true,
+    "confident": "Yes",
+    "morphology": "Open top-right corner, single bottom loop (visual 6)",
+    "new_number": 6,
+    "old_number": 8,
+    "period_id": "20261023100050818",
+    "sequence_no": 1640,
+    "sources": [
+      "WhatsApp Image 2026-10-23 at 22.07.07.jpeg"
+    ]
+  }
+]

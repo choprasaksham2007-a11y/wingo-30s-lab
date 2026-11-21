@@ -1,0 +1,190 @@
+import os, glob, cv2, asyncio, json
+import numpy as np
+from PIL import Image
+import winocr
+from collections import defaultdict, Counter
+from datetime import datetime, timedelta
+
+batch4_dir = r"extraction\extracted_zip_batch4"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+def get_b4_timestamp(pid: str) -> str:
+    # Anchor 3: 20261024100050638 -> 2026-10-24 10:49:00
+    anchor = datetime(2026, 10, 24, 10, 49, 0)
+    suffix = int(pid[-5:])
+    diff = suffix - 50638
+    dt = anchor + timedelta(seconds=diff * 30)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+def classify_glyph(im, yc, bs_val):
+    crop = im[yc-20:yc+20, 315:375]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    # Template scores
+    scores = {}
+    for d, tpl in templates.items():
+        res = cv2.matchTemplate(crop, tpl, cv2.TM_CCOEFF_NORMED)
+        scores[int(d)] = round(float(cv2.minMaxLoc(res)[1]), 3)
+        
+    # Check 0 and 5
+    if v_cnt > 50:
+        if g_cnt > 50:
+            return 5, "Green+Violet", "Big", scores[5]
+        else:
+            return 0, "Red+Violet", "Small", scores[0]
+            
+    c_mask = g_mask | r_mask
+    coords = np.argwhere(c_mask > 0)
+    if len(coords) < 30:
+        # Fallback to template matching
+        best_d = max(scores, key=scores.get)
+        sz = "Small" if best_d <= 4 else "Big"
+        col = "Green" if best_d in [1, 3, 7, 9] else "Red"
+        return best_d, col, sz, scores[best_d]
+        
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    h = max_y - min_y + 1
+    w = max_x - min_x + 1
+    aspect = w / float(h)
+    glyph_mask = c_mask[min_y:max_y+1, min_x:max_x+1]
+    
+    is_green = (g_cnt > r_cnt)
+    
+    if is_green:
+        if bs_val == "Small":
+            cands = [1, 3]
+            best_d = 1 if aspect < 0.46 else 3
+        elif bs_val == "Big":
+            cands = [7, 9]
+            top_left_fill = cv2.countNonZero(glyph_mask[h//6:h//2, :w//3])
+            best_d = 9 if top_left_fill > 10 else 7
+        else:
+            cands = [1, 3, 7, 9]
+            best_d = max(cands, key=lambda d: scores[d])
+    else:
+        if bs_val == "Small":
+            cands = [2, 4]
+            bottom_bar = cv2.countNonZero(glyph_mask[int(h*0.75):, :w//2])
+            best_d = 2 if bottom_bar > 10 else 4
+        elif bs_val == "Big":
+            cands = [6, 8]
+            top_right = cv2.countNonZero(glyph_mask[h//6:h//2, int(w*0.6):])
+            best_d = 8 if top_right > 15 else 6
+        else:
+            cands = [2, 4, 6, 8]
+            best_d = max(cands, key=lambda d: scores[d])
+            
+    sz = "Small" if best_d <= 4 else "Big"
+    if best_d == 0: col = "Red+Violet"
+    elif best_d == 5: col = "Green+Violet"
+    elif best_d in [1, 3, 7, 9]: col = "Green"
+    else: col = "Red"
+    
+    return best_d, col, sz, scores.get(best_d, 0.0)
+
+async def extract_batch4():
+    files = sorted(glob.glob(os.path.join(batch4_dir, "*.jpeg")))
+    obs_by_pid = defaultdict(list)
+    
+    for idx, f in enumerate(files):
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        
+        pid_strip = im[500:1450, 20:300]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        
+        bs_strip = im[500:1450, 420:530]
+        res_bs = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB)))
+        bs_items = []
+        for l in res_bs.lines:
+            txt = " ".join([w.text.strip() for w in l.words])
+            if "Big" in txt or "Small" in txt or "sma" in txt.lower():
+                val = "Small" if ("Small" in txt or "sma" in txt.lower()) else "Big"
+                y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+                bs_items.append((y_c, val))
+                
+        for line in res_pid.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for i in range(len(txt)-16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith('202610241000'):
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    yc = int(round(500 + y_rel))
+                    
+                    best_bs = None
+                    min_d = 999.0
+                    for b_y, b_val in bs_items:
+                        dist = abs(b_y - y_rel)
+                        if dist < min_d and dist < 35:
+                            min_d = dist
+                            best_bs = b_val
+                            
+                    best_d, col, sz, sc = classify_glyph(im, yc, best_bs)
+                    obs_by_pid[chunk].append({
+                        "file": fname,
+                        "digit": best_d,
+                        "col": col,
+                        "size": sz,
+                        "score": sc,
+                        "bs_ocr": best_bs
+                    })
+                    break
+        if idx % 10 == 0:
+            print(f"Processed {idx}/{len(files)} files...")
+            
+    print(f"Extraction done. Extracted {len(obs_by_pid)} distinct PIDs.")
+    return obs_by_pid
+
+if __name__ == '__main__':
+    obs_by_pid = asyncio.run(extract_batch4())
+    
+    reconciled = {}
+    digit_counter = Counter()
+    conflicts = 0
+    
+    for pid in sorted(obs_by_pid.keys()):
+        obs = obs_by_pid[pid]
+        digits = [o["digit"] for o in obs if o["digit"] is not None]
+        counts = Counter(digits)
+        best_d = counts.most_common(1)[0][0]
+        if len(counts) > 1:
+            conflicts += 1
+            print(f"Conflict on PID {pid}: {counts} across {len(obs)} files: {[o['file'] for o in obs]}")
+        digit_counter[best_d] += 1
+        
+        sz = "Small" if best_d <= 4 else "Big"
+        if best_d == 0: col = "Red+Violet"
+        elif best_d == 5: col = "Green+Violet"
+        elif best_d in [1, 3, 7, 9]: col = "Green"
+        else: col = "Red"
+        
+        ts = get_b4_timestamp(pid)
+        reconciled[pid] = {
+            "period_id": pid,
+            "timestamp": ts,
+            "number": best_d,
+            "colour": col,
+            "size": sz,
+            "source_count": len(obs),
+            "sources": [o["file"] for o in obs]
+        }
+        
+    print(f"\nTotal reconciled rounds: {len(reconciled)}")
+    print(f"Total conflicts across duplicate screenshots: {conflicts}")
+    print("Digit distribution:")
+    for d in range(10):
+        print(f"  Digit {d}: {digit_counter[d]}")
+        
+    with open(r"extraction\reconciled_batch4.json", "w") as f:
+        json.dump(reconciled, f, indent=2)
+    print("Saved reconciled_batch4.json successfully.")

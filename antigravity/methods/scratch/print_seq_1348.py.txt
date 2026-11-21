@@ -1,0 +1,15 @@
+import cv2, os
+
+b2_dir = r"extraction\extracted_zip_batch2"
+
+# Seq 1348: WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg, yc=988
+img = cv2.imread(os.path.join(b2_dir, "WhatsApp Image 2026-10-23 at 22.06.54 (1).jpeg"))
+crop = img[988-20:988+20, 330:410]
+hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+r_mask = cv2.inRange(hsv, (0, 70, 70), (10, 255, 255)) | cv2.inRange(hsv, (170, 70, 70), (180, 255, 255))
+coords = cv2.findNonZero(r_mask)
+x, y, w, h = cv2.boundingRect(coords)
+glyph = r_mask[y:y+h, x:x+w]
+print("Seq 1348 ASCII Art:")
+for r in glyph:
+    print("".join(["#" if p > 0 else " " for p in r]))

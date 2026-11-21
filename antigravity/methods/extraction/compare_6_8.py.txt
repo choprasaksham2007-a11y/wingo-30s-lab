@@ -1,0 +1,30 @@
+import cv2, os, numpy as np
+
+old_dir = r"extraction\extracted_zip"
+new_dir = r"extraction\extracted_zip_batch2"
+
+im_old = cv2.imread(os.path.join(old_dir, "WhatsApp Image 2026-10-23 at 09.33.53.jpeg"))
+im_new = cv2.imread(os.path.join(new_dir, "WhatsApp Image 2026-10-23 at 22.06.45 (1).jpeg"))
+
+# PIDs:
+# 50430: old yc=1226, new yc=757
+# 50431: old yc=1149, new yc=681
+
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+for pid, yo, yn in [('50430', 1226, 757), ('50431', 1149, 681)]:
+    crop_o = im_old[yo-20:yo+20, 345:385]
+    crop_n = im_new[yn-20:yn+20, 345:385]
+    
+    cv2.imwrite(rf"extraction\crop_{pid}_old.png", crop_o)
+    cv2.imwrite(rf"extraction\crop_{pid}_new.png", crop_n)
+    
+    # Check match scores for 6 and 8
+    res_6_o = cv2.minMaxLoc(cv2.matchTemplate(crop_o, templates[6], cv2.TM_CCOEFF_NORMED))[1]
+    res_8_o = cv2.minMaxLoc(cv2.matchTemplate(crop_o, templates[8], cv2.TM_CCOEFF_NORMED))[1]
+    
+    res_6_n = cv2.minMaxLoc(cv2.matchTemplate(crop_n, templates[6], cv2.TM_CCOEFF_NORMED))[1]
+    res_8_n = cv2.minMaxLoc(cv2.matchTemplate(crop_n, templates[8], cv2.TM_CCOEFF_NORMED))[1]
+    
+    print(f"PID {pid} OLD: score(6)={res_6_o:.3f}, score(8)={res_8_o:.3f}")
+    print(f"PID {pid} NEW: score(6)={res_6_n:.3f}, score(8)={res_8_n:.3f}")

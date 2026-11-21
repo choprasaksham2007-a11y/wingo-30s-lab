@@ -1,0 +1,27 @@
+import os, glob, cv2, asyncio, json
+from PIL import Image
+import winocr
+from datetime import datetime
+
+b7_dir = r"extraction\extracted_zip_batch7"
+files = sorted(glob.glob(os.path.join(b7_dir, "*.*")))
+print(f"Total files in Batch 7: {len(files)}")
+
+# Check first 3 files info
+for f in files[:3]:
+    im = cv2.imread(f)
+    print(f"File: {os.path.basename(f)}, shape: {im.shape if im is not None else None}")
+
+# Let's run OCR on the first file to see layout
+async def test_sample():
+    f = files[0]
+    im = cv2.imread(f)
+    h, w, _ = im.shape
+    # Crop PID strip
+    pid_strip = im[int(h*0.3):int(h*0.9), 0:int(w*0.5)]
+    res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+    print("\nOCR Lines from sample PID strip:")
+    for l in res.lines[:10]:
+        print("  ", [w.text for w in l.words])
+
+asyncio.run(test_sample())

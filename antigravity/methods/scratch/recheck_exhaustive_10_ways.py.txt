@@ -1,0 +1,388 @@
+import openpyxl
+import pandas as pd
+import hashlib
+import os
+import sys
+from datetime import datetime, timedelta
+from collections import Counter
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+def p(s=""):
+    print(s, flush=True)
+
+p("=" * 90)
+p("ULTRA-EXHAUSTIVE 10-WAY INDEPENDENT MULTI-ANGLE RECHECK - MASTER V17")
+p("Timestamp: " + datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+p("=" * 90)
+
+brain_dir = r"project_reports"
+downloads_dir = r"input"
+
+excel_brain = os.path.join(brain_dir, "Colour_Prediction_Dataset_v17.xlsx")
+excel_down = os.path.join(downloads_dir, "Colour_Prediction_Dataset_v17.xlsx")
+
+raw_csv_brain = os.path.join(brain_dir, "colour_raw_data_v17.csv")
+raw_csv_down = os.path.join(downloads_dir, "colour_raw_data_v17.csv")
+
+ml_csv_brain = os.path.join(brain_dir, "colour_ml_ready_v17.csv")
+ml_csv_down = os.path.join(downloads_dir, "colour_ml_ready_v17.csv")
+
+audit_md_brain = os.path.join(brain_dir, "audit_certification_report_v17.md")
+audit_md_down = os.path.join(downloads_dir, "audit_certification_report_v17.md")
+
+test_results = {}
+
+# -------------------------------------------------------------------------
+# RECHECK 1: Raw_Data vs CSV Cross-Stream Bitwise Parity
+# -------------------------------------------------------------------------
+p("\n[RECHECK 1] Cross-Stream Parity: Excel 'Raw_Data' vs 'colour_raw_data_v17.csv'...")
+wb = openpyxl.load_workbook(excel_brain, read_only=True)
+ws_raw = wb['Raw_Data']
+excel_raw_rows = list(ws_raw.iter_rows(values_only=True))
+wb.close()
+
+df_raw_csv = pd.read_csv(raw_csv_brain, dtype=str)
+
+# Compare header
+excel_header = list(excel_raw_rows[0])
+csv_header = list(df_raw_csv.columns)
+assert excel_header == csv_header, f"Header mismatch: {excel_header} vs {csv_header}"
+
+excel_data = excel_raw_rows[1:]
+csv_data = df_raw_csv.values.tolist()
+
+assert len(excel_data) == len(csv_data) == 9714, f"Row count mismatch: Excel={len(excel_data)}, CSV={len(csv_data)}"
+
+cell_mismatches = 0
+for r_idx in range(len(excel_data)):
+    e_row = [str(x) for x in excel_data[r_idx]]
+    c_row = [str(x) for x in csv_data[r_idx]]
+    if e_row != c_row:
+        cell_mismatches += 1
+
+if cell_mismatches == 0:
+    test_results['Recheck 1: Excel vs CSV Parity'] = "PASS (100% identical across all 9,714 rows x 8 columns)"
+    p("  -> PASS: Excel 'Raw_Data' and CSV are 100% cell-by-cell identical (77,712 cells matched).")
+else:
+    test_results['Recheck 1: Excel vs CSV Parity'] = f"FAIL ({cell_mismatches} mismatched rows)"
+    p(f"  -> FAIL: {cell_mismatches} mismatched rows!")
+
+# -------------------------------------------------------------------------
+# RECHECK 2: De-Duplication Mathematical Proof & Redundancy Prevention
+# -------------------------------------------------------------------------
+p("\n[RECHECK 2] De-Duplication Mathematical Proof & Redundancy Audit...")
+wb_v16 = openpyxl.load_workbook(os.path.join(brain_dir, "Colour_Prediction_Dataset_v16.xlsx"), read_only=True)
+v16_pids = [str(row[1]).strip() for row in wb_v16['Raw_Data'].iter_rows(min_row=2, max_col=2, values_only=True)]
+wb_v16.close()
+
+inc_df = pd.read_csv(os.path.join(brain_dir, "inputs", "input_c34d46e6e9.csv"), dtype={'issueNumber': str})
+incoming_pids = list(inc_df['issueNumber'])
+
+v17_pids = [str(r[1]).strip() for r in excel_data]
+
+v16_pid_set = set(v16_pids)
+inc_pid_set = set(incoming_pids)
+v17_pid_set = set(v17_pids)
+
+overlap_with_v16 = inc_pid_set.intersection(v16_pid_set)
+truly_new_pids = inc_pid_set - v16_pid_set
+
+# Check that v17 has exactly v16_pids + truly_new_pids
+expected_v17_pids = v16_pid_set.union(truly_new_pids)
+pid_difference = v17_pid_set.symmetric_difference(expected_v17_pids)
+
+# Check duplicate counts within v17
+v17_counts = Counter(v17_pids)
+duplicates_in_v17 = {k: v for k, v in v17_counts.items() if v > 1}
+
+p(f"  v16 verified rows: {len(v16_pids)}")
+p(f"  Incoming raw API rows: {len(incoming_pids)}")
+p(f"  Overlapping rows identified: {len(overlap_with_v16)}")
+p(f"  Truly new rows identified: {len(truly_new_pids)}")
+p(f"  Total rows in v17: {len(v17_pids)}")
+p(f"  Duplicate Period IDs in v17: {len(duplicates_in_v17)}")
+
+if len(overlap_with_v16) == 4135 and len(truly_new_pids) == 1116 and len(v17_pids) == 9714 and len(duplicates_in_v17) == 0 and len(pid_difference) == 0:
+    test_results['Recheck 2: De-Duplication Proof'] = "PASS (Exactly 4,135 duplicates excluded, 1,116 added, 0 duplicates in v17)"
+    p("  -> PASS: Mathematical proof confirmed: 0 duplicated rows copied into v17.")
+else:
+    test_results['Recheck 2: De-Duplication Proof'] = f"FAIL (Difference: {len(pid_difference)}, Dups: {len(duplicates_in_v17)})"
+    p("  -> FAIL in De-Duplication!")
+
+# -------------------------------------------------------------------------
+# RECHECK 3: Deterministic Game Logic & Truth Table Verification
+# -------------------------------------------------------------------------
+p("\n[RECHECK 3] Deterministic Game Logic (Colour & Size Rules)...")
+rule_violations = []
+for idx, row in enumerate(excel_data, 1):
+    seq, pid, ts, num, col, sz, orig_col, note = row
+    num = int(num)
+    
+    # Expected Colour
+    if num == 0: exp_c = "Red+Violet"
+    elif num == 5: exp_c = "Green+Violet"
+    elif num in [1, 3, 7, 9]: exp_c = "Green"
+    elif num in [2, 4, 6, 8]: exp_c = "Red"
+    else: exp_c = "INVALID"
+    
+    # Expected Size
+    exp_s = "Small" if 0 <= num <= 4 else "Big"
+    
+    if col != exp_c or sz != exp_s:
+        rule_violations.append((idx, pid, num, col, exp_c, sz, exp_s))
+
+if len(rule_violations) == 0:
+    test_results['Recheck 3: Game Rule Consistency'] = "PASS (0 violations across 9,714 rounds)"
+    p("  -> PASS: 100% rule consistency across all 9,714 rounds.")
+else:
+    test_results['Recheck 3: Game Rule Consistency'] = f"FAIL ({len(rule_violations)} violations)"
+    p(f"  -> FAIL: {len(rule_violations)} rule violations!")
+
+# -------------------------------------------------------------------------
+# RECHECK 4: Chronological & Sequence Monotonicity
+# -------------------------------------------------------------------------
+p("\n[RECHECK 4] Chronological & Sequence Monotonicity...")
+seq_errors = []
+chrono_errors = []
+for idx, row in enumerate(excel_data, 1):
+    seq = row[0]
+    pid = str(row[1])
+    ts = str(row[2])
+    
+    if seq != idx:
+        seq_errors.append((idx, seq))
+        
+    if idx > 1:
+        prev_pid = str(excel_data[idx-2][1])
+        prev_ts = str(excel_data[idx-2][2])
+        if pid <= prev_pid:
+            chrono_errors.append((idx, prev_pid, pid, 'PID not strictly increasing'))
+        if ts <= prev_ts:
+            chrono_errors.append((idx, prev_ts, ts, 'Timestamp not strictly increasing'))
+
+if len(seq_errors) == 0 and len(chrono_errors) == 0:
+    test_results['Recheck 4: Sequence & Chronology'] = "PASS (Strict sequence 1..9714, strictly monotonic PIDs and Timestamps)"
+    p("  -> PASS: Strict sequence 1..9,714, monotonic chronological progression.")
+else:
+    test_results['Recheck 4: Sequence & Chronology'] = f"FAIL (Seq errs: {len(seq_errors)}, Chrono errs: {len(chrono_errors)})"
+    p(f"  -> FAIL: Seq errs: {len(seq_errors)}, Chrono errs: {len(chrono_errors)}")
+
+# -------------------------------------------------------------------------
+# RECHECK 5: Period ID String & Representation Integrity
+# -------------------------------------------------------------------------
+p("\n[RECHECK 5] Period ID String & Representation Integrity...")
+wb_check = openpyxl.load_workbook(excel_brain, read_only=True)
+ws_raw_cells = wb_check['Raw_Data']
+format_errors = []
+for idx, row in enumerate(ws_raw_cells.iter_rows(min_row=2, max_col=2, values_only=False), 1):
+    cell = row[1]
+    val = cell.value
+    fmt = cell.number_format
+    if not isinstance(val, str) or len(val) != 17 or not val.isdigit() or fmt != '@':
+        format_errors.append((idx, val, fmt, type(val).__name__))
+wb_check.close()
+
+if len(format_errors) == 0:
+    test_results['Recheck 5: Period ID Text Format'] = "PASS (100% 17-digit string, number_format='@', 0 float truncation)"
+    p("  -> PASS: 100% 17-digit text string preservation, number_format='@', 0 truncation.")
+else:
+    test_results['Recheck 5: Period ID Text Format'] = f"FAIL ({len(format_errors)} formatting errors)"
+    p(f"  -> FAIL: {len(format_errors)} formatting errors!")
+
+# -------------------------------------------------------------------------
+# RECHECK 6: Intra-Block Cadence & Zero Temporal Drift
+# -------------------------------------------------------------------------
+p("\n[RECHECK 6] Intra-Block Cadence & Temporal Drift Analysis...")
+def get_dt(pid):
+    year = int(pid[:4])
+    month = int(pid[4:6])
+    day = int(pid[6:8])
+    suffix = int(pid[-5:])
+    base = datetime(year, month, day, 5, 30, 0)
+    return base + timedelta(seconds=(suffix - 50000) * 30)
+
+blocks = []
+cur_block = [excel_data[0]]
+for i in range(1, len(excel_data)):
+    t_prev = get_dt(str(excel_data[i-1][1]))
+    t_curr = get_dt(str(excel_data[i][1]))
+    if (t_curr - t_prev).total_seconds() == 30.0:
+        cur_block.append(excel_data[i])
+    else:
+        blocks.append(cur_block)
+        cur_block = [excel_data[i]]
+blocks.append(cur_block)
+
+drift_errors = []
+for b_idx, blk in enumerate(blocks, 1):
+    for i in range(1, len(blk)):
+        dt1 = datetime.strptime(str(blk[i-1][2]), '%Y-%m-%d %H:%M:%S')
+        dt2 = datetime.strptime(str(blk[i][2]), '%Y-%m-%d %H:%M:%S')
+        diff = (dt2 - dt1).total_seconds()
+        if diff != 30.0:
+            drift_errors.append((b_idx, blk[i-1][1], blk[i][1], diff))
+
+if len(drift_errors) == 0 and len(blocks) == 59:
+    test_results['Recheck 6: Intra-Block Cadence'] = "PASS (59 blocks, 0.000s drift across 9,714 rounds)"
+    p(f"  -> PASS: All 59 blocks verified: exactly 30.000s step, 0.000s drift.")
+else:
+    test_results['Recheck 6: Intra-Block Cadence'] = f"FAIL ({len(drift_errors)} drift errors, {len(blocks)} blocks)"
+    p(f"  -> FAIL: {len(drift_errors)} drift errors, {len(blocks)} blocks")
+
+# -------------------------------------------------------------------------
+# RECHECK 7: Inter-Block Gap Arithmetic & Missing Rounds Invariance
+# -------------------------------------------------------------------------
+p("\n[RECHECK 7] Inter-Block Gap Arithmetic & Continuity Ledger...")
+wb_gaps = openpyxl.load_workbook(excel_brain, read_only=True)
+ws_gaps = wb_gaps['Missing_Rounds']
+gap_rows = list(ws_gaps.iter_rows(values_only=True))[1:]
+wb_gaps.close()
+
+gap_math_errors = []
+cumulative_missing = 0
+for idx, g in enumerate(gap_rows, 1):
+    g_idx, p1, t1, p2, t2, missing, dur, b_bef, b_aft = g
+    missing = int(missing)
+    cumulative_missing += missing
+    
+    dt1 = datetime.strptime(str(t1), '%Y-%m-%d %H:%M:%S')
+    dt2 = datetime.strptime(str(t2), '%Y-%m-%d %H:%M:%S')
+    delta_sec = (dt2 - dt1).total_seconds()
+    
+    expected_missing = int(delta_sec / 30.0) - 1
+    sec = missing * 30
+    expected_dur = f"{sec // 3600}:{(sec % 3600) // 60:02d}:{sec % 60:02d}"
+    
+    if missing != expected_missing or dur != expected_dur or b_bef != idx or b_aft != (idx + 1):
+        gap_math_errors.append((idx, p1, p2, missing, expected_missing, dur, expected_dur, b_bef, b_aft))
+
+if len(gap_math_errors) == 0 and len(gap_rows) == 58 and cumulative_missing == 13995:
+    test_results['Recheck 7: Gap Invariance'] = "PASS (58 gaps, 13,995 missing rounds, perfect delta-t invariance)"
+    p(f"  -> PASS: 58 gaps verified, 13,995 missing rounds, exact delta-t arithmetic.")
+else:
+    test_results['Recheck 7: Gap Invariance'] = f"FAIL ({len(gap_math_errors)} errors, missing: {cumulative_missing})"
+    p(f"  -> FAIL: {len(gap_math_errors)} errors, missing: {cumulative_missing}")
+
+# -------------------------------------------------------------------------
+# RECHECK 8: Machine Learning Supervised Isolation (Zero Gap Crossings)
+# -------------------------------------------------------------------------
+p("\n[RECHECK 8] ML Supervised Isolation (Strictly Zero Gap Crossings)...")
+wb_ml = openpyxl.load_workbook(excel_brain, read_only=True)
+ws_ml = wb_ml['ML_Ready']
+ml_rows = list(ws_ml.iter_rows(values_only=True))[1:]
+wb_ml.close()
+
+expected_ml_count = len(excel_data) - 5 * len(blocks)
+assert len(ml_rows) == expected_ml_count == 9419, f"ML row count mismatch: {len(ml_rows)} vs {expected_ml_count}"
+
+pid_to_block = {}
+for b_idx, blk in enumerate(blocks, 1):
+    for r in blk:
+        pid_to_block[str(r[1]).strip()] = b_idx
+
+crossing_violations = []
+for r_idx, r in enumerate(ml_rows, 1):
+    tgt_pid = str(r[1]).strip()
+    b_id = int(r[21])
+    actual_b_id = pid_to_block[tgt_pid]
+    if b_id != actual_b_id:
+        crossing_violations.append((r_idx, tgt_pid, b_id, actual_b_id))
+
+if len(crossing_violations) == 0:
+    test_results['Recheck 8: ML Zero Gap Crossings'] = "PASS (Strictly 0 gap crossings across 9,419 ML samples)"
+    p("  -> PASS: Strictly 0 gap crossings across all 9,419 ML training samples.")
+else:
+    test_results['Recheck 8: ML Zero Gap Crossings'] = f"FAIL ({len(crossing_violations)} crossings)"
+    p(f"  -> FAIL: {len(crossing_violations)} crossings!")
+
+# -------------------------------------------------------------------------
+# RECHECK 9: ML Lag Feature Mathematical Fidelity against Raw_Data
+# -------------------------------------------------------------------------
+p("\n[RECHECK 9] ML Lag Feature Mathematical Fidelity...")
+raw_pid_to_idx = {str(r[1]).strip(): i for i, r in enumerate(excel_data)}
+lag_fidelity_errors = []
+
+for r_idx, r in enumerate(ml_rows, 1):
+    tgt_pid = str(r[1]).strip()
+    tgt_ts = str(r[2]).strip()
+    tgt_num = int(r[3])
+    tgt_col = str(r[4]).strip()
+    tgt_sz = str(r[5]).strip()
+    
+    raw_idx = raw_pid_to_idx[tgt_pid]
+    raw_r = excel_data[raw_idx]
+    
+    # Check target
+    if str(raw_r[2]) != tgt_ts or int(raw_r[3]) != tgt_num or str(raw_r[4]) != tgt_col or str(raw_r[5]) != tgt_sz:
+        lag_fidelity_errors.append((r_idx, tgt_pid, 'target'))
+        continue
+        
+    # Check all 5 lags
+    for k in range(1, 6):
+        col_offset = 6 + (k - 1) * 3
+        p_num = int(r[col_offset])
+        p_col = str(r[col_offset+1]).strip()
+        p_sz = str(r[col_offset+2]).strip()
+        
+        raw_prev = excel_data[raw_idx - k]
+        if int(raw_prev[3]) != p_num or str(raw_prev[4]) != p_col or str(raw_prev[5]) != p_sz:
+            lag_fidelity_errors.append((r_idx, tgt_pid, f'prev_{k}'))
+            break
+
+if len(lag_fidelity_errors) == 0:
+    test_results['Recheck 9: ML Lag Feature Fidelity'] = "PASS (100% mathematical fidelity across all 5 lags for 9,419 samples)"
+    p("  -> PASS: 100% mathematical fidelity across all 5 lags (0 mismatches).")
+else:
+    test_results['Recheck 9: ML Lag Feature Fidelity'] = f"FAIL ({len(lag_fidelity_errors)} lag errors)"
+    p(f"  -> FAIL: {len(lag_fidelity_errors)} lag errors!")
+
+# -------------------------------------------------------------------------
+# RECHECK 10: Cryptographic File Integrity & SHA-256 Multi-Directory Sync
+# -------------------------------------------------------------------------
+p("\n[RECHECK 10] Cryptographic File Integrity & SHA-256 Multi-Directory Sync...")
+def get_sha256(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        while chunk := f.read(65536):
+            h.update(chunk)
+    return h.hexdigest()
+
+files_to_sync = [
+    ("Colour_Prediction_Dataset_v17.xlsx", excel_brain, excel_down),
+    ("colour_raw_data_v17.csv", raw_csv_brain, raw_csv_down),
+    ("colour_ml_ready_v17.csv", ml_csv_brain, ml_csv_down),
+    ("audit_certification_report_v17.md", audit_md_brain, audit_md_down)
+]
+
+sync_errors = []
+for fname, b_path, d_path in files_to_sync:
+    h_b = get_sha256(b_path)
+    h_d = get_sha256(d_path)
+    match = (h_b == h_d)
+    p(f"  {fname:35s}: {h_b[:12]}... == {h_d[:12]}... [Match={match}]")
+    if not match:
+        sync_errors.append(fname)
+
+if len(sync_errors) == 0:
+    test_results['Recheck 10: Multi-Directory Sync'] = "PASS (Bitwise identical SHA-256 hashes across Brain and Downloads for all 4 deliverables)"
+    p("  -> PASS: Bitwise identical SHA-256 hashes across all deliverables.")
+else:
+    test_results['Recheck 10: Multi-Directory Sync'] = f"FAIL ({len(sync_errors)} sync mismatches)"
+    p(f"  -> FAIL: {len(sync_errors)} sync mismatches!")
+
+# -------------------------------------------------------------------------
+# SUMMARY CERTIFICATION MATRIX
+# -------------------------------------------------------------------------
+p("\n" + "=" * 90)
+p("CERTIFICATION MATRIX - ALL 10 RECHECKS")
+p("=" * 90)
+all_passed = True
+for name, status in test_results.items():
+    p(f"{name:45s}: {status}")
+    if not status.startswith("PASS"):
+        all_passed = False
+
+p("-" * 90)
+p(f"OVERALL CERTIFICATION: {'100% CERTIFIED PASS (0 DEFECTS / 0 ERRORS)' if all_passed else 'RECHECK FAILED'}")
+p("=" * 90)

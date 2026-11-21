@@ -1,0 +1,185 @@
+import openpyxl
+import pandas as pd
+import hashlib
+import os
+import sys
+from collections import Counter
+from datetime import datetime, timedelta
+
+def p(s=""):
+    print(s, flush=True)
+
+p("=" * 80)
+p("COMPREHENSIVE 10-WAY INDEPENDENT AUDIT SUITE - MASTER V19 (STREAMING)")
+p("=" * 80)
+
+brain_dir = r"project_reports"
+downloads_dir = r"input"
+
+excel_brain = os.path.join(brain_dir, "Colour_Prediction_Dataset_v19.xlsx")
+excel_down = os.path.join(downloads_dir, "Colour_Prediction_Dataset_v19.xlsx")
+
+raw_csv_brain = os.path.join(brain_dir, "colour_raw_data_v19.csv")
+raw_csv_down = os.path.join(downloads_dir, "colour_raw_data_v19.csv")
+
+ml_csv_brain = os.path.join(brain_dir, "colour_ml_ready_v19.csv")
+ml_csv_down = os.path.join(downloads_dir, "colour_ml_ready_v19.csv")
+
+errors = []
+
+# Audit Dimension 1: Bitwise SHA-256 Parity
+p("\n--- DIMENSION 1: BITWISE SHA-256 FILE PARITY ---")
+def get_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        while chunk := f.read(65536):
+            h.update(chunk)
+    return h.hexdigest()
+
+files_to_check = [
+    ("Excel Workbook", excel_brain, excel_down),
+    ("Raw CSV", raw_csv_brain, raw_csv_down),
+    ("ML Ready CSV", ml_csv_brain, ml_csv_down),
+]
+
+for label, p_brain, p_down in files_to_check:
+    sha_b = get_sha256(p_brain)
+    sha_d = get_sha256(p_down)
+    match = (sha_b == sha_d)
+    p(f"{label}:")
+    p(f"  Brain    : {sha_b}")
+    p(f"  Downloads: {sha_d}")
+    p(f"  Parity   : {'PASS' if match else 'FAIL'}")
+    if not match:
+        errors.append(f"SHA-256 mismatch for {label}")
+
+# Audit Dimension 2: Workbook Structure & Sheet Verification
+p("\n--- DIMENSION 2: WORKBOOK STRUCTURE & SHEETS ---")
+wb = openpyxl.load_workbook(excel_brain, read_only=True)
+sheets = wb.sheetnames
+p(f"Sheets in Workbook: {sheets}")
+expected_sheets = ["Raw_Data", "ML_Ready", "Missing_Rounds", "Summary", "Read_Me", "Audit", "Change_Log"]
+for es in expected_sheets:
+    if es in sheets:
+        p(f"  Sheet '{es}': PRESENT")
+    else:
+        p(f"  Sheet '{es}': MISSING")
+        errors.append(f"Missing sheet: {es}")
+
+# Audit Dimension 3: Raw_Data Loading & Deduplication
+p("\n--- DIMENSION 3: ROW COUNT & DEDUPLICATION ---")
+ws_raw = wb["Raw_Data"]
+raw_rows = []
+raw_iter = iter(ws_raw.iter_rows(values_only=True))
+header = next(raw_iter)
+
+pids = []
+for r in raw_iter:
+    seq, pid, ts, prem, num, col, sz, orig_col, note = r
+    raw_rows.append({
+        "seq": seq, "pid": str(pid), "ts": str(ts), "prem": str(prem),
+        "num": int(num), "col": str(col), "sz": str(sz), "orig_col": str(orig_col), "note": str(note)
+    })
+    pids.append(str(pid))
+
+total_raw = len(raw_rows)
+unique_pids = len(set(pids))
+p(f"Total rows in Raw_Data: {total_raw}")
+p(f"Unique Period IDs     : {unique_pids}")
+if total_raw == unique_pids:
+    p("Deduplication Status  : PASS (Strictly 0 duplicates)")
+else:
+    errors.append(f"Found {total_raw - unique_pids} duplicate period IDs in Raw_Data")
+
+# Audit Dimension 4: Chronological Ordering
+p("\n--- DIMENSION 4: CHRONOLOGICAL ORDERING ---")
+is_sorted = all(int(pids[i]) < int(pids[i+1]) for i in range(len(pids)-1))
+p(f"Chronological Monotonicity: {'PASS (100% strictly ascending)' if is_sorted else 'FAIL'}")
+if not is_sorted:
+    errors.append("Raw_Data is not strictly chronologically sorted")
+
+# Audit Dimension 5: 5-Digit Premium Integrity & Conversion Rule
+p("\n--- DIMENSION 5: 5-DIGIT PREMIUM INTEGRITY & CONVERSION RULE ---")
+prem_5d_cnt = sum(1 for r in raw_rows if len(r["prem"]) == 5 and r["prem"].isdigit())
+prem_matches = sum(1 for r in raw_rows if len(r["prem"]) == 5 and int(r["prem"]) % 10 == r["num"])
+prem_mismatches = sum(1 for r in raw_rows if len(r["prem"]) == 5 and int(r["prem"]) % 10 != r["num"])
+p(f"Total 5-digit premiums: {prem_5d_cnt}/{total_raw} ({prem_5d_cnt/total_raw*100:.2f}%)")
+p(f"Rule Matches (int(prem)%10 == num): {prem_matches}")
+p(f"Rule Mismatches                   : {prem_mismatches}")
+if prem_mismatches == 0 and prem_matches == prem_5d_cnt:
+    p("Conversion Rule Check             : PASS (100.00% pass rate)")
+else:
+    errors.append(f"Found {prem_mismatches} conversion rule mismatches!")
+
+# Audit Dimension 6: Deterministic Game Logic Verification
+p("\n--- DIMENSION 6: DETERMINISTIC GAME RULES (COLOUR & SIZE) ---")
+logic_errors = 0
+for r in raw_rows:
+    num = r["num"]
+    sz = r["sz"]
+    col = r["col"]
+    expected_sz = "Small" if num <= 4 else "Big"
+    if num == 0: exp_col = "Red+Violet"
+    elif num == 5: exp_col = "Green+Violet"
+    elif num in [1, 3, 7, 9]: exp_col = "Green"
+    else: exp_col = "Red"
+
+    if sz != expected_sz or col != exp_col:
+        logic_errors += 1
+
+p(f"Game Logic Compliance: {'PASS (0 logic errors)' if logic_errors == 0 else f'FAIL ({logic_errors} errors)'}")
+if logic_errors > 0:
+    errors.append(f"Found {logic_errors} game rule mismatches")
+
+# Audit Dimension 7: Missing Rounds & Continuity Math
+p("\n--- DIMENSION 7: TIMELINE CONTINUITY & MISSING ROUNDS ---")
+ws_gaps = wb["Missing_Rounds"]
+gap_iter = iter(ws_gaps.iter_rows(values_only=True))
+gap_header = next(gap_iter)
+gap_rows = list(gap_iter)
+p(f"Total Gaps Documented: {len(gap_rows)}")
+for g in gap_rows:
+    p(f"  Gap #{g[0]}: {g[1]} ({g[2]}) --> {g[3]} ({g[4]}), Missing: {g[5]} rounds, Duration: {g[6]}")
+
+# Audit Dimension 8: ML_Ready Lag 5 Feature Integrity & Zero Gap Crossings
+p("\n--- DIMENSION 8: ML_READY LAG-5 INTEGRITY ---")
+ws_ml = wb["ML_Ready"]
+ml_iter = iter(ws_ml.iter_rows(values_only=True))
+ml_header = next(ml_iter)
+ml_rows = list(ml_iter)
+total_ml = len(ml_rows)
+p(f"Total ML Training Samples: {total_ml}")
+num_blocks = len(gap_rows) + 1
+expected_ml = total_raw - (5 * num_blocks)
+p(f"Expected ML Samples       : {expected_ml}")
+if total_ml == expected_ml:
+    p("ML Sample Count Parity    : PASS (Exactly matches 0 gap crossings across 2 blocks)")
+else:
+    errors.append(f"ML sample count mismatch: {total_ml} vs {expected_ml}")
+
+# Audit Dimension 9: CSV vs Excel Parity
+p("\n--- DIMENSION 9: CSV VS EXCEL CONTENT PARITY ---")
+df_raw_csv = pd.read_csv(raw_csv_brain, dtype={"Period ID": str, "premium": str})
+df_ml_csv = pd.read_csv(ml_csv_brain, dtype={"Target Period ID": str, "target_premium": str})
+p(f"Raw CSV row count: {len(df_raw_csv)} (Excel: {total_raw})")
+p(f"ML CSV row count : {len(df_ml_csv)} (Excel: {total_ml})")
+if len(df_raw_csv) == total_raw and len(df_ml_csv) == total_ml:
+    p("CSV vs Excel Parity       : PASS")
+else:
+    errors.append("CSV row count does not match Excel sheet row count")
+
+# Audit Dimension 10: Statistical Randomness Snapshot
+p("\n--- DIMENSION 10: STATISTICAL RANDOMNESS SUMMARY ---")
+num_counts = Counter(r["num"] for r in raw_rows)
+exp = total_raw / 10.0
+chi2 = sum(((num_counts[i] - exp) ** 2) / exp for i in range(10))
+p(f"Number distribution chi-square: {chi2:.4f} (df=9, critical=16.92 at alpha=0.05)")
+p(f"Digit uniformity: {'PASS (Uniform independent)' if chi2 < 16.92 else 'WARN'}")
+
+p("\n" + "=" * 80)
+p(f"FINAL AUDIT RESULT: {'ALL 10 DIMENSIONS PASSED (0 ERRORS)' if not errors else f'FAILED ({len(errors)} ERRORS)'}")
+p("=" * 80)
+if errors:
+    for e in errors:
+        p(f"  - {e}")
+    sys.exit(1)

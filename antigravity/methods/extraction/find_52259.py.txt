@@ -1,0 +1,16 @@
+import cv2, os, asyncio, winocr, glob
+from PIL import Image
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+files = sorted(glob.glob(os.path.join(batch3_dir, "*.jpeg")))
+
+# Check the first few and last few files
+for f in files[:5] + files[-5:]:
+    fname = os.path.basename(f)
+    im = cv2.imread(f)
+    pid_strip = im[500:1450, 20:300]
+    res = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))))
+    lines = [''.join([w.text.strip() for w in l.words]) for l in res.lines]
+    p_found = [l for l in lines if '5225' in l or '5226' in l or '5227' in l]
+    if p_found:
+        print(f"{fname}: {p_found}")

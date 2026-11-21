@@ -1,0 +1,530 @@
+[
+  {
+    "detected": 3,
+    "pid": "20261023100050454",
+    "recorded": 3,
+    "score": 0.6540255546569824,
+    "seq": 1276,
+    "verified": true
+  },
+  {
+    "detected": 7,
+    "pid": "20261023100050456",
+    "recorded": 7,
+    "score": 0.7771090865135193,
+    "seq": 1278,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050462",
+    "recorded": 5,
+    "score": 0.9572845697402954,
+    "seq": 1284,
+    "verified": true
+  },
+  {
+    "detected": 3,
+    "pid": "20261023100050464",
+    "recorded": 3,
+    "score": 0.6540255546569824,
+    "seq": 1286,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050472",
+    "recorded": 0,
+    "score": 0.9970144629478455,
+    "seq": 1294,
+    "verified": true
+  },
+  {
+    "detected": 4,
+    "pid": "20261023100050475",
+    "recorded": 4,
+    "score": 0.9338799715042114,
+    "seq": 1297,
+    "verified": true
+  },
+  {
+    "detected": 7,
+    "pid": "20261023100050510",
+    "recorded": 7,
+    "score": 0.8511296510696411,
+    "seq": 1332,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050512",
+    "recorded": 5,
+    "score": 0.9932861328125,
+    "seq": 1334,
+    "verified": true
+  },
+  {
+    "detected": 9,
+    "pid": "20261023100050514",
+    "recorded": 9,
+    "score": 0.9681009650230408,
+    "seq": 1336,
+    "verified": true
+  },
+  {
+    "detected": 4,
+    "pid": "20261023100050524",
+    "recorded": 4,
+    "score": 0.9339020848274231,
+    "seq": 1346,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050526",
+    "recorded": 8,
+    "score": 0.7777112126350403,
+    "seq": 1348,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050531",
+    "recorded": 8,
+    "score": 0.7527163624763489,
+    "seq": 1353,
+    "verified": true
+  },
+  {
+    "detected": 2,
+    "pid": "20261023100050533",
+    "recorded": 2,
+    "score": 0.9965384602546692,
+    "seq": 1355,
+    "verified": true
+  },
+  {
+    "detected": 9,
+    "pid": "20261023100050548",
+    "recorded": 9,
+    "score": 0.9723064303398132,
+    "seq": 1370,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050550",
+    "recorded": 5,
+    "score": 0.931598424911499,
+    "seq": 1372,
+    "verified": true
+  },
+  {
+    "detected": 4,
+    "pid": "20261023100050553",
+    "recorded": 4,
+    "score": 0.9494313597679138,
+    "seq": 1375,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050555",
+    "recorded": 0,
+    "score": 0.9838328957557678,
+    "seq": 1377,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050564",
+    "recorded": 5,
+    "score": 0.9740114808082581,
+    "seq": 1386,
+    "verified": true
+  },
+  {
+    "detected": 9,
+    "pid": "20261023100050567",
+    "recorded": 9,
+    "score": 0.9838787913322449,
+    "seq": 1389,
+    "verified": true
+  },
+  {
+    "detected": 7,
+    "pid": "20261023100050569",
+    "recorded": 7,
+    "score": 0.6630868315696716,
+    "seq": 1391,
+    "verified": true
+  },
+  {
+    "detected": 3,
+    "pid": "20261023100050581",
+    "recorded": 3,
+    "score": 0.8369594216346741,
+    "seq": 1403,
+    "verified": true
+  },
+  {
+    "detected": 1,
+    "pid": "20261023100050583",
+    "recorded": 1,
+    "score": 0.998184323310852,
+    "seq": 1405,
+    "verified": true
+  },
+  {
+    "detected": 4,
+    "pid": "20261023100050587",
+    "recorded": 4,
+    "score": 0.953950047492981,
+    "seq": 1409,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050589",
+    "recorded": 0,
+    "score": 0.9254463315010071,
+    "seq": 1411,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050591",
+    "recorded": 0,
+    "score": 0.9973325133323669,
+    "seq": 1413,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050593",
+    "recorded": 5,
+    "score": 0.9880702495574951,
+    "seq": 1415,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050595",
+    "recorded": 8,
+    "score": 0.6771978735923767,
+    "seq": 1417,
+    "verified": true
+  },
+  {
+    "detected": 7,
+    "pid": "20261023100050603",
+    "recorded": 7,
+    "score": 0.716931164264679,
+    "seq": 1425,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050605",
+    "recorded": 8,
+    "score": 0.6771978735923767,
+    "seq": 1427,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050637",
+    "recorded": 0,
+    "score": 0.9455140829086304,
+    "seq": 1459,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050640",
+    "recorded": 0,
+    "score": 0.9970144629478455,
+    "seq": 1462,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050642",
+    "recorded": 0,
+    "score": 0.9620761871337891,
+    "seq": 1464,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050644",
+    "recorded": 0,
+    "score": 0.9869909286499023,
+    "seq": 1466,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050646",
+    "recorded": 0,
+    "score": 0.8839916586875916,
+    "seq": 1468,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050649",
+    "recorded": 0,
+    "score": 0.9781123399734497,
+    "seq": 1471,
+    "verified": true
+  },
+  {
+    "detected": 4,
+    "pid": "20261023100050651",
+    "recorded": 4,
+    "score": 0.9641333818435669,
+    "seq": 1473,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050652",
+    "recorded": 5,
+    "score": 0.9884554743766785,
+    "seq": 1474,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050654",
+    "recorded": 0,
+    "score": 0.9844688773155212,
+    "seq": 1476,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050662",
+    "recorded": 8,
+    "score": 0.6065786480903625,
+    "seq": 1484,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050664",
+    "recorded": 0,
+    "score": 0.9845184087753296,
+    "seq": 1486,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050681",
+    "recorded": 8,
+    "score": 0.6328167915344238,
+    "seq": 1503,
+    "verified": true
+  },
+  {
+    "detected": 1,
+    "pid": "20261023100050683",
+    "recorded": 1,
+    "score": 0.9984154105186462,
+    "seq": 1505,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050729",
+    "recorded": 8,
+    "score": 0.750344455242157,
+    "seq": 1551,
+    "verified": true
+  },
+  {
+    "detected": 9,
+    "pid": "20261023100050731",
+    "recorded": 9,
+    "score": 0.9863146543502808,
+    "seq": 1553,
+    "verified": true
+  },
+  {
+    "detected": 1,
+    "pid": "20261023100050733",
+    "recorded": 1,
+    "score": 0.984613299369812,
+    "seq": 1555,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050734",
+    "recorded": 5,
+    "score": 0.9962950944900513,
+    "seq": 1556,
+    "verified": true
+  },
+  {
+    "detected": 9,
+    "pid": "20261023100050736",
+    "recorded": 3,
+    "score": 0.6376492977142334,
+    "seq": 1558,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050737",
+    "recorded": 5,
+    "score": 0.9659876227378845,
+    "seq": 1559,
+    "verified": true
+  },
+  {
+    "detected": 7,
+    "pid": "20261023100050740",
+    "recorded": 7,
+    "score": 0.7471675276756287,
+    "seq": 1562,
+    "verified": true
+  },
+  {
+    "detected": 4,
+    "pid": "20261023100050750",
+    "recorded": 4,
+    "score": 0.9632494449615479,
+    "seq": 1572,
+    "verified": true
+  },
+  {
+    "detected": 4,
+    "pid": "20261023100050752",
+    "recorded": 4,
+    "score": 0.9363676309585571,
+    "seq": 1574,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050759",
+    "recorded": 0,
+    "score": 0.9605963826179504,
+    "seq": 1581,
+    "verified": true
+  },
+  {
+    "detected": 4,
+    "pid": "20261023100050761",
+    "recorded": 4,
+    "score": 0.9516958594322205,
+    "seq": 1583,
+    "verified": true
+  },
+  {
+    "detected": 2,
+    "pid": "20261023100050763",
+    "recorded": 2,
+    "score": 0.9824705123901367,
+    "seq": 1585,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050776",
+    "recorded": 5,
+    "score": 0.9787115454673767,
+    "seq": 1598,
+    "verified": true
+  },
+  {
+    "detected": 1,
+    "pid": "20261023100050778",
+    "recorded": 1,
+    "score": 0.9926480054855347,
+    "seq": 1600,
+    "verified": true
+  },
+  {
+    "detected": 7,
+    "pid": "20261023100050783",
+    "recorded": 7,
+    "score": 0.7760675549507141,
+    "seq": 1605,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050785",
+    "recorded": 8,
+    "score": 0.6112639307975769,
+    "seq": 1607,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050791",
+    "recorded": 0,
+    "score": 0.9574156999588013,
+    "seq": 1613,
+    "verified": true
+  },
+  {
+    "detected": 1,
+    "pid": "20261023100050793",
+    "recorded": 1,
+    "score": 0.9882490634918213,
+    "seq": 1615,
+    "verified": true
+  },
+  {
+    "detected": 3,
+    "pid": "20261023100050794",
+    "recorded": 3,
+    "score": 0.7006940245628357,
+    "seq": 1616,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050797",
+    "recorded": 8,
+    "score": 0.5494219064712524,
+    "seq": 1619,
+    "verified": true
+  },
+  {
+    "detected": 0,
+    "pid": "20261023100050806",
+    "recorded": 0,
+    "score": 0.9962120652198792,
+    "seq": 1628,
+    "verified": true
+  },
+  {
+    "detected": 5,
+    "pid": "20261023100050808",
+    "recorded": 5,
+    "score": 0.9772271513938904,
+    "seq": 1630,
+    "verified": true
+  },
+  {
+    "detected": 2,
+    "pid": "20261023100050810",
+    "recorded": 2,
+    "score": 0.8991639018058777,
+    "seq": 1632,
+    "verified": true
+  },
+  {
+    "detected": 6,
+    "pid": "20261023100050817",
+    "recorded": 8,
+    "score": 0.6465641260147095,
+    "seq": 1639,
+    "verified": true
+  }
+]

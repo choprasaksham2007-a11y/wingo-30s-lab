@@ -1,0 +1,271 @@
+import openpyxl
+import pandas as pd
+from collections import Counter
+
+def audit_file(filepath, label):
+    print("=" * 80)
+    print(f"AUDITING FILE: {label} -> {filepath}")
+    print("=" * 80)
+    
+    wb = openpyxl.load_workbook(filepath, data_only=False)
+    
+    # ----------------------------------------------------
+    # 1. READ RAW DATA
+    # ----------------------------------------------------
+    ws_raw = wb['Raw_Data']
+    raw_headers = [ws_raw.cell(1, c).value for c in range(1, ws_raw.max_column + 1)]
+    print(f"Raw_Data Headers: {raw_headers}")
+    
+    raw_rows = []
+    raw_id_types = []
+    raw_id_numformats = []
+    raw_id_lens = []
+    
+    col_idx_map = {name: i+1 for i, name in enumerate(raw_headers)}
+    
+    for r in range(2, ws_raw.max_row + 1):
+        cell_id = ws_raw.cell(r, col_idx_map['Period ID'])
+        raw_id_types.append(cell_id.data_type)
+        raw_id_numformats.append(cell_id.number_format)
+        raw_id_lens.append(len(str(cell_id.value)))
+        
+        row_dict = {h: ws_raw.cell(r, col_idx_map[h]).value for h in raw_headers}
+        raw_rows.append(row_dict)
+        
+    df_raw = pd.DataFrame(raw_rows)
+    total_raw_rounds = len(df_raw)
+    print(f"Total Raw_Data rows: {total_raw_rounds}")
+    
+    # Period ID data type audit for Raw_Data
+    type_counts = Counter(raw_id_types)
+    numfmt_counts = Counter(raw_id_numformats)
+    len_counts = Counter(raw_id_lens)
+    print(f"Raw_Data Period ID data_type counts: {dict(type_counts)}")
+    print(f"Raw_Data Period ID number_format counts: {dict(numfmt_counts)}")
+    print(f"Raw_Data Period ID lengths: {dict(len_counts)}")
+    
+    # Check if duplicates exist in Raw_Data Period ID
+    dup_ids = df_raw['Period ID'].duplicated().sum()
+    print(f"Raw_Data Duplicate Period IDs: {dup_ids}")
+    
+    # Check sorting order: is Raw_Data chronological?
+    is_sorted_seq = df_raw['sequence_no'].is_monotonic_increasing
+    is_sorted_id = df_raw['Period ID'].astype(str).is_monotonic_increasing
+    print(f"Raw_Data sequence_no is monotonic: {is_sorted_seq}")
+    print(f"Raw_Data Period ID is monotonic: {is_sorted_id}")
+    
+    # ----------------------------------------------------
+    # 2. READ MISSING_ROUNDS & DEFINE UNBROKEN BLOCKS
+    # ----------------------------------------------------
+    ws_miss = wb['Missing_Rounds']
+    miss_headers = [ws_miss.cell(1, c).value for c in range(1, ws_miss.max_column + 1)]
+    print(f"\nMissing_Rounds Headers: {miss_headers}")
+    
+    miss_rows = []
+    miss_id_types = []
+    miss_id_numformats = []
+    
+    for r in range(2, ws_miss.max_row + 1):
+        # find ID columns
+        row_vals = [ws_miss.cell(r, c).value for c in range(1, ws_miss.max_column + 1)]
+        if not any(v is not None for v in row_vals):
+            continue
+        # check if it's total summary row
+        if any(str(v).startswith("Total") for v in row_vals if v is not None):
+            continue
+            
+        row_dict = {miss_headers[c-1]: ws_miss.cell(r, c).value for c in range(1, len(miss_headers) + 1)}
+        miss_rows.append(row_dict)
+        
+        # Check Period ID cells in Missing_Rounds
+        for c in range(1, len(miss_headers) + 1):
+            h = str(miss_headers[c-1])
+            if 'period_id' in h.lower() or 'period id' in h.lower():
+                cell = ws_miss.cell(r, c)
+                if cell.value is not None:
+                    miss_id_types.append(cell.data_type)
+                    miss_id_numformats.append(cell.number_format)
+
+    print(f"Missing_Rounds Gaps Count: {len(miss_rows)}")
+    print(f"Missing_Rounds Period ID data_type counts: {dict(Counter(miss_id_types))}")
+    print(f"Missing_Rounds Period ID number_format counts: {dict(Counter(miss_id_numformats))}")
+    
+    # Calculate gaps by checking consecutive Period IDs in Raw_Data
+    # Let's inspect differences between consecutive rows in df_raw
+    # In colour prediction game, period IDs are e.g. 20261022100051582
+    # The last 5 digits are round number of the day (e.g. 51582, 51583)
+    # When date changes, e.g. 20261022100052880 to 20261023100050001
+    gaps_detected_in_raw = []
+    # Let's inspect consecutive ID gaps
+    for i in range(len(df_raw) - 1):
+        id_curr = str(df_raw.iloc[i]['Period ID'])
+        id_next = str(df_raw.iloc[i+1]['Period ID'])
+        # check timestamp or id difference
+        # In Missing_Rounds, what are the documented gaps?
+        # Let's check against documented gaps
+    
+    # Let's see what unbroken blocks exist
+    # A gap in sequence occurs between row i and row i+1 if there is a gap documented or period discontinuity
+    gap_pairs = []
+    for m in miss_rows:
+        if 'Before Period ID' in m:
+            gap_pairs.append((str(m['Before Period ID']), str(m['After Period ID'])))
+        elif 'prior_period_id' in m:
+            gap_pairs.append((str(m['prior_period_id']), str(m['subsequent_period_id'])))
+    print(f"Documented Gap Pairs: {gap_pairs}")
+    
+    # Check if all gap pairs exist in Raw_Data adjacent rows
+    unbroken_blocks = []
+    curr_block = [0]
+    for i in range(len(df_raw) - 1):
+        id_curr = str(df_raw.iloc[i]['Period ID'])
+        id_next = str(df_raw.iloc[i+1]['Period ID'])
+        is_gap = False
+        for g_before, g_after in gap_pairs:
+            if id_curr == g_before and id_next == g_after:
+                is_gap = True
+                break
+        if is_gap:
+            unbroken_blocks.append(curr_block)
+            curr_block = [i+1]
+        else:
+            curr_block.append(i+1)
+    unbroken_blocks.append(curr_block)
+    
+    print(f"Number of Unbroken Blocks based on documented gaps: {len(unbroken_blocks)}")
+    block_sizes = [len(b) for b in unbroken_blocks]
+    print(f"Block sizes: {block_sizes}")
+    expected_ml_samples_by_formula = sum(max(0, len(b) - 5) for b in unbroken_blocks)
+    print(f"Formula: Total Rounds ({total_raw_rounds}) - 5 * Num Blocks ({len(unbroken_blocks)}) = {total_raw_rounds - 5 * len(unbroken_blocks)}")
+    print(f"Sum of (len(block) - 5): {expected_ml_samples_by_formula}")
+    
+    # ----------------------------------------------------
+    # 3. READ & AUDIT ML_READY
+    # ----------------------------------------------------
+    ws_ml = wb['ML_Ready']
+    ml_headers = [ws_ml.cell(1, c).value for c in range(1, ws_ml.max_column + 1)]
+    print(f"\nML_Ready Headers: {ml_headers}")
+    
+    ml_rows = []
+    ml_id_types = []
+    ml_id_numformats = []
+    ml_id_lens = []
+    ml_col_idx = {h: i+1 for i, h in enumerate(ml_headers)}
+    
+    for r in range(2, ws_ml.max_row + 1):
+        cell_id = ws_ml.cell(r, ml_col_idx['Target Period ID'])
+        ml_id_types.append(cell_id.data_type)
+        ml_id_numformats.append(cell_id.number_format)
+        ml_id_lens.append(len(str(cell_id.value)))
+        
+        row_dict = {h: ws_ml.cell(r, ml_col_idx[h]).value for h in ml_headers}
+        ml_rows.append(row_dict)
+        
+    df_ml = pd.DataFrame(ml_rows)
+    total_ml_rows = len(df_ml)
+    print(f"Total ML_Ready data rows: {total_ml_rows}")
+    print(f"ML_Ready Target Period ID data_type counts: {dict(Counter(ml_id_types))}")
+    print(f"ML_Ready Target Period ID number_format counts: {dict(Counter(ml_id_numformats))}")
+    print(f"ML_Ready Target Period ID lengths: {dict(Counter(ml_id_lens))}")
+    
+    # Detailed Row-by-Row Pass 1 Validation:
+    # 1. Map Raw_Data Period ID to its row index in df_raw
+    raw_id_to_idx = {str(df_raw.iloc[i]['Period ID']): i for i in range(len(df_raw))}
+    
+    # Check that prev_1 to prev_5 semantics:
+    # In ML_Ready, is prev_1 the round immediately before target (t-1) or t-5?
+    # Let's inspect the first row of ML_Ready
+    first_ml = df_ml.iloc[0]
+    first_target_id = str(first_ml['Target Period ID'])
+    first_target_idx = raw_id_to_idx[first_target_id]
+    print(f"First ML Target Period ID: {first_target_id} at Raw_Data index {first_target_idx}")
+    print(f"  first_ml prev_1_number: {first_ml['prev_1_number']}, Raw t-1 number: {df_raw.iloc[first_target_idx-1]['number']}, Raw t-5 number: {df_raw.iloc[first_target_idx-5]['number']}")
+    print(f"  first_ml prev_5_number: {first_ml['prev_5_number']}, Raw t-1 number: {df_raw.iloc[first_target_idx-1]['number']}, Raw t-5 number: {df_raw.iloc[first_target_idx-5]['number']}")
+    
+    # Let's determine whether prev_1 is t-1 and prev_5 is t-5, or vice-versa
+    prev_1_is_t_minus_1 = (first_ml['prev_1_number'] == df_raw.iloc[first_target_idx-1]['number'])
+    print(f"prev_1 is t-1: {prev_1_is_t_minus_1}")
+    
+    # Now check EVERY SINGLE ROW of ML_Ready
+    mismatch_target = []
+    mismatch_lags = []
+    gap_crossings = []
+    invalid_sample_seq = []
+    
+    for ml_idx, ml_row in df_ml.iterrows():
+        # Check sample_sequence
+        expected_seq = ml_idx + 1
+        if ml_row['sample_sequence'] != expected_seq:
+            invalid_sample_seq.append((ml_idx, ml_row['sample_sequence'], expected_seq))
+            
+        target_id = str(ml_row['Target Period ID'])
+        if target_id not in raw_id_to_idx:
+            mismatch_target.append((ml_idx, target_id, "Not found in Raw_Data"))
+            continue
+            
+        raw_idx = raw_id_to_idx[target_id]
+        raw_target = df_raw.iloc[raw_idx]
+        
+        # Check target values match
+        if (ml_row['target_number'] != raw_target['number'] or 
+            ml_row['target_colour'] != raw_target['colour'] or 
+            ml_row['target_size'] != raw_target['size']):
+            mismatch_target.append((ml_idx, target_id, ml_row['target_number'], raw_target['number']))
+            
+        # Check timestamp
+        if str(ml_row['target_timestamp']) != str(raw_target['timestamp']):
+            mismatch_target.append((ml_idx, target_id, f"Timestamp mismatch: {ml_row['target_timestamp']} vs {raw_target['timestamp']}"))
+            
+        # Check that raw_idx >= 5
+        if raw_idx < 5:
+            gap_crossings.append((ml_idx, target_id, "raw_idx < 5"))
+            
+        # Check lags
+        for lag in range(1, 6):
+            if prev_1_is_t_minus_1:
+                lag_raw_idx = raw_idx - lag
+            else:
+                lag_raw_idx = raw_idx - (6 - lag)
+                
+            raw_lag_row = df_raw.iloc[lag_raw_idx]
+            
+            p_num = ml_row[f'prev_{lag}_number']
+            p_col = ml_row[f'prev_{lag}_colour']
+            p_siz = ml_row[f'prev_{lag}_size']
+            
+            if (p_num != raw_lag_row['number'] or 
+                p_col != raw_lag_row['colour'] or 
+                p_siz != raw_lag_row['size']):
+                mismatch_lags.append((ml_idx, target_id, lag, (p_num, p_col, p_siz), (raw_lag_row['number'], raw_lag_row['colour'], raw_lag_row['size'])))
+                
+        # Check gap crossing:
+        # The window spans raw_idx - 5 to raw_idx
+        # Check if ANY gap pair falls between raw_idx - 5 and raw_idx
+        window_raw_indices = range(raw_idx - 5, raw_idx)
+        for g_idx in window_raw_indices:
+            id_a = str(df_raw.iloc[g_idx]['Period ID'])
+            id_b = str(df_raw.iloc[g_idx+1]['Period ID'])
+            for g_before, g_after in gap_pairs:
+                if id_a == g_before and id_b == g_after:
+                    gap_crossings.append((ml_idx, target_id, f"Crosses gap {g_before} -> {g_after} between window rows {g_idx} and {g_idx+1}"))
+                    
+    print(f"\n--- PASS 1 VERIFICATION RESULTS ---")
+    print(f"Sample Sequence Mismatches: {len(invalid_sample_seq)}")
+    print(f"Target Row Mismatches: {len(mismatch_target)}")
+    print(f"Lag Feature Mismatches: {len(mismatch_lags)}")
+    print(f"Gap Crossings Detected: {len(gap_crossings)}")
+    if gap_crossings:
+        print(f"  First 5 gap crossings: {gap_crossings[:5]}")
+    if mismatch_lags:
+        print(f"  First 5 lag mismatches: {mismatch_lags[:5]}")
+    if mismatch_target:
+        print(f"  First 5 target mismatches: {mismatch_target[:5]}")
+        
+    # Check if df_ml row count matches expected
+    print(f"Total ML Rows: {total_ml_rows}, Expected: {total_raw_rounds - 5 * len(unbroken_blocks)}")
+    print(f"ML Row Count Matches Formula Exactly: {total_ml_rows == total_raw_rounds - 5 * len(unbroken_blocks)}")
+
+    wb.close()
+
+audit_file(r'project_reports\Colour_Prediction_Dataset_v3.xlsx', 'Colour_Prediction_Dataset_v3.xlsx')
+audit_file(r'project_reports\Colour_Prediction_Dataset_corrected.xlsx', 'Colour_Prediction_Dataset_corrected.xlsx')

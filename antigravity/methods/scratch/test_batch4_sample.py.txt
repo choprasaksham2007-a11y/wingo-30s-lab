@@ -1,0 +1,16 @@
+import cv2, os
+import numpy as np
+
+batch4_dir = r"extraction\extracted_zip_batch4"
+sample_path = os.path.join(batch4_dir, "WhatsApp Image 2026-10-24 at 10.46.29.jpeg")
+im = cv2.imread(sample_path)
+
+# Let's inspect the y coordinates of rows and x coordinates of columns
+# We can check row separators or OCR
+# Let's load the templates from tight_templates.npy
+templates = np.load(r"extraction\tight_templates.npy", allow_pickle=True).item()
+print("Templates loaded:", list(templates.keys()))
+
+# Let's see what is visible in sample_path
+import pytesseract
+# Let's see if pytesseract is available or if we used our custom row detector

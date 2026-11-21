@@ -1,0 +1,36 @@
+import json
+
+with open(r"extraction\scan_summary.json") as f:
+    data = json.load(f)
+
+print(f"Total screenshots summarized: {len(data)}")
+
+all_pids = []
+for item in data:
+    for p in item["pids"]:
+        all_pids.append((p, item["file"]))
+
+# Sort PIDs
+pids_clean = sorted(list(set([p[0] for p in all_pids])))
+print(f"Unique PIDs count: {len(pids_clean)}")
+
+# Check length of PIDs
+lengths = set(len(p) for p in pids_clean)
+print(f"PID lengths: {lengths}")
+
+# Filter out truncated OCR if any (e.g. len < 17)
+full_pids = [p for p in pids_clean if len(p) == 17]
+short_pids = [p for p in pids_clean if len(p) < 17]
+print(f"Full 17-digit PIDs: {len(full_pids)}")
+print(f"Short PIDs (<17 digits): {len(short_pids)}: {short_pids}")
+
+if full_pids:
+    print(f"Smallest full PID: {full_pids[0]}")
+    print(f"Largest full PID:  {full_pids[-1]}")
+    
+    # Check date distribution
+    dates = set(p[:8] for p in full_pids)
+    print(f"Dates in dataset: {dates}")
+    for d in sorted(list(dates)):
+        d_pids = [p for p in full_pids if p.startswith(d)]
+        print(f"  Date {d}: {len(d_pids)} unique PIDs, min={d_pids[0]}, max={d_pids[-1]}")

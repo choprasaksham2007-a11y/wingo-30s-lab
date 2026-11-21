@@ -1,0 +1,98 @@
+import pandas as pd
+import openpyxl
+import os
+import sys
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+brain_dir = r"project_reports"
+v17_csv = os.path.join(brain_dir, "colour_raw_data_v17.csv")
+new_batch_csv = os.path.join(brain_dir, "inputs", "input_1cbefd2737.csv")
+
+print("Reading Master v17 Raw CSV...")
+df_v17 = pd.read_csv(v17_csv, dtype={'Period ID': str})
+print(f"Master v17 has {len(df_v17)} rows. Min PID: {df_v17['Period ID'].min()}, Max PID: {df_v17['Period ID'].max()}")
+
+print("\nReading incoming Batch 17 CSV...")
+df_b17 = pd.read_csv(new_batch_csv, dtype={'issueNumber': str})
+print(f"Incoming CSV has {len(df_b17)} rows. Columns: {list(df_b17.columns)}")
+print(f"Min issueNumber: {df_b17['issueNumber'].min()}, Max issueNumber: {df_b17['issueNumber'].max()}")
+
+v17_pids = set(df_v17['Period ID'])
+incoming_pids = set(df_b17['issueNumber'])
+
+overlap_pids = incoming_pids.intersection(v17_pids)
+new_pids = incoming_pids - v17_pids
+
+print(f"\nOverlap Count: {len(overlap_pids)}")
+print(f"New Rows Count: {len(new_pids)}")
+
+# Check duplicate issueNumbers within incoming CSV itself
+if df_b17['issueNumber'].duplicated().any():
+    print(f"WARNING: Duplicates found inside incoming CSV: {df_b17['issueNumber'].duplicated().sum()}")
+else:
+    print("Incoming CSV has 0 duplicate issueNumbers internally.")
+
+# Filter new rows
+df_new = df_b17[df_b17['issueNumber'].isin(new_pids)].copy()
+df_new['pid_int'] = df_new['issueNumber'].astype(int)
+df_new = df_new.sort_values('pid_int').reset_index(drop=True)
+
+print(f"\nNew Rows Range:")
+print(f"First new PID: {df_new['issueNumber'].iloc[0]}")
+print(f"Last new PID:  {df_new['issueNumber'].iloc[-1]}")
+
+def get_dt_from_pid(pid: str) -> datetime:
+    year = int(pid[:4])
+    month = int(pid[4:6])
+    day = int(pid[6:8])
+    suffix = int(pid[-5:])
+    base = datetime(year, month, day, 5, 30, 0)
+    return base + timedelta(seconds=(suffix - 50000) * 30)
+
+first_new_dt = get_dt_from_pid(df_new['issueNumber'].iloc[0])
+last_new_dt = get_dt_from_pid(df_new['issueNumber'].iloc[-1])
+print(f"First new timestamp: {first_new_dt.strftime('%Y-%m-%d %H:%M:%S IST')}")
+print(f"Last new timestamp:  {last_new_dt.strftime('%Y-%m-%d %H:%M:%S IST')}")
+
+# Check overlap integrity: verify number and color match v17
+df_overlap = df_b17[df_b17['issueNumber'].isin(overlap_pids)].copy()
+v17_lookup = df_v17.set_index('Period ID')
+
+mismatches = 0
+for idx, row in df_overlap.iterrows():
+    p = row['issueNumber']
+    n = int(row['number'])
+    v17_row = v17_lookup.loc[p]
+    v17_num = int(v17_row['number'])
+    if n != v17_num:
+        mismatches += 1
+        print(f"Mismatch at PID {p}: incoming number {n} != v17 number {v17_num}")
+
+print(f"Overlap verification against v17: {mismatches} mismatches out of {len(df_overlap)} overlapping rows.")
+
+# Check continuous blocks in new rows + transition from v17
+v17_last_pid = df_v17['Period ID'].iloc[-1]
+v17_last_dt = get_dt_from_pid(v17_last_pid)
+print(f"\nMaster v17 last PID: {v17_last_pid} ({v17_last_dt.strftime('%Y-%m-%d %H:%M:%S')})")
+print(f"New data first PID:  {df_new['issueNumber'].iloc[0]} ({first_new_dt.strftime('%Y-%m-%d %H:%M:%S')})")
+gap_from_v17_sec = (first_new_dt - v17_last_dt).total_seconds()
+gap_from_v17_rounds = int(gap_from_v17_sec / 30.0) - 1
+print(f"Gap from v17 last row to new data: {gap_from_v17_sec}s = {gap_from_v17_rounds} missing rounds.")
+
+# Find internal gaps in df_new
+internal_gaps = []
+for i in range(1, len(df_new)):
+    dt1 = get_dt_from_pid(df_new['issueNumber'].iloc[i-1])
+    dt2 = get_dt_from_pid(df_new['issueNumber'].iloc[i])
+    diff = (dt2 - dt1).total_seconds()
+    if diff != 30.0:
+        missing = int(diff / 30.0) - 1
+        internal_gaps.append((df_new['issueNumber'].iloc[i-1], df_new['issueNumber'].iloc[i], diff, missing))
+
+print(f"\nInternal gaps within df_new: {len(internal_gaps)}")
+for g in internal_gaps[:10]:
+    print(f"  Gap: {g[0]} -> {g[1]} | {g[2]}s ({g[3]} missing rounds)")
+if len(internal_gaps) > 10:
+    print(f"  ... and {len(internal_gaps) - 10} more.")

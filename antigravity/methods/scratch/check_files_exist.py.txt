@@ -1,0 +1,7 @@
+import os
+
+p_v3 = r"project_reports\Colour_Prediction_Dataset_v3.xlsx"
+p_corr = r"project_reports\Colour_Prediction_Dataset_corrected.xlsx"
+
+print("V3 exists:", os.path.exists(p_v3), "Size:", os.path.getsize(p_v3) if os.path.exists(p_v3) else 0)
+print("Corrected exists:", os.path.exists(p_corr), "Size:", os.path.getsize(p_corr) if os.path.exists(p_corr) else 0)

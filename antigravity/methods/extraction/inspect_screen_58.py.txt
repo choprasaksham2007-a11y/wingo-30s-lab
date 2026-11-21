@@ -1,0 +1,9 @@
+import cv2, os, asyncio, winocr
+from PIL import Image
+
+f = r"extraction\extracted_zip\WhatsApp Image 2026-10-23 at 09.33.58 (1).jpeg"
+im = cv2.imread(f)
+res = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(im[:580], cv2.COLOR_BGR2RGB))))
+print("Top area of 09.33.58 (1).jpeg:")
+for l in res.lines:
+    print(" ", " ".join([w.text for w in l.words]))

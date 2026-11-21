@@ -1,0 +1,10 @@
+import openpyxl
+import os
+
+for path in [
+    r"project_reports\Colour_Prediction_Dataset.xlsx",
+    r"extraction\output\Colour_Prediction_Dataset.xlsx"
+]:
+    wb = openpyxl.load_workbook(path, data_only=True)
+    ws = wb["Raw_Data"]
+    print(f"{os.path.basename(path)} headers:", [c.value for c in ws[1]])

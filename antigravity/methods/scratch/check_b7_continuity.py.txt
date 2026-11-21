@@ -1,0 +1,24 @@
+import json
+
+with open(r"extraction\raw_obs_batch7.json", "r") as f:
+    obs = json.load(f)
+
+pids = sorted([int(p[-5:]) for p in obs.keys()])
+new_suffixes = [p for p in pids if p >= 51294]
+
+print(f"Total new rounds: {len(new_suffixes)}")
+print(f"Min new suffix: {min(new_suffixes)}, Max new suffix: {max(new_suffixes)}")
+
+# Check step diffs
+gaps = []
+for i in range(len(new_suffixes)-1):
+    diff = new_suffixes[i+1] - new_suffixes[i]
+    if diff != 1:
+        gaps.append((new_suffixes[i], new_suffixes[i+1], diff - 1))
+
+print(f"Gaps inside new rounds (51294 to 51518): {len(gaps)}")
+for g in gaps:
+    print(f"  Gap between {g[0]} and {g[1]}: missing {g[2]} rounds")
+
+# Also check continuity with last round of v7 (51293)
+print(f"Step from last v7 round (51293) to first new round ({new_suffixes[0]}): diff = {new_suffixes[0] - 51293}")

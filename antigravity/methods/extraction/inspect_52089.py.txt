@@ -1,0 +1,47 @@
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+import numpy as np
+import os
+
+zip_dir = r"extraction\extracted_zip"
+sources = ['WhatsApp Image 2026-10-23 at 09.33.58 (2).jpeg', 'WhatsApp Image 2026-10-23 at 09.33.59.jpeg', 'WhatsApp Image 2026-10-23 at 09.34.00 (1).jpeg', 'WhatsApp Image 2026-10-23 at 09.34.09 (1).jpeg']
+
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+def classify_number(num_crop):
+    best_digit = None
+    best_score = -1.0
+    for digit, tpl in templates.items():
+        res = cv2.matchTemplate(num_crop, tpl, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        if max_val > best_score:
+            best_score = max_val
+            best_digit = digit
+    return best_digit, best_score
+
+async def check_file(fname):
+    img = cv2.imread(os.path.join(zip_dir, fname))
+    pid_strip = img[580:1350, 45:280]
+    pil_pid = Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))
+    res_pid = await winocr.recognize_pil(pil_pid)
+    print(f"\n--- Checking {fname} ---")
+    for line in res_pid.lines:
+        txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+        if "52089" in txt:
+            # Word bounding rect
+            w0 = line.words[0]
+            # y in full image
+            y_full = 580 + w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+            yc = int(round(y_full))
+            print(f"PID '{txt}' found at y_full={y_full:.1f}")
+            num_crop = img[yc-20:yc+20, 345:385]
+            d, s = classify_number(num_crop)
+            print(f"  Classified Number={d} (score={s:.4f}) at yc={yc}")
+
+async def main():
+    for f in sources:
+        await check_file(f)
+
+asyncio.run(main())

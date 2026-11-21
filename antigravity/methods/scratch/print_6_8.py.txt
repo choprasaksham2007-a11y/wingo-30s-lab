@@ -1,0 +1,21 @@
+import cv2, numpy as np
+
+im = cv2.imread(r"extraction\extracted_zip_batch4\WhatsApp Image 2026-10-24 at 10.46.29 (2).jpeg")
+
+for yc in range(550, 1400, 10):
+    crop = im[yc-20:yc+20, 315:375]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords = np.argwhere(r_mask > 0)
+    if len(coords) > 20:
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        top_right = cv2.countNonZero(glyph[h//5:h//2, int(w*0.6):])
+        if top_right in [46, 28]:
+            print(f"yc={yc}, top_right={top_right}:")
+            for r in glyph:
+                print("".join(["#" if p > 0 else " " for p in r]))
+            print("-" * 30)

@@ -1,0 +1,48 @@
+import openpyxl
+
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+print("Workbook sheets:", wb.sheetnames)
+
+# Check Raw_Data
+ws_raw = wb['Raw_Data']
+total_rows = ws_raw.max_row - 1
+print(f"Total Raw_Data rows: {total_rows}")
+
+pids = []
+rule_violations = 0
+for r in range(2, ws_raw.max_row + 1):
+    pid = str(ws_raw.cell(row=r, column=2).value)
+    num = int(ws_raw.cell(row=r, column=4).value)
+    col = str(ws_raw.cell(row=r, column=5).value)
+    sz = str(ws_raw.cell(row=r, column=6).value)
+    pids.append(pid)
+    
+    exp_sz = 'Small' if num <= 4 else 'Big'
+    if num == 0: exp_col = 'Red+Violet'
+    elif num in (1, 3, 7, 9): exp_col = 'Green'
+    elif num in (2, 4, 6, 8): exp_col = 'Red'
+    elif num == 5: exp_col = 'Green+Violet'
+    
+    if col != exp_col or sz != exp_sz:
+        rule_violations += 1
+
+print(f"Unique PIDs: {len(set(pids)) == len(pids)}")
+print(f"All 17 digits: {all(len(p) == 17 for p in pids)}")
+print(f"Rule violations: {rule_violations}")
+
+# Check ML_Ready
+ws_ml = wb['ML_Ready']
+ml_rows = ws_ml.max_row - 1
+print(f"Total ML_Ready rows: {ml_rows}")
+
+# Check Missing_Rounds
+ws_gaps = wb['Missing_Rounds']
+gap_rows = ws_gaps.max_row - 1
+print(f"Total Gaps documented: {gap_rows}")
+
+# Check Summary
+ws_sum = wb['Summary']
+print("\nSummary Overview:")
+for row in ws_sum.iter_rows(values_only=True):
+    if any(row):
+        print(" ", [str(x) for x in row if x is not None])

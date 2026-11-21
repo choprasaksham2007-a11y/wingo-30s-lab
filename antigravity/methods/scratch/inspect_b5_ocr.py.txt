@@ -1,0 +1,15 @@
+import cv2, os, asyncio, winocr
+from PIL import Image
+
+async def inspect_rows():
+    im = cv2.imread(r"extraction\extracted_zip_batch5\WhatsApp Image 2026-10-24 at 11.50.39.jpeg")
+    pid_strip = im[500:1450, 20:300]
+    res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+    
+    for l in res_pid.lines:
+        txt = " ".join([w.text for w in l.words])
+        y = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0 + 500
+        print(f"y={y:.1f}: {txt}")
+
+if __name__ == '__main__':
+    asyncio.run(inspect_rows())

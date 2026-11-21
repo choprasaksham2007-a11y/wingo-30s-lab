@@ -1,0 +1,23 @@
+import cv2, numpy as np
+
+im = cv2.imread(r"extraction\extracted_zip_batch5\WhatsApp Image 2026-10-24 at 11.50.39.jpeg")
+
+# Row 1: y=850.5 (PID 50650)
+yc = 850
+crop = im[yc-20:yc+20, 250:500]
+
+hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+# Mask for green and red:
+mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255])) | \
+       cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | \
+       cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+
+coords = np.argwhere(mask > 0)
+print(f"Mask pixels: {len(coords)}")
+min_y, min_x = coords.min(axis=0)
+max_y, max_x = coords.max(axis=0)
+print(f"min_x={min_x} (abs {250+min_x}), max_x={max_x} (abs {250+max_x})")
+
+# Let's print ASCII art of this region:
+for r in mask[:, min_x:max_x+1]:
+    print("".join(["#" if p > 0 else " " for p in r]))

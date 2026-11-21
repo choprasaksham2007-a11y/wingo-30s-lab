@@ -1,0 +1,454 @@
+{
+  "20261022100052109": {
+    "info": {
+      "colour": "Red",
+      "number": 7,
+      "period_id": "20261022100052109",
+      "seq": 528,
+      "size": "Big",
+      "timestamp": "2026-10-22 23:04:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.00 (3).jpeg",
+        "line_txt": "20261022100052109",
+        "y_full": 1293.5
+      },
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.08 (2).jpeg",
+        "line_txt": "20261022100052109",
+        "y_full": 1083.0
+      }
+    ]
+  },
+  "20261022100052179": {
+    "info": {
+      "colour": "Red",
+      "number": 7,
+      "period_id": "20261022100052179",
+      "seq": 598,
+      "size": "Big",
+      "timestamp": "2026-10-22 23:39:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.03.jpeg",
+        "line_txt": "20261022100052179",
+        "y_full": 1217.0
+      }
+    ]
+  },
+  "20261022100052229": {
+    "info": {
+      "colour": "Red",
+      "number": 3,
+      "period_id": "20261022100052229",
+      "seq": 647,
+      "size": "Small",
+      "timestamp": "2026-10-23 00:04:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.04 (2).jpeg",
+        "line_txt": "20261022100052229",
+        "y_full": 1231.5
+      }
+    ]
+  },
+  "20261022100052259": {
+    "info": {
+      "colour": "Red",
+      "number": 9,
+      "period_id": "20261022100052259",
+      "seq": 677,
+      "size": "Big",
+      "timestamp": "2026-10-23 00:19:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.05 (1).jpeg",
+        "line_txt": "20261022100052259",
+        "y_full": 1228.0
+      },
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.06.jpeg",
+        "line_txt": "20261022100052259",
+        "y_full": 1151.0
+      }
+    ]
+  },
+  "20261022100052277": {
+    "info": {
+      "colour": "Red",
+      "number": 3,
+      "period_id": "20261022100052277",
+      "seq": 695,
+      "size": "Small",
+      "timestamp": "2026-10-23 00:28:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.06 (2).jpeg",
+        "line_txt": "20261022100052277",
+        "y_full": 1293.5
+      }
+    ]
+  },
+  "20261022100052278": {
+    "info": {
+      "colour": "Red",
+      "number": 7,
+      "period_id": "20261022100052278",
+      "seq": 696,
+      "size": "Big",
+      "timestamp": "2026-10-23 00:29:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.06 (2).jpeg",
+        "line_txt": "20261022100052278",
+        "y_full": 1217.0
+      }
+    ]
+  },
+  "20261022100052298": {
+    "info": {
+      "colour": "Red",
+      "number": 9,
+      "period_id": "20261022100052298",
+      "seq": 716,
+      "size": "Big",
+      "timestamp": "2026-10-23 00:39:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.34.07 (1).jpeg",
+        "line_txt": "20261022100052298",
+        "y_full": 1217.0
+      }
+    ]
+  },
+  "20261022100052356": {
+    "info": {
+      "colour": "Red",
+      "number": 3,
+      "period_id": "20261022100052356",
+      "seq": 773,
+      "size": "Small",
+      "timestamp": "2026-10-23 01:08:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.56 (2).jpeg",
+        "line_txt": "20261022100052356",
+        "y_full": 1224.0
+      }
+    ]
+  },
+  "20261022100052844": {
+    "info": {
+      "colour": "Red",
+      "number": 7,
+      "period_id": "20261022100052844",
+      "seq": 876,
+      "size": "Big",
+      "timestamp": "2026-10-23 05:12:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.28 (1).jpeg",
+        "line_txt": "20261022100052844",
+        "y_full": 1229.0
+      }
+    ]
+  },
+  "20261022100052853": {
+    "info": {
+      "colour": "Red",
+      "number": 1,
+      "period_id": "20261022100052853",
+      "seq": 885,
+      "size": "Small",
+      "timestamp": "2026-10-23 05:16:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.28 (2).jpeg",
+        "line_txt": "20261022100052853",
+        "y_full": 1229.0
+      }
+    ]
+  },
+  "20261022100052863": {
+    "info": {
+      "colour": "Red",
+      "number": 1,
+      "period_id": "20261022100052863",
+      "seq": 895,
+      "size": "Small",
+      "timestamp": "2026-10-23 05:21:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.29.jpeg",
+        "line_txt": "20261022100052863",
+        "y_full": 1229.0
+      }
+    ]
+  },
+  "20261022100052873": {
+    "info": {
+      "colour": "Red",
+      "number": 3,
+      "period_id": "20261022100052873",
+      "seq": 905,
+      "size": "Small",
+      "timestamp": "2026-10-23 05:26:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.41.jpeg",
+        "line_txt": "20261022100052873",
+        "y_full": 1229.0
+      }
+    ]
+  },
+  "20261023100050003": {
+    "info": {
+      "colour": "Red",
+      "number": 1,
+      "period_id": "20261023100050003",
+      "seq": 915,
+      "size": "Small",
+      "timestamp": "2026-10-23 05:31:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.41 (1).jpeg",
+        "line_txt": "20261023100050003",
+        "y_full": 1229.0
+      }
+    ]
+  },
+  "20261023100050043": {
+    "info": {
+      "colour": "Red",
+      "number": 9,
+      "period_id": "20261023100050043",
+      "seq": 955,
+      "size": "Big",
+      "timestamp": "2026-10-23 05:51:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.43.jpeg",
+        "line_txt": "20261023100050043",
+        "y_full": 1217.0
+      }
+    ]
+  },
+  "20261023100050053": {
+    "info": {
+      "colour": "Red",
+      "number": 7,
+      "period_id": "20261023100050053",
+      "seq": 965,
+      "size": "Big",
+      "timestamp": "2026-10-23 05:56:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.43 (1).jpeg",
+        "line_txt": "20261023100050053",
+        "y_full": 1217.0
+      }
+    ]
+  },
+  "20261023100050063": {
+    "info": {
+      "colour": "Red",
+      "number": 7,
+      "period_id": "20261023100050063",
+      "seq": 975,
+      "size": "Big",
+      "timestamp": "2026-10-23 06:01:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.43 (2).jpeg",
+        "line_txt": "20261023100050063",
+        "y_full": 1217.0
+      }
+    ]
+  },
+  "20261023100050073": {
+    "info": {
+      "colour": "Red",
+      "number": 3,
+      "period_id": "20261023100050073",
+      "seq": 985,
+      "size": "Small",
+      "timestamp": "2026-10-23 06:06:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.44.jpeg",
+        "line_txt": "20261023100050073",
+        "y_full": 1217.0
+      }
+    ]
+  },
+  "20261023100050104": {
+    "info": {
+      "colour": "Red",
+      "number": 7,
+      "period_id": "20261023100050104",
+      "seq": 1006,
+      "size": "Big",
+      "timestamp": "2026-10-23 06:22:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.45.jpeg",
+        "line_txt": "20261023100050104",
+        "y_full": 1099.0
+      }
+    ]
+  },
+  "20261023100050124": {
+    "info": {
+      "colour": "Red+Violet",
+      "number": 5,
+      "period_id": "20261023100050124",
+      "seq": 1026,
+      "size": "Big",
+      "timestamp": "2026-10-23 06:32:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.45 (2).jpeg",
+        "line_txt": "20261023100050124",
+        "y_full": 1099.0
+      }
+    ]
+  },
+  "20261023100050134": {
+    "info": {
+      "colour": "Red",
+      "number": 1,
+      "period_id": "20261023100050134",
+      "seq": 1036,
+      "size": "Small",
+      "timestamp": "2026-10-23 06:37:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.46.jpeg",
+        "line_txt": "20261023100050134",
+        "y_full": 1099.0
+      }
+    ]
+  },
+  "20261023100050273": {
+    "info": {
+      "colour": "Red",
+      "number": 1,
+      "period_id": "20261023100050273",
+      "seq": 1095,
+      "size": "Small",
+      "timestamp": "2026-10-23 07:46:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.47 (2).jpeg",
+        "line_txt": "20261023100050273",
+        "y_full": 1083.0
+      }
+    ]
+  },
+  "20261023100050283": {
+    "info": {
+      "colour": "Red",
+      "number": 3,
+      "period_id": "20261023100050283",
+      "seq": 1105,
+      "size": "Small",
+      "timestamp": "2026-10-23 07:51:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.48.jpeg",
+        "line_txt": "20261023100050283",
+        "y_full": 1083.0
+      }
+    ]
+  },
+  "20261023100050301": {
+    "info": {
+      "colour": "Red",
+      "number": 3,
+      "period_id": "20261023100050301",
+      "seq": 1123,
+      "size": "Small",
+      "timestamp": "2026-10-23 08:00:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.48 (2).jpeg",
+        "line_txt": "20261023100050301",
+        "y_full": 1227.0
+      }
+    ]
+  },
+  "20261023100050341": {
+    "info": {
+      "colour": "Red",
+      "number": 7,
+      "period_id": "20261023100050341",
+      "seq": 1163,
+      "size": "Big",
+      "timestamp": "2026-10-23 08:20:30"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.50 (1).jpeg",
+        "line_txt": "20261023100050341",
+        "y_full": 1226.0
+      }
+    ]
+  },
+  "20261023100050400": {
+    "info": {
+      "colour": "Red",
+      "number": 1,
+      "period_id": "20261023100050400",
+      "seq": 1222,
+      "size": "Small",
+      "timestamp": "2026-10-23 08:50:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.52.jpeg",
+        "line_txt": "20261023100050400",
+        "y_full": 1226.0
+      }
+    ]
+  },
+  "20261023100050410": {
+    "info": {
+      "colour": "Red",
+      "number": 1,
+      "period_id": "20261023100050410",
+      "seq": 1232,
+      "size": "Small",
+      "timestamp": "2026-10-23 08:55:00"
+    },
+    "sources": [
+      {
+        "file": "WhatsApp Image 2026-10-23 at 09.33.52 (1).jpeg",
+        "line_txt": "20261023100050410",
+        "y_full": 1226.0
+      }
+    ]
+  }
+}

@@ -1,0 +1,11 @@
+import hashlib
+import os
+
+brain_dir = r"project_reports"
+files = ['Colour_Prediction_Dataset_v18.xlsx', 'colour_raw_data_v18.csv', 'colour_ml_ready_v18.csv']
+
+for f in files:
+    p = os.path.join(brain_dir, f)
+    h = hashlib.sha256(open(p, 'rb').read()).hexdigest()
+    sz = os.path.getsize(p)
+    print(f"{f} ({sz:,} bytes): {h}")

@@ -1,0 +1,37 @@
+import cv2, os, asyncio, winocr
+from PIL import Image
+
+old_dir = r"extraction\extracted_zip"
+new_dir = r"extraction\extracted_zip_batch2"
+
+target_pids = ['20261023100050429', '20261023100050430', '20261023100050431', '20261023100050435']
+
+for pid in target_pids:
+    print(f"\n=================== INSPECTING PID {pid} ===================")
+    # Search in old dir
+    for d_name, d_path in [("OLD BATCH", old_dir), ("NEW BATCH", new_dir)]:
+        for fname in sorted(os.listdir(d_path)):
+            if not fname.endswith(".jpeg"):
+                continue
+            fpath = os.path.join(d_path, fname)
+            im = cv2.imread(fpath)
+            pid_strip = im[550:1400, 30:290]
+            res_pid = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))))
+            found = False
+            for l in res_pid.lines:
+                txt = ''.join([w.text.strip() for w in l.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+                if pid in txt:
+                    w0 = l.words[0]
+                    yc = int(round(550 + w0.bounding_rect.y + w0.bounding_rect.height / 2.0))
+                    # OCR size and number
+                    bs_crop = im[yc-20:yc+20, 440:530]
+                    num_crop = im[yc-20:yc+20, 340:390]
+                    res_bs = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_crop, cv2.COLOR_BGR2RGB))))
+                    res_num = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(num_crop, cv2.COLOR_BGR2RGB))))
+                    bs_txt = ' '.join([w.text for line in res_bs.lines for w in line.words])
+                    num_txt = ' '.join([w.text for line in res_num.lines for w in line.words])
+                    print(f"[{d_name}] File {fname} at yc={yc}: Num OCR='{num_txt}', Size OCR='{bs_txt}'")
+                    found = True
+                    break
+            if found:
+                break

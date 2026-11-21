@@ -1,0 +1,29 @@
+import os
+import shutil
+import csv
+import openpyxl
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_corrected.xlsx"
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+
+# 1. Export Raw_Data CSV
+ws_raw = wb["Raw_Data"]
+raw_csv_path = r"extraction\output\colour_raw_data_corrected.csv"
+with open(raw_csv_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    for row in ws_raw.iter_rows(values_only=True):
+        writer.writerow(list(row))
+
+shutil.copy2(raw_csv_path, r"project_reports\colour_raw_data_corrected.csv")
+
+# 2. Export ML_Ready CSV
+ws_ml = wb["ML_Ready"]
+ml_csv_path = r"extraction\output\colour_ml_ready_corrected.csv"
+with open(ml_csv_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    for row in ws_ml.iter_rows(values_only=True):
+        writer.writerow(list(row))
+
+shutil.copy2(ml_csv_path, r"project_reports\colour_ml_ready_corrected.csv")
+
+print("Exported corrected CSVs successfully.")

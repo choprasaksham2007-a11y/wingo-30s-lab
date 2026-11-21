@@ -1,0 +1,36 @@
+import json, os, cv2, numpy as np
+
+b9_dir = r"extraction\extracted_zip_batch9"
+with open(r"extraction\raw_obs_batch9.json", "r") as f:
+    obs = json.load(f)
+
+new_pids = sorted([p for p in obs.keys() if int(p[-5:]) >= 51840])
+
+for pid in new_pids:
+    items = obs[pid]
+    it = items[0]
+    fname = it['file']
+    yc = it['yc']
+    im = cv2.imread(os.path.join(b9_dir, fname))
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    coords = np.argwhere(r_mask > 0)
+    if len(coords) < 15: continue
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+    h, w = glyph.shape
+    top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+    tr_fill = cv2.countNonZero(top_right_box)
+    box_area = top_right_box.shape[0] * top_right_box.shape[1]
+    pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+    contours, hierarchy = cv2.findContours(glyph.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+    num_holes = len(contours) - 1 if contours else 0
+    
+    if it['digit'] == 8 and pct < 50:
+        print(f"PID {pid}: digit=8, pct={pct:.1f}%, holes={num_holes}, note={it['note']}, file={fname}, yc={yc}")
+        # Print ASCII
+        print(f"Shape: {glyph.shape}")
+        for row in glyph:
+            print("".join(["#" if p > 0 else "." for p in row]))

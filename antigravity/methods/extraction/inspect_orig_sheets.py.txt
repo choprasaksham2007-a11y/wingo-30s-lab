@@ -1,0 +1,13 @@
+import openpyxl
+
+excel_path = r"project_reports\inputs\input_9f7c60764d.xlsx"
+wb = openpyxl.load_workbook(excel_path)
+
+print("--- SHEET ANALYSIS OF USER'S UPLOADED WORKBOOK ---")
+for name in wb.sheetnames:
+    ws = wb[name]
+    print(f"\nSheet: {name}")
+    print(f"Dimensions: {ws.dimensions}, max_row: {ws.max_row}, max_col: {ws.max_column}")
+    rows = list(ws.iter_rows(values_only=True))
+    for r_idx, r in enumerate(rows[:5]):
+        print(f"  Row {r_idx+1}: {r[:8]}")

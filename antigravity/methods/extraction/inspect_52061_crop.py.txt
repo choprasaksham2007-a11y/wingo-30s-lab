@@ -1,0 +1,27 @@
+import cv2
+import numpy as np
+
+img = cv2.imread(r"extraction\extracted_zip\WhatsApp Image 2026-10-23 at 09.33.58 (1).jpeg")
+
+# Find line for 52061
+import asyncio
+from PIL import Image
+import winocr
+
+async def main():
+    pid_strip = img[580:1350, 45:280]
+    res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+    for line in res.lines:
+        txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0")
+        if "52061" in txt:
+            w0 = line.words[0]
+            y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+            yc = int(round(580 + y_rel))
+            dot_crop = img[yc-25:yc+25, 600:670]
+            # print color counts
+            hsv = cv2.cvtColor(dot_crop, cv2.COLOR_BGR2HSV)
+            g_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255])))
+            r_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255])))
+            print(f"52061 in {txt}: yc={yc}, Green={g_cnt}, Red={r_cnt}")
+
+asyncio.run(main())

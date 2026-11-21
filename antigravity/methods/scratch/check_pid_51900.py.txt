@@ -1,0 +1,26 @@
+import cv2, os, winocr, asyncio
+from PIL import Image
+
+fname = "WhatsApp Image 2026-10-24 at 22.29.35 (1).jpeg"
+im_path = os.path.join(r"extraction\extracted_zip_batch9", fname)
+im = cv2.imread(im_path)
+
+# Let's inspect yc = 450 + 791 + 10 = 1251
+yc = 1251
+
+# Crop PID
+crop_pid = im[yc-20:yc+20, 10:320]
+# Crop Number
+crop_num = im[yc-20:yc+20, 315:385]
+# Crop BS
+crop_bs = im[yc-20:yc+20, 420:530]
+
+async def check():
+    res_p = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(crop_pid, cv2.COLOR_BGR2RGB)))
+    res_n = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(crop_num, cv2.COLOR_BGR2RGB)))
+    res_b = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(crop_bs, cv2.COLOR_BGR2RGB)))
+    print("PID text:", [w.text for l in res_p.lines for w in l.words])
+    print("Num text:", [w.text for l in res_n.lines for w in l.words])
+    print("BS text:", [w.text for l in res_b.lines for w in l.words])
+
+asyncio.run(check())

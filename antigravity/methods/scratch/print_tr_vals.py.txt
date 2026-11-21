@@ -1,0 +1,8 @@
+import json
+
+with open(r"scratch\audit_81_results.json", "r") as f:
+    res = json.load(f)
+
+print("Sample 15 entries with avg_tr:")
+for r in res[:15]:
+    print(f"Seq {r['seq']}, PID {r['pid']}: avg_tr = {r.get('avg_tr', 0):.1f}, votes: {[v['tr_fill'] for v in r.get('votes', [])]}")

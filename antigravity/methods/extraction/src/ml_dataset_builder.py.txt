@@ -1,0 +1,98 @@
+"""
+Builds the ML-ready dataset with strict 5-round chronological lag features,
+preventing data leakage and filtering out incomplete or unverified rounds.
+"""
+from typing import List, Dict, Any
+from src.schema import ReconciledRecord
+
+def is_consecutive_period(pid_a: str, pid_b: str) -> bool:
+    """
+    Checks if pid_b immediately follows pid_a (exactly 30 seconds later).
+    Handles standard intra-day sequence (e.g. 51582 -> 51583)
+    and day rollover (e.g. 20261022100052880 -> 20261023100050001).
+    """
+    d_a, d_b = pid_a[:8], pid_b[:8]
+    s_a, s_b = int(pid_a[-5:]), int(pid_b[-5:])
+    
+    if d_a == d_b:
+        return (s_b - s_a) == 1
+    elif d_a == "20261022" and d_b == "20261023":
+        return s_a == 52880 and s_b == 50001
+    return False
+
+def build_ml_dataset(records: List[ReconciledRecord]) -> List[Dict[str, Any]]:
+    """
+    Constructs ML training examples where:
+      Features: rounds t-1, t-2, t-3, t-4, t-5 (ordered immediate preceding to 5th preceding)
+      Target: round t (current period_id, number, colour, size)
+    
+    Filters:
+      - Requires 5 preceding consecutive, verified rounds.
+      - Discards any round where target or any lag feature is UNKNOWN, None, or CONFLICT.
+      - Validates that Period IDs are continuous (no gaps in chronological rounds).
+    """
+    # Sort chronologically: 20261022 before 20261023, then by suffix
+    sorted_records = sorted(records, key=lambda x: (x.period_id[:8], int(x.period_id[-5:])))
+    
+    ml_rows = []
+    
+    for i in range(5, len(sorted_records)):
+        target_rec = sorted_records[i]
+        
+        # Check target validity
+        if target_rec.overall_verification == "CONFLICT":
+            continue
+        if target_rec.number is None or target_rec.colour in (None, "UNKNOWN") or target_rec.big_small is None:
+            continue
+            
+        # Get preceding 5 rounds (lags: t-1, t-2, t-3, t-4, t-5)
+        lags = [sorted_records[i - k] for k in range(1, 6)]
+        
+        # Validate that all 5 lags are complete and valid
+        valid = True
+        for lag in lags:
+            if lag.overall_verification == "CONFLICT":
+                valid = False
+                break
+            if lag.number is None or lag.colour in (None, "UNKNOWN") or lag.big_small is None:
+                valid = False
+                break
+        if not valid:
+            continue
+            
+        # Check continuity across window: [i-5, i-4, i-3, i-2, i-1, i]
+        has_gap = False
+        window = [sorted_records[i - k] for k in range(5, -1, -1)]
+        for w_idx in range(len(window) - 1):
+            pid_prev = window[w_idx].period_id
+            pid_next = window[w_idx + 1].period_id
+            if not is_consecutive_period(pid_prev, pid_next):
+                has_gap = True
+                break
+        if has_gap:
+            continue
+            
+        row_dict = {
+            "period_id": str(target_rec.period_id),
+            "previous_1_number": lags[0].number,
+            "previous_2_number": lags[1].number,
+            "previous_3_number": lags[2].number,
+            "previous_4_number": lags[3].number,
+            "previous_5_number": lags[4].number,
+            "previous_1_colour": lags[0].colour,
+            "previous_2_colour": lags[1].colour,
+            "previous_3_colour": lags[2].colour,
+            "previous_4_colour": lags[3].colour,
+            "previous_5_colour": lags[4].colour,
+            "previous_1_size": lags[0].big_small,
+            "previous_2_size": lags[1].big_small,
+            "previous_3_size": lags[2].big_small,
+            "previous_4_size": lags[3].big_small,
+            "previous_5_size": lags[4].big_small,
+            "target_number": target_rec.number,
+            "target_colour": target_rec.colour,
+            "target_size": target_rec.big_small
+        }
+        ml_rows.append(row_dict)
+        
+    return ml_rows

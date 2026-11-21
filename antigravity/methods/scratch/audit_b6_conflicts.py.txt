@@ -1,0 +1,42 @@
+import json, cv2, os, winocr, asyncio, sys
+import numpy as np
+from PIL import Image
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b6_dir = r"extraction\extracted_zip_batch6"
+
+with open(r"extraction\raw_obs_batch6.json", "r") as f:
+    obs = json.load(f)
+
+conflicts = [p for p in sorted(obs.keys()) if len(set(o['digit'] for o in obs[p])) > 1]
+print(f"Total conflicts to audit: {len(conflicts)}")
+
+async def audit_conflicts():
+    for p in conflicts:
+        print(f"\n================ AUDITING PID {p} ================")
+        o_list = obs[p]
+        for item in o_list:
+            fname = item['file']
+            yc = item['yc']
+            img = cv2.imread(os.path.join(b6_dir, fname))
+            
+            num_crop = img[yc-18:yc+18, 325:365]
+            res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(num_crop, cv2.COLOR_BGR2RGB)))
+            ocr_txt = "".join([w.text.strip() for line in res.lines for w in line.words])
+            
+            hsv = cv2.cvtColor(num_crop, cv2.COLOR_BGR2HSV)
+            g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+            r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+            mask = g_mask if cv2.countNonZero(g_mask) > cv2.countNonZero(r_mask) else r_mask
+            coords = np.argwhere(mask > 0)
+            if len(coords) > 0:
+                min_y, min_x = coords.min(axis=0)
+                max_y, max_x = coords.max(axis=0)
+                w = max_x - min_x + 1
+                h = max_y - min_y + 1
+            else:
+                w, h = 0, 0
+            print(f"File {fname} (yc={yc}): OCR='{ocr_txt}', w={w}, h={h}, classifier_digit={item['digit']}, note={item['note']}")
+
+asyncio.run(audit_conflicts())

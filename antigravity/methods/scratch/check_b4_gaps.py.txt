@@ -1,0 +1,44 @@
+import asyncio
+from scan_batch4 import scan_batch4_pids
+
+async def check():
+    pids, file_pids = await scan_batch4_pids()
+    suffixes = [int(p[-5:]) for p in pids]
+    
+    missing = []
+    min_s = suffixes[0]
+    max_s = suffixes[-1]
+    
+    s_set = set(suffixes)
+    for s in range(min_s, max_s + 1):
+        if s not in s_set:
+            missing.append(s)
+            
+    print(f"Suffix range: {min_s} to {max_s} (Total expected if unbroken: {max_s - min_s + 1})")
+    print(f"Total present: {len(suffixes)}")
+    print(f"Total missing: {len(missing)}")
+    print("Missing suffixes:", missing)
+    
+    # Check consecutive gaps
+    gaps = []
+    gap_start = None
+    prev = None
+    for s in missing:
+        if gap_start is None:
+            gap_start = s
+            prev = s
+        elif s == prev + 1:
+            prev = s
+        else:
+            gaps.append((gap_start, prev, prev - gap_start + 1))
+            gap_start = s
+            prev = s
+    if gap_start is not None:
+        gaps.append((gap_start, prev, prev - gap_start + 1))
+        
+    print("Grouped gaps in Batch 4:")
+    for g in gaps:
+        print(f"  {g[0]} to {g[1]} ({g[2]} rounds)")
+
+if __name__ == '__main__':
+    asyncio.run(check())

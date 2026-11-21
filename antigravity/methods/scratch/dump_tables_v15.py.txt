@@ -1,0 +1,55 @@
+import openpyxl
+from datetime import datetime
+
+wb = openpyxl.load_workbook(r'project_reports\Colour_Prediction_Dataset_v15.xlsx', data_only=True)
+ws_raw = wb['Raw_Data']
+ws_gaps = wb['Missing_Rounds']
+
+raw_pids = [str(ws_raw.cell(row=r, column=2).value) for r in range(2, ws_raw.max_row + 1)]
+timestamps = [str(ws_raw.cell(row=r, column=3).value) for r in range(2, ws_raw.max_row + 1)]
+
+blocks = []
+cur_block = [0]
+for i in range(1, len(raw_pids)):
+    p1, p2 = raw_pids[i-1], raw_pids[i]
+    d1, d2 = p1[:8], p2[:8]
+    r1, r2 = int(p1[-5:]) - 50000, int(p2[-5:]) - 50000
+    
+    is_step = False
+    if d1 == d2 and r2 == r1 + 1:
+        is_step = True
+    elif r1 == 2880 and r2 == 1:
+        is_step = True
+        
+    if is_step:
+        cur_block.append(i)
+    else:
+        blocks.append(cur_block)
+        cur_block = [i]
+blocks.append(cur_block)
+
+print(f"Total Blocks: {len(blocks)}")
+
+with open(r'scratch\tables_v15.txt', 'w', encoding='utf-8') as f:
+    f.write('## BLOCKS:\n\n')
+    f.write('| Block ID | Sequence Range | Round Count | Period ID Range | Timestamp Range (IST) |\n')
+    f.write('| :---: | :---: | :---: | :---: | :---: |\n')
+    for b_idx, b in enumerate(blocks, 1):
+        min_seq = b[0] + 1
+        max_seq = b[-1] + 1
+        count = len(b)
+        min_pid = raw_pids[b[0]]
+        max_pid = raw_pids[b[-1]]
+        min_t = timestamps[b[0]]
+        max_t = timestamps[b[-1]]
+        f.write(f"| **Block {b_idx:02d}** | `{min_seq} .. {max_seq}` | {count:,} | `{min_pid}` .. `{max_pid}` | `{min_t}` -> `{max_t}` |\n")
+
+    f.write('\n\n## GAPS:\n\n')
+    f.write('| Gap # | Preceding Round | Preceding Time | Resuming Round | Resuming Time | Missing Rounds | Duration |\n')
+    f.write('| :---: | :---: | :---: | :---: | :---: | :---: | :---: |\n')
+    gaps = list(ws_gaps.iter_rows(min_row=2, values_only=True))
+    for row in gaps:
+        gid, p_pid, p_t, r_pid, r_t, miss, dur = row[0], str(row[1]), row[2], str(row[3]), row[4], row[5], row[6]
+        f.write(f"| **Gap {gid:02d}** | `{p_pid}` | `{p_t}` | `{r_pid}` | `{r_t}` | {miss:,} | {dur} |\n")
+
+print("Tables written successfully.")

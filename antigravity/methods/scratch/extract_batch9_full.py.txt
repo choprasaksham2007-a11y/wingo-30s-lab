@@ -1,0 +1,205 @@
+import os, glob, cv2, asyncio, json, re, sys
+import numpy as np
+from PIL import Image
+import winocr
+from collections import defaultdict, Counter
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+b9_dir = r"extraction\extracted_zip_batch9"
+output_dir = r"extraction"
+
+def classify_glyph(im, yc, bs_val):
+    crop = im[yc-22:yc+22, 320:385]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    # 1. Dual-color 0 and 5
+    if v_cnt > 35:
+        if g_cnt > 35:
+            return 5, "Green+Violet", "Big", f"v={v_cnt}, g={g_cnt}"
+        else:
+            return 0, "Red+Violet", "Small", f"v={v_cnt}, r={r_cnt}"
+            
+    is_green = (g_cnt > r_cnt)
+    
+    if is_green:
+        coords = np.argwhere(g_mask > 0)
+        if len(coords) < 15:
+            return None, "Green", bs_val, "noise"
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = g_mask[min_y:max_y+1, min_x:max_x+1]
+        
+        if h < 20:
+            return None, "Green", bs_val, f"clipped_h={h}"
+            
+        if bs_val == "Small":
+            # 1 vs 3: 1 width <= 17, 3 width >= 19
+            if w <= 17:
+                return 1, "Green", "Small", f"w={w}"
+            else:
+                return 3, "Green", "Small", f"w={w}"
+        elif bs_val == "Big":
+            # 7 vs 9: 9 has closed top loop (tl > 15), 7 is open (tl <= 10)
+            top_left = cv2.countNonZero(glyph[h//5:h//2, :int(w*0.4)])
+            if top_left > 15:
+                return 9, "Green", "Big", f"tl={top_left}"
+            else:
+                return 7, "Green", "Big", f"tl={top_left}"
+        else:
+            if w <= 17:
+                return 1, "Green", "Small", f"w={w}"
+            top_left = cv2.countNonZero(glyph[h//5:h//2, :int(w*0.4)])
+            if top_left > 15:
+                return 9, "Green", "Big", f"tl={top_left}"
+            else:
+                return 7, "Green", "Big", f"tl={top_left}"
+    else:
+        coords = np.argwhere(r_mask > 0)
+        if len(coords) < 15:
+            return None, "Red", bs_val, "noise"
+        min_y, min_x = coords.min(axis=0)
+        max_y, max_x = coords.max(axis=0)
+        w = max_x - min_x + 1
+        h = max_y - min_y + 1
+        glyph = r_mask[min_y:max_y+1, min_x:max_x+1]
+        
+        if h < 20:
+            return None, "Red", bs_val, f"clipped_h={h}"
+            
+        if bs_val == "Small":
+            # 2 vs 4: 2 has bottom-left baseline
+            bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+            if bot_left > 22:
+                return 2, "Red", "Small", f"bl={bot_left}"
+            else:
+                return 4, "Red", "Small", f"bl={bot_left}"
+        elif bs_val == "Big":
+            # 6 vs 8: upper-right quadrant percentage
+            top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+            tr_fill = cv2.countNonZero(top_right_box)
+            box_area = top_right_box.shape[0] * top_right_box.shape[1]
+            pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+            
+            contours, hierarchy = cv2.findContours(glyph.copy(), cv2.RETR_CCOMP, cv2.CHAIN_APPROX_SIMPLE)
+            num_holes = len(contours) - 1 if contours else 0
+            
+            # In 8, upper-right quadrant is closed loop (pct > 50%)
+            # In 6, upper-right is open (pct < 35%)
+            if pct > 45.0 or (pct > 35.0 and num_holes >= 2):
+                return 8, "Red", "Big", f"tr_pct={pct:.1f}%, holes={num_holes}"
+            else:
+                return 6, "Red", "Big", f"tr_pct={pct:.1f}%, holes={num_holes}"
+        else:
+            bot_left = cv2.countNonZero(glyph[int(h*0.75):, :int(w*0.5)])
+            top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+            tr_fill = cv2.countNonZero(top_right_box)
+            box_area = top_right_box.shape[0] * top_right_box.shape[1]
+            pct = (tr_fill / box_area * 100.0) if box_area > 0 else 0
+            if pct > 35.0:
+                return 8, "Red", "Big", f"tr_pct={pct:.1f}%"
+            elif bot_left > 22:
+                return 2, "Red", "Small", f"bl={bot_left}"
+            else:
+                return 4, "Red", "Small", f"bl={bot_left}"
+
+async def process_all_files():
+    files = sorted(glob.glob(os.path.join(b9_dir, "*.jpeg")))
+    print(f"Processing {len(files)} files in Batch 9...")
+    obs_by_pid = defaultdict(list)
+    
+    for f in files:
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        if im is None: continue
+        h_im, w_im, _ = im.shape
+        
+        # 1. OCR Period IDs (x=10..320, y=450..1450)
+        pid_strip = im[450:1450, 10:320]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        
+        # 2. OCR Big/Small tags (x=420..530, y=450..1450)
+        bs_strip = im[450:1450, 420:530]
+        res_bs = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB)))
+        bs_items = []
+        for l in res_bs.lines:
+            txt = " ".join([w.text.strip() for w in l.words])
+            if "Big" in txt or "Small" in txt or "sma" in txt.lower():
+                val = "Small" if ("Small" in txt or "sma" in txt.lower()) else "Big"
+                y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+                bs_items.append((y_c, val))
+                
+        # 3. OCR direct Number column (x=315..375, y=450..1450)
+        num_strip = im[450:1450, 315:375]
+        res_num = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(num_strip, cv2.COLOR_BGR2RGB)))
+        num_items = []
+        for l in res_num.lines:
+            txt = "".join([w.text.strip() for w in l.words]).replace('o', '0').replace('O', '0').replace('D', '0')
+            y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+            for ch in txt:
+                if ch.isdigit():
+                    num_items.append((y_c, int(ch)))
+                    break
+                    
+        # Match lines
+        for line in res_pid.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0').replace('D', '0').replace('g', '9').replace('q', '9')
+            for i in range(len(txt)-16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith('202610241000'):
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    yc = int(round(450 + y_rel))
+                    
+                    # Match BS
+                    best_bs = None
+                    min_d = 999.0
+                    for b_y, b_val in bs_items:
+                        dist = abs(b_y - y_rel)
+                        if dist < min_d and dist < 35:
+                            min_d = dist
+                            best_bs = b_val
+                            
+                    # Match OCR Num
+                    ocr_d = None
+                    min_nd = 999.0
+                    for n_y, n_val in num_items:
+                        dist = abs(n_y - y_rel)
+                        if dist < min_nd and dist < 25:
+                            min_nd = dist
+                            ocr_d = n_val
+                            
+                    best_d, col, sz, note = classify_glyph(im, yc, best_bs)
+                    if best_d is not None:
+                        obs_by_pid[chunk].append({
+                            "file": fname,
+                            "digit": best_d,
+                            "col": col,
+                            "size": sz,
+                            "note": note,
+                            "bs_ocr": best_bs,
+                            "ocr_digit": ocr_d,
+                            "yc": yc
+                        })
+                    break
+
+    return obs_by_pid
+
+if __name__ == '__main__':
+    obs = asyncio.run(process_all_files())
+    print(f"\nTotal unique Period IDs observed: {len(obs)}")
+    
+    with open(os.path.join(output_dir, "raw_obs_batch9.json"), "w") as f:
+        json.dump(obs, f, indent=2)
+    print("Saved raw_obs_batch9.json successfully.")

@@ -1,0 +1,104 @@
+import openpyxl, json
+from datetime import datetime, timedelta
+
+# Load existing 2,611 records from v4
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+ws_raw = wb['Raw_Data']
+
+records = []
+for r in range(2, ws_raw.max_row + 1):
+    pid = str(ws_raw.cell(row=r, column=2).value)
+    ts = str(ws_raw.cell(row=r, column=3).value)
+    num = int(ws_raw.cell(row=r, column=4).value)
+    col = str(ws_raw.cell(row=r, column=5).value)
+    sz = str(ws_raw.cell(row=r, column=6).value)
+    col_orig = str(ws_raw.cell(row=r, column=7).value or col)
+    note = str(ws_raw.cell(row=r, column=8).value or "Original extraction verified")
+    records.append({
+        "period_id": pid,
+        "timestamp": ts,
+        "number": num,
+        "colour": col,
+        "size": sz,
+        "colour_original": col_orig,
+        "fix_note": note
+    })
+
+print(f"Loaded {len(records)} existing records.")
+
+# Load Batch 5
+with open(r"extraction\reconciled_batch5_calibrated.json", "r") as f:
+    b5_data = json.load(f)
+
+new_b5 = 0
+for pid in sorted(b5_data.keys()):
+    item = b5_data[pid]
+    records.append({
+        "period_id": pid,
+        "timestamp": item["timestamp"],
+        "number": item["number"],
+        "colour": item["colour"],
+        "size": item["size"],
+        "colour_original": item["colour"],
+        "fix_note": "Batch 5 extraction verified"
+    })
+    new_b5 += 1
+
+print(f"Added {new_b5} records from Batch 5.")
+print(f"Total merged records: {len(records)}")
+
+records.sort(key=lambda r: int(r["period_id"]))
+
+def is_consecutive(pid1, pid2):
+    p1 = int(pid1)
+    p2 = int(pid2)
+    s1 = int(pid1[-5:])
+    s2 = int(pid2[-5:])
+    if p2 == p1 + 1 and s2 == s1 + 1:
+        return True
+    if s1 == 52880 and s2 == 50001:
+        d1 = datetime.strptime(pid1[:8], "%Y%m%d")
+        d2 = datetime.strptime(pid2[:8], "%Y%m%d")
+        if (d2 - d1).days == 1:
+            return True
+    return False
+
+blocks = []
+gaps = []
+curr_block = [records[0]]
+
+for i in range(1, len(records)):
+    p_rec = records[i-1]
+    c_rec = records[i]
+    if is_consecutive(p_rec["period_id"], c_rec["period_id"]):
+        curr_block.append(c_rec)
+    else:
+        blocks.append(curr_block)
+        p1 = p_rec["period_id"]
+        p2 = c_rec["period_id"]
+        t1 = datetime.strptime(p_rec["timestamp"], "%Y-%m-%d %H:%M:%S")
+        t2 = datetime.strptime(c_rec["timestamp"], "%Y-%m-%d %H:%M:%S")
+        sec_diff = int((t2 - t1).total_seconds())
+        missing_count = (sec_diff // 30) - 1
+        gaps.append({
+            "gap_index": len(gaps) + 1,
+            "from_pid": p1,
+            "to_pid": p2,
+            "from_time": p_rec["timestamp"],
+            "to_time": c_rec["timestamp"],
+            "missing_rounds": missing_count,
+            "duration_sec": sec_diff
+        })
+        curr_block = [c_rec]
+blocks.append(curr_block)
+
+print(f"\n==========================================")
+print(f"TOTAL BLOCKS: {len(blocks)}")
+print(f"TOTAL GAPS: {len(gaps)}")
+print(f"==========================================")
+
+for idx, b in enumerate(blocks, 1):
+    print(f"Block {idx:02d}: {len(b):4d} rounds | {b[0]['period_id']} ({b[0]['timestamp']}) -> {b[-1]['period_id']} ({b[-1]['timestamp']})")
+    if idx <= len(gaps):
+        g = gaps[idx-1]
+        print(f"  [GAP {g['gap_index']:02d}: {g['missing_rounds']:4d} missing rounds | {g['duration_sec']}s ({timedelta(seconds=g['duration_sec'])}) | {g['from_time']} -> {g['to_time']}]")

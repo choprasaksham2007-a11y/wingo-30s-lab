@@ -1,0 +1,42 @@
+import os, glob, cv2, asyncio, json, re
+from PIL import Image
+import winocr
+
+b7_dir = r"extraction\extracted_zip_batch7"
+files = sorted(glob.glob(os.path.join(b7_dir, "*.jpeg")))
+
+async def scan_all():
+    found_pids = set()
+    pid_files = {}
+    
+    for f in files:
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        if im is None: continue
+        # pid strip
+        pid_strip = im[450:1450, 10:320]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        for line in res.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            # Look for 17-digit PID
+            matches = re.findall(r'2026102410005\d{4}', txt)
+            for m in matches:
+                found_pids.add(m)
+                if m not in pid_files:
+                    pid_files[m] = []
+                pid_files[m].append(fname)
+                
+    return sorted(list(found_pids)), pid_files
+
+pids, pfiles = asyncio.run(scan_all())
+print(f"Scanned {len(files)} files.")
+print(f"Total unique Period IDs found in Batch 7: {len(pids)}")
+if pids:
+    print(f"Min PID: {pids[0]} (suffix {pids[0][-5:]})")
+    print(f"Max PID: {pids[-1]} (suffix {pids[-1][-5:]})")
+    print("\nSample PIDs:")
+    for p in pids[:10]:
+        print(f"  {p} -> {len(pfiles[p])} files")
+    print("...")
+    for p in pids[-10:]:
+        print(f"  {p} -> {len(pfiles[p])} files")

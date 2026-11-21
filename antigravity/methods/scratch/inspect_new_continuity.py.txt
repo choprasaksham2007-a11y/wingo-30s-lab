@@ -1,0 +1,66 @@
+import csv
+from datetime import datetime, timedelta
+
+uploaded_csv = r'project_reports\inputs\input_8a9e44d71a.csv'
+v15_csv = r'project_reports\colour_raw_data_v15.csv'
+
+with open(v15_csv, 'r', encoding='utf-8') as f:
+    v15_pids = set(r[1] for r in csv.reader(f))
+
+with open(uploaded_csv, 'r', encoding='utf-8', errors='replace') as f:
+    reader = csv.reader(f)
+    header = next(reader)
+    up_rows = list(reader)
+
+new_rows = [r for r in up_rows if r[0].strip() not in v15_pids]
+print(f"Total new rows: {len(new_rows)}")
+
+# Print details of the first 10 and last 10 new rows
+print("\nFirst 10 new rows:")
+for r in new_rows[:10]:
+    print(r[0], r[1], r[3], r[4], r[5], r[6], r[15], r[16])
+
+print("\nLast 10 new rows:")
+for r in new_rows[-10:]:
+    print(r[0], r[1], r[3], r[4], r[5], r[6], r[15], r[16])
+
+# Let's inspect continuity of new rows
+# Let's check all gaps within new rows and the gap between last v15 and first new row
+last_v15_pid = '20261028100050461'
+
+def parse_pid(pid):
+    day = pid[:8]
+    rnd = int(pid[-5:]) - 50000
+    return day, rnd
+
+prev_pid = last_v15_pid
+all_gaps_found = []
+
+for idx, r in enumerate(new_rows):
+    curr_pid = r[0].strip()
+    d_prev, r_prev = parse_pid(prev_pid)
+    d_curr, r_curr = parse_pid(curr_pid)
+    
+    is_step = False
+    if d_prev == d_curr and r_curr == r_prev + 1:
+        is_step = True
+    elif r_prev == 2880 and r_curr == 1:
+        is_step = True
+        
+    if not is_step:
+        if d_prev == d_curr:
+            missing = r_curr - r_prev - 1
+        else:
+            missing = (2880 - r_prev) + (r_curr - 1)
+        all_gaps_found.append({
+            'gap_at_idx': idx,
+            'prev_pid': prev_pid,
+            'curr_pid': curr_pid,
+            'missing': missing
+        })
+    prev_pid = curr_pid
+
+print(f"\nTotal gaps encountered: {len(all_gaps_found)}")
+for g in all_gaps_found:
+    print(f"Gap: {g['prev_pid']} -> {g['curr_pid']} (missing {g['missing']} rounds)")
+

@@ -1,0 +1,132 @@
+import pandas as pd
+import numpy as np
+from scipy import stats
+from collections import Counter
+import math
+
+# Load data
+df = pd.read_csv(r'project_reports\colour_raw_data_v17.csv')
+print(f"Total rows: {len(df)}")
+
+numbers = df['number'].astype(int).values
+colours = df['colour'].values
+sizes = df['size'].values
+
+# 1. Frequency Distribution & Chi-Square Test for Numbers 0-9
+num_counts = Counter(numbers)
+observed_num = [num_counts[i] for i in range(10)]
+expected_num = [len(numbers) / 10.0] * 10
+chi2_num, p_val_num = stats.chisquare(observed_num, expected_num)
+print("\n--- 1. NUMBER DISTRIBUTION (0-9) ---")
+for i in range(10):
+    print(f"  Digit {i}: {num_counts[i]} ({num_counts[i]/len(numbers)*100:.2f}%)")
+print(f"Chi-square stat: {chi2_num:.4f}, p-value: {p_val_num:.4f} (Uniform if p > 0.05)")
+
+# 2. Size Distribution & Chi-Square Test
+size_counts = Counter(sizes)
+observed_size = [size_counts['Small'], size_counts['Big']]
+expected_size = [len(sizes) / 2.0, len(sizes) / 2.0]
+chi2_size, p_val_size = stats.chisquare(observed_size, expected_size)
+print("\n--- 2. SIZE DISTRIBUTION (Small vs Big) ---")
+print(f"  Small (0-4): {size_counts['Small']} ({size_counts['Small']/len(sizes)*100:.2f}%)")
+print(f"  Big (5-9)  : {size_counts['Big']} ({size_counts['Big']/len(sizes)*100:.2f}%)")
+print(f"Chi-square stat: {chi2_size:.4f}, p-value: {p_val_size:.4f} (Fair 50/50 if p > 0.05)")
+
+# 3. Colour Distribution
+col_counts = Counter(colours)
+print("\n--- 3. COLOUR DISTRIBUTION ---")
+for c in ['Red', 'Green', 'Green+Violet', 'Red+Violet']:
+    print(f"  {c:12s}: {col_counts[c]} ({col_counts[c]/len(colours)*100:.2f}%)")
+
+# 4. First-Order Markov Transition Matrix (State t-1 -> State t)
+# Check within continuous blocks so we don't cross gaps!
+df_ml = pd.read_csv(r'project_reports\colour_ml_ready_v17.csv')
+print(f"\nML dataset rows (continuous transitions): {len(df_ml)}")
+
+# Transition matrix for Size (Small vs Big)
+p1_s = df_ml['prev_1_size'].values
+tgt_s = df_ml['target_size'].values
+
+trans_size = pd.crosstab(p1_s, tgt_s, normalize='index') * 100
+print("\n--- 4. MARKOV TRANSITION PROBABILITIES (SIZE: Prev -> Next) ---")
+print(trans_size.round(2))
+
+# Transition matrix for Primary Colour (Red vs Green)
+p1_c = df_ml['prev_1_colour'].values
+tgt_c = df_ml['target_colour'].values
+trans_col = pd.crosstab(p1_c, tgt_c, normalize='index') * 100
+print("\n--- 5. MARKOV TRANSITION PROBABILITIES (COLOUR: Prev -> Next) ---")
+print(trans_col.round(2))
+
+# 5. Autocorrelation Analysis up to Lag 10
+print("\n--- 6. AUTOCORRELATION (LAGS 1 to 10) ---")
+num_series = pd.Series(numbers)
+size_binary = pd.Series((sizes == 'Big').astype(int))
+for lag in range(1, 11):
+    ac_num = num_series.autocorr(lag=lag)
+    ac_size = size_binary.autocorr(lag=lag)
+    print(f"  Lag {lag:2d}: Number ACF = {ac_num:+.4f} | Size ACF = {ac_size:+.4f}")
+
+# 6. Runs Test for Randomness (Wald-Wolfowitz) on Size
+def runs_test(seq):
+    # seq is binary (0 or 1)
+    runs = 1
+    for i in range(1, len(seq)):
+        if seq[i] != seq[i-1]:
+            runs += 1
+    n1 = np.sum(seq == 1)
+    n2 = np.sum(seq == 0)
+    expected_runs = 1 + (2 * n1 * n2) / (n1 + n2)
+    var_runs = (2 * n1 * n2 * (2 * n1 * n2 - n1 - n2)) / (((n1 + n2)**2) * (n1 + n2 - 1))
+    z = (runs - expected_runs) / np.sqrt(var_runs)
+    p_value = 2 * (1 - stats.norm.cdf(abs(z)))
+    return runs, expected_runs, z, p_value
+
+runs, exp_runs, z_score, p_val_runs = runs_test((sizes == 'Big').astype(int))
+print("\n--- 7. WALD-WOLFOWITZ RUNS TEST FOR RANDOMNESS (SIZE) ---")
+print(f"  Observed Runs: {runs}")
+print(f"  Expected Runs: {exp_runs:.2f}")
+print(f"  Z-score      : {z_score:+.4f}")
+print(f"  p-value      : {p_val_runs:.4f} (Independent random sequence if p > 0.05)")
+
+# 7. Streak Analysis (Consecutive runs of Small / Big)
+streaks = []
+cur_val = sizes[0]
+cur_len = 1
+for s in sizes[1:]:
+    if s == cur_val:
+        cur_len += 1
+    else:
+        streaks.append((cur_val, cur_len))
+        cur_val = s
+        cur_len = 1
+streaks.append((cur_val, cur_len))
+
+streak_lengths = [l for _, l in streaks]
+print("\n--- 8. STREAK LENGTH DISTRIBUTION ---")
+print(f"  Total Streaks: {len(streaks)}")
+print(f"  Max Streak Length: {max(streak_lengths)} in a row")
+streak_counts = Counter(streak_lengths)
+for l in sorted(streak_counts.keys())[:10]:
+    # Theoretical geometric probability for p=0.5: P(L = k) = (1/2)^k
+    prob_obs = streak_counts[l] / len(streaks)
+    prob_theory = (0.5) ** l
+    print(f"  Length {l:2d}: Observed = {streak_counts[l]:4d} ({prob_obs*100:5.2f}%) | Theoretical = {prob_theory*100:5.2f}%")
+
+# 8. Gambler's Fallacy Test: After streak of k, what is the chance of continuation vs reversal?
+print("\n--- 9. CONDITIONAL PROBABILITIES AFTER STREAKS (GAMBLER'S FALLACY TEST) ---")
+for k in [1, 2, 3, 4, 5, 6]:
+    same = 0
+    flip = 0
+    for i in range(k, len(sizes)):
+        window = sizes[i-k:i]
+        if all(w == window[0] for w in window):
+            if sizes[i] == window[0]:
+                same += 1
+            else:
+                flip += 1
+    total = same + flip
+    if total > 0:
+        p_same = same / total * 100
+        p_flip = flip / total * 100
+        print(f"  After streak of {k} ({window[0]}): Next is SAME = {same:4d} ({p_same:.2f}%) | REVERSAL = {flip:4d} ({p_flip:.2f}%) [Total: {total}]")

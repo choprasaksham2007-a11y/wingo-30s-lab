@@ -1,0 +1,70 @@
+"""
+Domain rules for colour-prediction game mechanics (number-to-color and number-to-size rules).
+Also provides verification checks to distinguish direct observation vs rule derivation.
+"""
+from typing import Optional, Tuple
+
+# Standard colour prediction rulebook
+STANDARD_NUMBER_SIZE_MAP = {
+    0: "Small",
+    1: "Small",
+    2: "Small",
+    3: "Small",
+    4: "Small",
+    5: "Big",
+    6: "Big",
+    7: "Big",
+    8: "Big",
+    9: "Big"
+}
+
+STANDARD_NUMBER_COLOUR_MAP = {
+    0: "Red+Violet",
+    1: "Green",
+    2: "Red",
+    3: "Green",
+    4: "Red",
+    5: "Green+Violet",
+    6: "Red",
+    7: "Green",
+    8: "Red",
+    9: "Green"
+}
+
+def derive_size_from_number(num: int) -> Optional[str]:
+    return STANDARD_NUMBER_SIZE_MAP.get(num)
+
+def derive_colour_from_number(num: int) -> Optional[str]:
+    return STANDARD_NUMBER_COLOUR_MAP.get(num)
+
+def validate_number_size_consistency(num: Optional[int], size: Optional[str]) -> Tuple[bool, str]:
+    if num is None or size is None:
+        return True, "Cannot check consistency: missing number or size"
+    expected = STANDARD_NUMBER_SIZE_MAP.get(num)
+    if expected is None:
+        return False, f"Invalid number: {num}"
+    if size.strip().capitalize() != expected:
+        return False, f"Size mismatch: number {num} expected {expected}, but found {size}"
+    return True, "Consistent"
+
+def validate_number_colour_consistency(num: Optional[int], colour: Optional[str]) -> Tuple[bool, str]:
+    if num is None or colour is None:
+        return True, "Cannot check consistency: missing number or colour"
+    expected = STANDARD_NUMBER_COLOUR_MAP.get(num)
+    if expected is None:
+        return False, f"Invalid number: {num}"
+    
+    # Normalize colour strings for comparison (e.g. "Red+Violet" vs "Violet+Red" or "Red, Violet")
+    c_norm = colour.replace(",", "+").replace(" ", "").lower()
+    exp_norm = expected.lower()
+    
+    # Check permutations for composite colours
+    if "+" in exp_norm:
+        parts = exp_norm.split("+")
+        c_parts = c_norm.split("+")
+        if sorted(parts) == sorted(c_parts):
+            return True, "Consistent"
+    elif c_norm == exp_norm:
+        return True, "Consistent"
+        
+    return False, f"Colour mismatch: number {num} expected {expected}, but found {colour}"

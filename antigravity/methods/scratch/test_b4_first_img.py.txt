@@ -1,0 +1,86 @@
+import cv2, os, glob, asyncio
+import numpy as np
+from PIL import Image
+import winocr
+
+batch4_dir = r"extraction\extracted_zip_batch4"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+async def test_first_image_full():
+    sample_path = os.path.join(batch4_dir, "WhatsApp Image 2026-10-24 at 10.46.29.jpeg")
+    im = cv2.imread(sample_path)
+    
+    # OCR on PID strip
+    pid_strip = im[500:1450, 20:300]
+    res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+    
+    # OCR on Big/Small strip
+    bs_strip = im[500:1450, 420:530]
+    res_bs = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB)))
+    bs_items = []
+    for l in res_bs.lines:
+        txt = " ".join([w.text.strip() for w in l.words])
+        if "Big" in txt or "Small" in txt or "sma" in txt.lower():
+            val = "Small" if ("Small" in txt or "sma" in txt.lower()) else "Big"
+            y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+            bs_items.append((y_c, val))
+            
+    print("Found BS items:", len(bs_items))
+    for b_y, b_val in bs_items:
+        print(f"  y={b_y:.1f}: {b_val}")
+        
+    for line in res_pid.lines:
+        txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+        for i in range(len(txt)-16):
+            chunk = txt[i:i+17]
+            if chunk.isdigit() and chunk.startswith('202610241000'):
+                w0 = line.words[0]
+                y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                yc = int(round(500 + y_rel))
+                
+                search_area = im[yc-20:yc+20, 315:375]
+                
+                scores = {}
+                for d, tpl in templates.items():
+                    res = cv2.matchTemplate(search_area, tpl, cv2.TM_CCOEFF_NORMED)
+                    scores[int(d)] = round(float(cv2.minMaxLoc(res)[1]), 3)
+                    
+                hsv = cv2.cvtColor(search_area, cv2.COLOR_BGR2HSV)
+                g_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255])))
+                r_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255])))
+                v_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255])))
+                
+                best_bs = None
+                min_d = 999.0
+                for b_y, b_val in bs_items:
+                    dist = abs(b_y - y_rel)
+                    if dist < min_d and dist < 35:
+                        min_d = dist
+                        best_bs = b_val
+                        
+                if v_cnt > 60:
+                    if g_cnt > 60:
+                        best_d = 5
+                    else:
+                        best_d = 0
+                elif g_cnt > r_cnt:
+                    if best_bs == "Small": cands = [1, 3]
+                    elif best_bs == "Big": cands = [7, 9]
+                    else: cands = [1, 3, 7, 9]
+                    best_d = max(cands, key=lambda d: scores[d])
+                else:
+                    if best_bs == "Small": cands = [2, 4]
+                    elif best_bs == "Big": cands = [6, 8]
+                    else: cands = [2, 4, 6, 8]
+                    best_d = max(cands, key=lambda d: scores[d])
+                    
+                sz = "Small" if best_d <= 4 else "Big"
+                if best_d == 0: col = "Red+Violet"
+                elif best_d == 5: col = "Green+Violet"
+                elif best_d in [1, 3, 7, 9]: col = "Green"
+                else: col = "Red"
+                
+                print(f"PID: {chunk} | y={yc} | best_d={best_d} | BS_ocr={best_bs} | col={col} | sz={sz} | g={g_cnt}, r={r_cnt}, v={v_cnt}")
+
+if __name__ == '__main__':
+    asyncio.run(test_first_image_full())

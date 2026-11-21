@@ -1,0 +1,29 @@
+import pandas as pd
+from collections import Counter
+
+df_raw = pd.read_csv(r"project_reports\colour_raw_data_v18.csv", dtype={'Period ID': str})
+
+print(f"Total rows: {len(df_raw)}")
+num_cnt = Counter(df_raw['number'])
+col_cnt = Counter(df_raw['colour'])
+sz_cnt = Counter(df_raw['size'])
+
+print("\nNumber Distribution:")
+for n in range(10):
+    c = num_cnt[n]
+    pct = c / len(df_raw) * 100
+    col = "Red+Violet" if n==0 else ("Green+Violet" if n==5 else ("Green" if n in [1,3,7,9] else "Red"))
+    sz = "Small" if n<=4 else "Big"
+    print(f"| **{n}** | {c:,} | {pct:.2f}% | {col} | {sz} |")
+
+print("\nColour Distribution:")
+for col in ["Red", "Green", "Green+Violet", "Red+Violet"]:
+    c = col_cnt[col]
+    pct = c / len(df_raw) * 100
+    print(f"| **{col}** | {c:,} | {pct:.2f}% |")
+
+print("\nSize Distribution:")
+for sz in ["Small", "Big"]:
+    c = sz_cnt[sz]
+    pct = c / len(df_raw) * 100
+    print(f"| **{sz}** | {c:,} | {pct:.2f}% |")

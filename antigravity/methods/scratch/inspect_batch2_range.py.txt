@@ -1,0 +1,39 @@
+import json, openpyxl
+
+# Let's inspect rows 1261 to 1640 in Colour_Prediction_Dataset_v4.xlsx
+wb = openpyxl.load_workbook(r"project_reports\Colour_Prediction_Dataset_v4.xlsx", data_only=True)
+ws = wb['Raw_Data']
+
+rows_in_scope = []
+for r in range(2, ws.max_row + 1):
+    seq = ws.cell(row=r, column=1).value
+    if 1261 <= seq <= 1640:
+        pid = str(ws.cell(row=r, column=2).value)
+        ts = str(ws.cell(row=r, column=3).value)
+        num = int(ws.cell(row=r, column=4).value)
+        col = str(ws.cell(row=r, column=5).value)
+        sz = str(ws.cell(row=r, column=6).value)
+        orig = str(ws.cell(row=r, column=7).value)
+        note = str(ws.cell(row=r, column=8).value)
+        rows_in_scope.append({
+            "excel_row": r,
+            "seq": seq,
+            "pid": pid,
+            "ts": ts,
+            "num": num,
+            "col": col,
+            "sz": sz,
+            "orig": orig,
+            "note": note
+        })
+
+print(f"Total rows in scope (1261-1640): {len(rows_in_scope)}")
+from collections import Counter
+counts = Counter(r['num'] for r in rows_in_scope)
+print("Digit counts in range 1261-1640:")
+for d in range(10):
+    print(f"  Digit {d}: {counts[d]}")
+
+eights = [r for r in rows_in_scope if r['num'] == 8]
+print(f"Total rows with number == 8: {len(eights)}")
+print("Sample 5 eights:", eights[:5])

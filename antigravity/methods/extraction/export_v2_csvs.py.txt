@@ -1,0 +1,24 @@
+import openpyxl, csv
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_v2.xlsx"
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+
+# Export Raw_Data to CSV
+ws_raw = wb["Raw_Data"]
+raw_csv_path = r"project_reports\colour_raw_data_v2.csv"
+with open(raw_csv_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    for r in ws_raw.iter_rows(values_only=True):
+        writer.writerow(r)
+
+# Export ML_Ready to CSV
+ws_ml = wb["ML_Ready"]
+ml_csv_path = r"project_reports\colour_ml_ready_v2.csv"
+with open(ml_csv_path, "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    for r in ws_ml.iter_rows(values_only=True):
+        writer.writerow(r)
+
+print("Exported CSVs successfully:")
+print(" ", raw_csv_path)
+print(" ", ml_csv_path)

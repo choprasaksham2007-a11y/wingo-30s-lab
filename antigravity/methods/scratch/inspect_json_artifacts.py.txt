@@ -1,0 +1,10 @@
+import json
+
+with open(r"extraction\spot_check_30_results.json", "r") as f:
+    sc = json.load(f)
+print("total_checked:", sc['total_checked'])
+print("unverified:", sc['unverified'])
+print("number_differences:", sc['number_differences'])
+print("First 3 details:")
+for d in sc['details'][:3]:
+    print(d)

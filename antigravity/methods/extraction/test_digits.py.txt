@@ -1,0 +1,20 @@
+import cv2
+import numpy as np
+
+# Let's inspect digit shapes from a few screenshots
+# We know the digit colors in Daman game:
+# 0: Red + Violet gradient
+# 1: Green
+# 2: Red
+# 3: Green
+# 4: Red
+# 5: Green + Violet gradient
+# 6: Red
+# 7: Green
+# 8: Red
+# 9: Green
+
+# Green digits are: 1, 3, 5 (half), 7, 9
+# Red digits are: 0 (half), 2, 4, 6, 8
+# Let's verify width of 1 vs 3, 7, 9
+print("Green digits: 1 is narrow (w~14), while 3, 7, 9 are wide (w~22-26)")

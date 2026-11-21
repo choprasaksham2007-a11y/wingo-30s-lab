@@ -1,0 +1,34 @@
+import pandas as pd
+import sqlite3
+
+csv_path = r"colour-ai\wingo_investigation\collected_data\wingo_30s_history.csv"
+sqlite_path = r"colour-ai\wingo_investigation\collected_data\wingo_30s_history.sqlite"
+
+print("--- Inspecting SQLite Database ---")
+conn = sqlite3.connect(sqlite_path)
+c = conn.cursor()
+c.execute("SELECT count(*), count(distinct issueNumber) FROM rounds WHERE state = 1")
+tot_db, uniq_db = c.fetchone()
+print(f"SQLite rounds total: {tot_db}, unique PIDs: {uniq_db}")
+
+c.execute("SELECT count(*) FROM rounds WHERE length(premium) = 5")
+prem_5d_db = c.fetchone()[0]
+print(f"SQLite 5-digit premium count: {prem_5d_db}")
+
+c.execute("SELECT count(*) FROM rounds WHERE premium_matches_number = 1")
+matches_db = c.fetchone()[0]
+print(f"SQLite matches count: {matches_db}")
+
+c.execute("SELECT count(*) FROM rounds WHERE premium_matches_number = 0")
+mismatches_db = c.fetchone()[0]
+print(f"SQLite mismatches count: {mismatches_db}")
+
+print("\n--- Inspecting CSV File ---")
+df = pd.read_csv(csv_path, dtype={"issueNumber": str, "premium": str, "number": str})
+print(f"CSV rows total: {len(df)}")
+print(f"CSV unique PIDs: {df['issueNumber'].nunique()}")
+print(f"CSV duplicates: {len(df) - df['issueNumber'].nunique()}")
+print(f"Earliest PID: {df['issueNumber'].min()}")
+print(f"Latest PID:   {df['issueNumber'].max()}")
+prem_5d = (df["premium"].str.len() == 5).sum()
+print(f"CSV 5-digit premium count: {prem_5d} ({prem_5d / len(df) * 100:.2f}%)")

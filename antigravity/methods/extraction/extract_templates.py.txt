@@ -1,0 +1,72 @@
+import cv2
+import asyncio
+import glob
+import os
+from PIL import Image
+import winocr
+import numpy as np
+
+zip_dir = r"extraction\extracted_zip"
+files = sorted(glob.glob(os.path.join(zip_dir, "*.jpeg")))
+
+async def build_templates():
+    templates = {}
+    
+    # We already know where 1, 2, 4, 5, 3, 7, 8 are:
+    img1 = cv2.imread(os.path.join(zip_dir, "WhatsApp Image 2026-10-23 at 09.33.27.jpeg"))
+    # Row 3 is 1
+    yc3 = int(617 + 3 * 76.6)
+    templates[1] = img1[yc3-20:yc3+20, 345:385]
+    # Row 4 is 2
+    yc4 = int(617 + 4 * 76.6)
+    templates[2] = img1[yc4-20:yc4+20, 345:385]
+    # Row 0 is 4
+    yc0 = int(617 + 0 * 76.6)
+    templates[4] = img1[yc0-20:yc0+20, 345:385]
+    # Row 1 is 5
+    yc1 = int(617 + 1 * 76.6)
+    templates[5] = img1[yc1-20:yc1+20, 345:385]
+    
+    img2 = cv2.imread(os.path.join(zip_dir, "WhatsApp Image 2026-10-23 at 09.33.53.jpeg"))
+    # Row 3 is 3
+    yc3_2 = int(617 + 3 * 76.6)
+    templates[3] = img2[yc3_2-20:yc3_2+20, 345:385]
+    # Row 1 is 7
+    yc1_2 = int(617 + 1 * 76.6)
+    templates[7] = img2[yc1_2-20:yc1_2+20, 345:385]
+    # Row 7 is 8
+    yc7_2 = int(617 + 7 * 76.6)
+    templates[8] = img2[yc7_2-20:yc7_2+20, 345:385]
+    
+    # Now find 0, 6, 9
+    needed = {0, 6, 9}
+    for f in files[:20]:
+        img = cv2.imread(f)
+        crop = img[500:1430, 320:570]
+        pil_im = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
+        res = await winocr.recognize_pil(pil_im)
+        for line in res.lines:
+            for w in line.words:
+                txt = w.text.strip()
+                if txt.isdigit() and int(txt) in needed and w.bounding_rect.x < 100:
+                    digit = int(txt)
+                    # compute row index k from y
+                    y = w.bounding_rect.y
+                    # In crop, y starts around 100 for row 0, +76.6 each
+                    k = round((y - 100) / 76.6)
+                    if 0 <= k < 10:
+                        yc = int(617 + k * 76.6)
+                        templates[digit] = img[yc-20:yc+20, 345:385]
+                        needed.remove(digit)
+                        print(f"Found template for digit {digit} in {os.path.basename(f)} row {k}")
+                        if not needed:
+                            break
+        if not needed:
+            break
+            
+    print("Templates acquired for:", sorted(list(templates.keys())))
+    # Save templates as npy
+    np.save(r"extraction\digit_templates.npy", templates)
+    print("Saved digit_templates.npy")
+
+asyncio.run(build_templates())

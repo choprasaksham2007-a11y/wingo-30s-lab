@@ -1,0 +1,25 @@
+import cv2, os, asyncio, winocr, glob
+from PIL import Image
+
+b1_dir = r"extraction\extracted_zip"
+
+async def check_all_clocks():
+    files = sorted(glob.glob(os.path.join(b1_dir, "*.jpeg")))
+    results = []
+    for f in files:
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        top_crop = im[0:80, 0:200]
+        res = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(top_crop, cv2.COLOR_BGR2RGB)))
+        txt = " ".join([w.text for l in res.lines for w in l.words])
+        
+        # also get top period ID
+        pid_strip = im[550:700, 30:300]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        p_txt = " ".join([w.text for l in res_pid.lines for w in l.words])
+        results.append((fname, txt, p_txt[:20]))
+    return results
+
+res = asyncio.run(check_all_clocks())
+for r in res:
+    print(f"{r[0]}: Clock='{r[1]}' | TopPID='{r[2]}'")

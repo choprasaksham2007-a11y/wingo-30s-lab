@@ -1,0 +1,123 @@
+import pandas as pd
+import os
+import sys
+from datetime import datetime, timedelta
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+brain_dir = r"project_reports"
+v17_csv = os.path.join(brain_dir, "colour_raw_data_v17.csv")
+new_batch_csv = os.path.join(brain_dir, "inputs", "input_1cbefd2737.csv")
+
+df_v17 = pd.read_csv(v17_csv, dtype={'Period ID': str})
+df_b17 = pd.read_csv(new_batch_csv, dtype={'issueNumber': str})
+
+v17_pids = set(df_v17['Period ID'])
+df_new = df_b17[~df_b17['issueNumber'].isin(v17_pids)].copy()
+df_new['pid_int'] = df_new['issueNumber'].astype(int)
+df_new = df_new.sort_values('pid_int').reset_index(drop=True)
+
+def get_dt_from_pid(pid: str) -> datetime:
+    year = int(pid[:4])
+    month = int(pid[4:6])
+    day = int(pid[6:8])
+    suffix = int(pid[-5:])
+    base = datetime(year, month, day, 5, 30, 0)
+    return base + timedelta(seconds=(suffix - 50000) * 30)
+
+# Build combined list
+all_rows = []
+for idx, r in df_v17.iterrows():
+    all_rows.append({
+        'pid': str(r['Period ID']).strip(),
+        'num': int(r['number']),
+        'col': str(r['colour']).strip(),
+        'sz': str(r['size']).strip(),
+        'ts': str(r['timestamp']).strip()
+    })
+
+for idx, r in df_new.iterrows():
+    p = str(r['issueNumber']).strip()
+    num = int(r['number'])
+    sz = "Small" if num <= 4 else "Big"
+    if num == 0: col = "Red+Violet"
+    elif num == 5: col = "Green+Violet"
+    elif num in [1, 3, 7, 9]: col = "Green"
+    else: col = "Red"
+    ts = get_dt_from_pid(p).strftime('%Y-%m-%d %H:%M:%S')
+    all_rows.append({
+        'pid': p,
+        'num': num,
+        'col': col,
+        'sz': sz,
+        'ts': ts
+    })
+
+print(f"Total combined rows: {len(all_rows)} ({len(df_v17)} from v17 + {len(df_new)} new)")
+
+# Form continuous blocks
+blocks = []
+cur_block = [all_rows[0]]
+for i in range(1, len(all_rows)):
+    dt_prev = get_dt_from_pid(all_rows[i-1]['pid'])
+    dt_curr = get_dt_from_pid(all_rows[i]['pid'])
+    if (dt_curr - dt_prev).total_seconds() == 30.0:
+        cur_block.append(all_rows[i])
+    else:
+        blocks.append(cur_block)
+        cur_block = [all_rows[i]]
+blocks.append(cur_block)
+
+print(f"Total Blocks: {len(blocks)}")
+
+# Inspect blocks 59 to end
+print("\nBlocks from Block 58 onwards:")
+for b_idx in range(58, len(blocks) + 1):
+    b = blocks[b_idx - 1]
+    print(f"Block {b_idx}: length={len(b)}, PID {b[0]['pid']} ({b[0]['ts']}) to {b[-1]['pid']} ({b[-1]['ts']})")
+
+# Calculate gaps
+gaps = []
+for i in range(len(blocks) - 1):
+    b1 = blocks[i]
+    b2 = blocks[i+1]
+    p_last = b1[-1]['pid']
+    p_next = b2[0]['pid']
+    t_last = b1[-1]['ts']
+    t_next = b2[0]['ts']
+    dt1 = get_dt_from_pid(p_last)
+    dt2 = get_dt_from_pid(p_next)
+    missing = int((dt2 - dt1).total_seconds() / 30.0) - 1
+    sec = missing * 30
+    dur_str = f"{sec // 3600}:{(sec % 3600) // 60:02d}:{sec % 60:02d}"
+    gaps.append({
+        'gap_idx': i + 1,
+        'prec_pid': p_last,
+        'prec_time': t_last,
+        'res_pid': p_next,
+        'res_time': t_next,
+        'missing_rounds': missing,
+        'duration': dur_str,
+        'block_before': i + 1,
+        'block_after': i + 2
+    })
+
+print(f"\nTotal Gaps: {len(gaps)}")
+print(f"Total Missing Rounds across all gaps: {sum(g['missing_rounds'] for g in gaps)}")
+print("\nGaps from Gap 58 onwards:")
+for g in gaps[57:]:
+    print(f"Gap {g['gap_idx']}: {g['prec_pid']} ({g['prec_time']}) -> {g['res_pid']} ({g['res_time']}) | missing={g['missing_rounds']}, dur={g['duration']}, blocks {g['block_before']}->{g['block_after']}")
+
+# ML samples check
+eligible_ml = 0
+short_blocks = 0
+for b_idx, b in enumerate(blocks, 1):
+    if len(b) > 5:
+        eligible_ml += (len(b) - 5)
+    else:
+        short_blocks += 1
+        print(f"Notice: Block {b_idx} has length {len(b)} <= 5, contributes 0 ML samples.")
+
+print(f"\nTotal Eligible ML Training Samples: {eligible_ml}")
+print(f"Formula total_rows - 5 * total_blocks = {len(all_rows)} - 5 * {len(blocks)} = {len(all_rows) - 5 * len(blocks)}")
+print(f"Does it match? {eligible_ml == (len(all_rows) - 5 * len(blocks))}")

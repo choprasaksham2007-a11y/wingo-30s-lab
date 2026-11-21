@@ -1,0 +1,21 @@
+import json
+
+with open(r"scratch\audit_81_results.json", "r") as f:
+    res = json.load(f)
+
+tr_vals = [r.get("avg_tr", 0) for r in res]
+print(f"Min tr_fill: {min(tr_vals)}")
+print(f"Max tr_fill: {max(tr_vals)}")
+
+sixes = [r for r in res if r.get("avg_tr", 0) < 50]
+eights = [r for r in res if r.get("avg_tr", 0) >= 50]
+
+print(f"\nTotal rows with tr < 50 (Digit 6): {len(sixes)}")
+print(f"Total rows with tr >= 50 (Digit 8): {len(eights)}")
+print(f"Total: {len(sixes) + len(eights)}")
+
+print("\nAll tr values under 50:")
+print(sorted([r.get("avg_tr", 0) for r in sixes]))
+
+print("\nAll tr values over 50:")
+print(sorted([r.get("avg_tr", 0) for r in eights]))

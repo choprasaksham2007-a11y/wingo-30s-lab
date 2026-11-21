@@ -1,0 +1,10 @@
+import openpyxl
+
+for fname in ['Colour_Prediction_Dataset_v3.xlsx', 'Colour_Prediction_Dataset_corrected.xlsx']:
+    path = rf"project_reports\{fname}"
+    wb = openpyxl.load_workbook(path, data_only=True)
+    print(f"=== {fname} ===")
+    print("Raw_Data headers:", [cell.value for cell in wb['Raw_Data'][1]])
+    print("ML_Ready headers:", [cell.value for cell in wb['ML_Ready'][1]])
+    print("Missing_Rounds headers:", [cell.value for cell in wb['Missing_Rounds'][1]])
+    wb.close()

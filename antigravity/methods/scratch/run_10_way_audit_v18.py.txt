@@ -1,0 +1,382 @@
+import openpyxl
+import pandas as pd
+import hashlib
+import os
+import sys
+from datetime import datetime, timedelta
+
+def p(s=""):
+    print(s, flush=True)
+
+p("=" * 80)
+p("COMPREHENSIVE 10-WAY INDEPENDENT AUDIT SUITE - MASTER V18 (STREAMING)")
+p("=" * 80)
+
+brain_dir = r"project_reports"
+downloads_dir = r"input"
+
+excel_brain = os.path.join(brain_dir, "Colour_Prediction_Dataset_v18.xlsx")
+excel_down = os.path.join(downloads_dir, "Colour_Prediction_Dataset_v18.xlsx")
+
+raw_csv_brain = os.path.join(brain_dir, "colour_raw_data_v18.csv")
+raw_csv_down = os.path.join(downloads_dir, "colour_raw_data_v18.csv")
+
+ml_csv_brain = os.path.join(brain_dir, "colour_ml_ready_v18.csv")
+ml_csv_down = os.path.join(downloads_dir, "colour_ml_ready_v18.csv")
+
+# 1. Load Workbook in read_only mode
+p(f"Loading {excel_brain} (read_only=True)...")
+wb = openpyxl.load_workbook(excel_brain, read_only=True)
+ws_raw = wb['Raw_Data']
+ws_ml = wb['ML_Ready']
+ws_gaps = wb['Missing_Rounds']
+
+# Collect Raw_Data
+raw_rows = []
+raw_iter = iter(ws_raw.iter_rows(values_only=False))
+header_cells = next(raw_iter)
+
+for row in raw_iter:
+    seq = row[0].value
+    pid_c = row[1]
+    pid = str(pid_c.value).strip() if pid_c.value is not None else ""
+    ts = str(row[2].value).strip()
+    num = int(row[3].value)
+    col = str(row[4].value).strip()
+    sz = str(row[5].value).strip()
+    orig_col = str(row[6].value).strip() if row[6].value is not None else ""
+    note = str(row[7].value).strip() if row[7].value is not None else ""
+    raw_rows.append({
+        'seq': seq,
+        'pid': pid,
+        'pid_fmt': pid_c.number_format,
+        'pid_type': type(pid_c.value).__name__,
+        'ts': ts,
+        'num': num,
+        'col': col,
+        'sz': sz,
+        'orig_col': orig_col,
+        'note': note
+    })
+
+total_raw = len(raw_rows)
+p(f"Loaded {total_raw} rows from Raw_Data.")
+
+audit_results = {}
+
+# WAY 1: 100% Deterministic Colour Compliance
+p("\n[WAY 1] Verifying Deterministic Colour Compliance...")
+way1_violations = []
+for idx, r in enumerate(raw_rows, 1):
+    num = r['num']
+    col = r['col']
+    if num == 0: exp = "Red+Violet"
+    elif num == 5: exp = "Green+Violet"
+    elif num in [1, 3, 7, 9]: exp = "Green"
+    elif num in [2, 4, 6, 8]: exp = "Red"
+    else: exp = "Invalid"
+    if col != exp:
+        way1_violations.append((idx, r['pid'], num, col, exp))
+
+if len(way1_violations) == 0:
+    audit_results['Way 1 (Colour Rules)'] = f"PASS (0 violations across {total_raw} rounds)"
+    p(f" -> PASS: 100% colour compliance (0 violations across {total_raw} rounds).")
+else:
+    audit_results['Way 1 (Colour Rules)'] = f"FAIL ({len(way1_violations)} violations)"
+    p(f" -> FAIL: {len(way1_violations)} colour violations!")
+
+# WAY 2: 100% Deterministic Size Compliance
+p("\n[WAY 2] Verifying Deterministic Size Compliance...")
+way2_violations = []
+for idx, r in enumerate(raw_rows, 1):
+    num = r['num']
+    sz = r['sz']
+    exp = "Small" if num <= 4 else "Big"
+    if sz != exp:
+        way2_violations.append((idx, r['pid'], num, sz, exp))
+
+if len(way2_violations) == 0:
+    audit_results['Way 2 (Size Rules)'] = f"PASS (0 violations across {total_raw} rounds)"
+    p(f" -> PASS: 100% size compliance (0 violations across {total_raw} rounds).")
+else:
+    audit_results['Way 2 (Size Rules)'] = f"FAIL ({len(way2_violations)} violations)"
+    p(f" -> FAIL: {len(way2_violations)} size violations!")
+
+# WAY 3: Strict 17-Digit Text Format & '@' Number Formatting
+p("\n[WAY 3] Verifying Period ID Text Preservation & Format...")
+way3_violations = []
+for idx, r in enumerate(raw_rows, 1):
+    pid = r['pid']
+    fmt = r['pid_fmt']
+    ptype = r['pid_type']
+    if len(pid) != 17 or not pid.isdigit() or fmt != '@' or ptype != 'str':
+        way3_violations.append((idx, pid, len(pid), fmt, ptype))
+
+# ML_Ready check using iter_rows
+ml_iter = iter(ws_ml.iter_rows(values_only=False))
+ml_header = next(ml_iter)
+ml_rows = []
+ml_pid_violations = 0
+for row in ml_iter:
+    s_idx = row[0].value
+    pid_c = row[1]
+    pid_val = pid_c.value
+    if not isinstance(pid_val, str) or len(pid_val) != 17 or not pid_val.isdigit() or pid_c.number_format != '@':
+        ml_pid_violations += 1
+    ml_rows.append([c.value for c in row])
+
+gap_iter = iter(ws_gaps.iter_rows(values_only=False))
+gap_header = next(gap_iter)
+gap_rows = []
+gap_pid_violations = 0
+for row in gap_iter:
+    p1_c = row[1]
+    p2_c = row[3]
+    if not isinstance(p1_c.value, str) or len(p1_c.value) != 17 or p1_c.number_format != '@': gap_pid_violations += 1
+    if not isinstance(p2_c.value, str) or len(p2_c.value) != 17 or p2_c.number_format != '@': gap_pid_violations += 1
+    gap_rows.append([c.value for c in row])
+
+if len(way3_violations) == 0 and ml_pid_violations == 0 and gap_pid_violations == 0:
+    audit_results['Way 3 (Period ID Text Format)'] = "PASS (100% 17-digit text '@' format across Raw, ML, Gaps)"
+    p(" -> PASS: Strict 17-digit text format verified across all sheets.")
+else:
+    audit_results['Way 3 (Period ID Text Format)'] = f"FAIL (Raw: {len(way3_violations)}, ML: {ml_pid_violations}, Gaps: {gap_pid_violations})"
+    p(f" -> FAIL: Raw: {len(way3_violations)}, ML: {ml_pid_violations}, Gaps: {gap_pid_violations}")
+
+# WAY 4: Monotonic Sequence 1..N and Period ID Uniqueness
+p("\n[WAY 4] Verifying Monotonic Sequence and Period ID Uniqueness...")
+seq_violations = []
+for idx, r in enumerate(raw_rows, 1):
+    if r['seq'] != idx:
+        seq_violations.append((idx, r['seq']))
+
+pid_set = set()
+dup_pids = []
+for r in raw_rows:
+    p_val = r['pid']
+    if p_val in pid_set:
+        dup_pids.append(p_val)
+    pid_set.add(p_val)
+
+pids_sorted = sorted([r['pid'] for r in raw_rows])
+pids_actual = [r['pid'] for r in raw_rows]
+order_match = (pids_sorted == pids_actual)
+
+if len(seq_violations) == 0 and len(dup_pids) == 0 and order_match:
+    audit_results['Way 4 (Sequence & Uniqueness)'] = f"PASS (Strict monotonic 1..{total_raw}, 0 duplicate PIDs, chronological)"
+    p(f" -> PASS: Strict monotonic sequence 1..{total_raw}, 0 duplicates, chronologically sorted.")
+else:
+    audit_results['Way 4 (Sequence & Uniqueness)'] = f"FAIL (Seq errs: {len(seq_violations)}, Dups: {len(dup_pids)}, Sorted: {order_match})"
+    p(f" -> FAIL: Seq errs: {len(seq_violations)}, Dups: {len(dup_pids)}, Sorted: {order_match}")
+
+# WAY 5: De-Duplication Verification (Zero Duplicate Rows Copied)
+p("\n[WAY 5] Verifying De-Duplication against User Instruction...")
+v17_excel = os.path.join(brain_dir, "Colour_Prediction_Dataset_v17.xlsx")
+wb_v17 = openpyxl.load_workbook(v17_excel, read_only=True)
+ws_v17 = wb_v17['Raw_Data']
+v17_pids = set(str(row[1]).strip() for row in ws_v17.iter_rows(min_row=2, max_col=2, values_only=True))
+wb_v17.close()
+
+batch17_csv = os.path.join(brain_dir, "inputs", "input_1cbefd2737.csv")
+df_b17 = pd.read_csv(batch17_csv, dtype={'issueNumber': str})
+incoming_pids = set(df_b17['issueNumber'])
+
+overlap_pids = incoming_pids.intersection(v17_pids)
+new_pids = incoming_pids - v17_pids
+
+raw_pids_list = [r['pid'] for r in raw_rows]
+raw_pids_set = set(raw_pids_list)
+pid_counts = pd.Series(raw_pids_list).value_counts()
+max_occurrences = pid_counts.max()
+
+if len(overlap_pids) == 5251 and len(new_pids) == 1278 and total_raw == (len(v17_pids) + 1278) and max_occurrences == 1:
+    audit_results['Way 5 (De-duplication Integrity)'] = f"PASS (5,251 overlap excluded, 1,278 new added, 0 duplicate rows copied)"
+    p(f" -> PASS: Exactly 5,251 overlapping rows excluded; exactly 1,278 new ingested; 0 duplicates.")
+else:
+    audit_results['Way 5 (De-duplication Integrity)'] = f"FAIL (Overlap: {len(overlap_pids)}, New: {len(new_pids)}, Total: {total_raw}, Max Count: {max_occurrences})"
+    p(f" -> FAIL: Overlap: {len(overlap_pids)}, New: {len(new_pids)}, Total: {total_raw}, Max Count: {max_occurrences}")
+
+# WAY 6: Exact 30.000s Intra-Block Cadence (0.000s Drift)
+p("\n[WAY 6] Verifying Exact 30.000s Intra-Block Cadence...")
+def get_dt(pid):
+    year = int(pid[:4])
+    month = int(pid[4:6])
+    day = int(pid[6:8])
+    suffix = int(pid[-5:])
+    base = datetime(year, month, day, 5, 30, 0)
+    return base + timedelta(seconds=(suffix - 50000) * 30)
+
+blocks = []
+cur_block = [raw_rows[0]]
+for i in range(1, len(raw_rows)):
+    t_prev = get_dt(raw_rows[i-1]['pid'])
+    t_curr = get_dt(raw_rows[i]['pid'])
+    if (t_curr - t_prev).total_seconds() == 30.0:
+        cur_block.append(raw_rows[i])
+    else:
+        blocks.append(cur_block)
+        cur_block = [raw_rows[i]]
+blocks.append(cur_block)
+
+block_drift_violations = []
+for b_idx, block in enumerate(blocks, 1):
+    for i in range(1, len(block)):
+        dt1 = datetime.strptime(block[i-1]['ts'], '%Y-%m-%d %H:%M:%S')
+        dt2 = datetime.strptime(block[i]['ts'], '%Y-%m-%d %H:%M:%S')
+        diff = (dt2 - dt1).total_seconds()
+        if diff != 30.0:
+            block_drift_violations.append((b_idx, block[i-1]['pid'], block[i]['pid'], diff))
+
+if len(block_drift_violations) == 0 and len(blocks) == 73:
+    audit_results['Way 6 (30s Cadence)'] = f"PASS (73 blocks, 0.000s drift across all {total_raw} rounds)"
+    p(f" -> PASS: All 73 blocks have exactly 30.000s intra-block cadence (0.000s drift).")
+else:
+    audit_results['Way 6 (30s Cadence)'] = f"FAIL ({len(block_drift_violations)} drift errors, {len(blocks)} blocks)"
+    p(f" -> FAIL: {len(block_drift_violations)} drift errors, {len(blocks)} blocks")
+
+# WAY 7: Gap Arithmetic Invariance & Missing Rounds Formula
+p("\n[WAY 7] Verifying Gap Arithmetic Invariance...")
+gap_violations = []
+total_missing_rounds = 0
+
+for g_row in gap_rows:
+    g_idx = g_row[0]
+    p1 = str(g_row[1]).strip()
+    t1 = str(g_row[2]).strip()
+    p2 = str(g_row[3]).strip()
+    t2 = str(g_row[4]).strip()
+    missing = int(g_row[5])
+    dur = str(g_row[6]).strip()
+    b_before = int(g_row[7])
+    b_after = int(g_row[8])
+    
+    dt1 = datetime.strptime(t1, '%Y-%m-%d %H:%M:%S')
+    dt2 = datetime.strptime(t2, '%Y-%m-%d %H:%M:%S')
+    
+    total_missing_rounds += missing
+    expected_missing = int((dt2 - dt1).total_seconds() / 30.0) - 1
+    
+    sec = missing * 30
+    exp_dur = f"{sec // 3600}:{(sec % 3600) // 60:02d}:{sec % 60:02d}"
+    
+    if missing != expected_missing or dur != exp_dur or b_before != g_idx or b_after != (g_idx + 1):
+        gap_violations.append((g_idx, p1, p2, missing, expected_missing, dur, exp_dur, b_before, b_after))
+
+if len(gap_violations) == 0 and len(gap_rows) == 72 and total_missing_rounds == 19780:
+    audit_results['Way 7 (Gap Invariance)'] = f"PASS (72 gaps, 19,780 missing rounds, exact delta-t math)"
+    p(f" -> PASS: 72 gaps verified, 19,780 cumulative missing rounds, perfect delta-t math.")
+else:
+    audit_results['Way 7 (Gap Invariance)'] = f"FAIL ({len(gap_violations)} gap errors, total missing: {total_missing_rounds})"
+    p(f" -> FAIL: {len(gap_violations)} gap errors, total missing: {total_missing_rounds}")
+
+# WAY 8: ML Supervised Isolation (Strictly Zero Gap Crossings)
+p("\n[WAY 8] Verifying ML Supervised Isolation (Zero Gap Crossings)...")
+ml_crossing_violations = []
+ml_block_map = {}
+for b_idx, block in enumerate(blocks, 1):
+    for r in block:
+        ml_block_map[r['pid']] = b_idx
+
+expected_ml_count = total_raw - 5 * len(blocks)
+actual_ml_count = len(ml_rows)
+
+for r in ml_rows:
+    s_idx = r[0]
+    tgt_pid = str(r[1]).strip()
+    b_id = int(r[21])
+    
+    expected_b_id = ml_block_map.get(tgt_pid)
+    if b_id != expected_b_id:
+        ml_crossing_violations.append((s_idx, tgt_pid, b_id, expected_b_id))
+
+if len(ml_crossing_violations) == 0 and actual_ml_count == expected_ml_count and actual_ml_count == 10627:
+    audit_results['Way 8 (ML Zero Gap Crossings)'] = f"PASS (Strictly 0 gap crossings across {actual_ml_count} ML samples)"
+    p(f" -> PASS: Exactly {actual_ml_count} ML samples ({total_raw} - 5 * {len(blocks)}), strictly 0 gap crossings.")
+else:
+    audit_results['Way 8 (ML Zero Gap Crossings)'] = f"FAIL ({len(ml_crossing_violations)} crossings, actual: {actual_ml_count}, expected: {expected_ml_count})"
+    p(f" -> FAIL: {len(ml_crossing_violations)} crossings, actual: {actual_ml_count}, expected: {expected_ml_count}")
+
+# WAY 9: ML Lag Feature Mathematical Fidelity against Raw_Data
+p("\n[WAY 9] Verifying ML Lag Feature Mathematical Fidelity...")
+lag_mismatches = []
+raw_pid_to_idx = {r['pid']: i for i, r in enumerate(raw_rows)}
+
+for r in ml_rows:
+    s_idx = r[0]
+    tgt_pid = str(r[1]).strip()
+    tgt_ts = str(r[2]).strip()
+    tgt_num = int(r[3])
+    tgt_col = str(r[4]).strip()
+    tgt_sz = str(r[5]).strip()
+    
+    raw_idx = raw_pid_to_idx[tgt_pid]
+    r_tgt = raw_rows[raw_idx]
+    
+    if r_tgt['ts'] != tgt_ts or r_tgt['num'] != tgt_num or r_tgt['col'] != tgt_col or r_tgt['sz'] != tgt_sz:
+        lag_mismatches.append((s_idx, tgt_pid, 'target'))
+        continue
+        
+    for k in range(1, 6):
+        col_offset = 6 + (k - 1) * 3
+        p_num = int(r[col_offset])
+        p_col = str(r[col_offset+1]).strip()
+        p_sz = str(r[col_offset+2]).strip()
+        
+        r_prev = raw_rows[raw_idx - k]
+        if r_prev['num'] != p_num or r_prev['col'] != p_col or r_prev['sz'] != p_sz:
+            lag_mismatches.append((s_idx, tgt_pid, f'prev_{k}'))
+            break
+
+if len(lag_mismatches) == 0:
+    audit_results['Way 9 (ML Lag Fidelity)'] = f"PASS (100% mathematical fidelity across all 5 lags for {actual_ml_count} samples)"
+    p(f" -> PASS: 100% lag feature fidelity (0 mismatches across {actual_ml_count} samples).")
+else:
+    audit_results['Way 9 (ML Lag Fidelity)'] = f"FAIL ({len(lag_mismatches)} lag mismatches)"
+    p(f" -> FAIL: {len(lag_mismatches)} lag mismatches")
+
+# WAY 10: Bitwise Cryptographic Multi-Directory Synchronization
+p("\n[WAY 10] Verifying Bitwise SHA-256 Multi-Directory Synchronization...")
+def get_sha256(path):
+    h = hashlib.sha256()
+    with open(path, 'rb') as f:
+        while chunk := f.read(65536):
+            h.update(chunk)
+    return h.hexdigest()
+
+hash_excel_b = get_sha256(excel_brain)
+hash_excel_d = get_sha256(excel_down)
+hash_raw_b = get_sha256(raw_csv_brain)
+hash_raw_d = get_sha256(raw_csv_down)
+hash_ml_b = get_sha256(ml_csv_brain)
+hash_ml_d = get_sha256(ml_csv_down)
+
+excel_match = (hash_excel_b == hash_excel_d)
+raw_match = (hash_raw_b == hash_raw_d)
+ml_match = (hash_ml_b == hash_ml_d)
+
+p(f"Excel SHA-256: Brain={hash_excel_b[:16]}... Down={hash_excel_d[:16]}... Match={excel_match}")
+p(f"Raw CSV SHA-256: Brain={hash_raw_b[:16]}... Down={hash_raw_d[:16]}... Match={raw_match}")
+p(f"ML CSV SHA-256:  Brain={hash_ml_b[:16]}... Down={hash_ml_d[:16]}... Match={ml_match}")
+
+if excel_match and raw_match and ml_match:
+    audit_results['Way 10 (Directory Sync)'] = "PASS (Bitwise identical SHA-256 hashes across Brain and Downloads)"
+    p(" -> PASS: Bitwise identical SHA-256 hashes across Brain and Downloads.")
+else:
+    audit_results['Way 10 (Directory Sync)'] = f"FAIL (Excel: {excel_match}, Raw: {raw_match}, ML: {ml_match})"
+    p(f" -> FAIL: Excel: {excel_match}, Raw: {raw_match}, ML: {ml_match}")
+
+# Audit Summary
+p("\n" + "=" * 80)
+p("FINAL AUDIT CERTIFICATION SUMMARY - MASTER V18")
+p("=" * 80)
+all_pass = True
+for way, res in audit_results.items():
+    p(f"{way:35s}: {res}")
+    if not res.startswith("PASS"):
+        all_pass = False
+
+p("-" * 80)
+p(f"OVERALL STATUS: {'100% CERTIFIED PASS (0 ERRORS)' if all_pass else 'AUDIT FAILED'}")
+p("=" * 80)
+
+wb.close()

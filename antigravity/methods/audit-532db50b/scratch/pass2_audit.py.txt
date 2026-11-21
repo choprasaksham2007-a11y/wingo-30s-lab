@@ -1,0 +1,157 @@
+import openpyxl
+import pandas as pd
+from collections import Counter
+
+def audit_pass2(filepath, label):
+    print("=" * 80)
+    print(f"PASS 2 AUDIT: {label}")
+    print("=" * 80)
+    
+    wb = openpyxl.load_workbook(filepath, data_only=True)
+    
+    # 1. Load Raw_Data
+    ws_raw = wb['Raw_Data']
+    raw_data = []
+    headers = [cell.value for cell in ws_raw[1]]
+    for r in range(2, ws_raw.max_row + 1):
+        raw_data.append({headers[c-1]: ws_raw.cell(r, c).value for c in range(1, len(headers)+1)})
+    df_raw = pd.DataFrame(raw_data)
+    
+    # True counts in Raw_Data
+    true_num_counts = df_raw['number'].value_counts().sort_index().to_dict()
+    true_col_counts = df_raw['colour'].value_counts().to_dict()
+    true_size_counts = df_raw['size'].value_counts().to_dict()
+    
+    print("\n--- TRUE COUNTS IN RAW_DATA ---")
+    print("Number counts (0-9):", true_num_counts)
+    print("Colour counts:", true_col_counts)
+    print("Size counts:", true_size_counts)
+    print("Total rows:", len(df_raw))
+    
+    # 2. Check Summary sheet
+    ws_sum = wb['Summary']
+    print("\n--- SUMMARY SHEET VALUES ---")
+    # Let's parse KPI/Overview, Number distribution, Colour distribution
+    # Overview is in col B (label) & col C (value)
+    overview_dict = {}
+    for r in range(5, 17):
+        k = ws_sum.cell(r, 2).value
+        v = ws_sum.cell(r, 3).value
+        if k is not None:
+            overview_dict[k] = v
+    print("Summary Overview (KPI):", overview_dict)
+    
+    # Number distribution is in col E (label) & col F (value)
+    sum_num_counts = {}
+    for r in range(7, 17):
+        k = ws_sum.cell(r, 5).value
+        v = ws_sum.cell(r, 6).value
+        if k is not None and 'Number' in str(k):
+            num = int(str(k).replace('Number', '').strip())
+            sum_num_counts[num] = v
+    print("Summary Number counts:", sum_num_counts)
+    
+    # Colour distribution is in col E (label) & col F (value)
+    sum_col_counts = {}
+    for r in range(20, ws_sum.max_row + 1):
+        k = ws_sum.cell(r, 5).value
+        v = ws_sum.cell(r, 6).value
+        if k is not None and v is not None:
+            sum_col_counts[str(k).strip()] = v
+    print("Summary Colour counts:", sum_col_counts)
+    
+    # Check if there is any Size distribution in Summary
+    size_found = False
+    for r in range(1, ws_sum.max_row + 1):
+        for c in range(1, ws_sum.max_column + 1):
+            val = str(ws_sum.cell(r, c).value)
+            if 'size' in val.lower() or 'small' in val.lower() or 'big' in val.lower():
+                print(f"Size reference in Summary at ({r},{c}): {val}")
+                size_found = True
+    if not size_found:
+        print("Size distribution table: NOT FOUND in Summary sheet!")
+
+    # Compare Number counts
+    num_mismatches = []
+    for num in range(10):
+        t_cnt = true_num_counts.get(num, 0)
+        s_cnt = sum_num_counts.get(num, None)
+        if t_cnt != s_cnt:
+            num_mismatches.append((num, f"True: {t_cnt}, Summary: {s_cnt}"))
+    print("\nNumber Distribution Mismatches:", num_mismatches if num_mismatches else "None (100% Match!)")
+    
+    # Compare Colour counts
+    col_mismatches = []
+    for col, t_cnt in true_col_counts.items():
+        s_cnt = sum_col_counts.get(col, None)
+        if t_cnt != s_cnt:
+            col_mismatches.append((col, f"True: {t_cnt}, Summary: {s_cnt}"))
+    print("Colour Distribution Mismatches:", col_mismatches if col_mismatches else "None (100% Match!)")
+    
+    # KPI checks
+    print("\nKPI Comparisons:")
+    # 'Total Verified Unique Rounds'
+    tot_rounds_kpi = overview_dict.get('Total Verified Unique Rounds')
+    print(f"  Total Verified Unique Rounds: KPI={tot_rounds_kpi}, True={len(df_raw)} -> Match: {tot_rounds_kpi == len(df_raw)}")
+    
+    # 'Total Eligible ML Training Samples'
+    ws_ml = wb['ML_Ready']
+    ml_data_rows = ws_ml.max_row - 1
+    ml_kpi = overview_dict.get('Total Eligible ML Training Samples')
+    print(f"  Total Eligible ML Training Samples: KPI={ml_kpi}, True={ml_data_rows} -> Match: {ml_kpi == ml_data_rows}")
+    
+    # User-Supplied Outcomes
+    user_kpi = overview_dict.get('User-Supplied Outcomes')
+    # Check in Raw_Data fix_note or User_Provided sheet
+    user_prov_rows = wb['User_Provided'].max_row - 1
+    print(f"  User-Supplied Outcomes: KPI={user_kpi}, User_Provided rows={user_prov_rows} -> Match: {user_kpi == user_prov_rows}")
+    
+    # 3. Check Period ID Text Formatting in All Sheets
+    wb_non_data = openpyxl.load_workbook(filepath, data_only=False)
+    print("\n--- PERIOD ID FORMATTING & TYPE AUDIT ---")
+    sheets_to_check = ['Raw_Data', 'ML_Ready', 'Missing_Rounds', 'User_Provided']
+    for sname in sheets_to_check:
+        ws = wb_non_data[sname]
+        headers = [ws.cell(1, c).value for c in range(1, ws.max_column+1)]
+        id_cols = [c for c, h in enumerate(headers, 1) if h and ('period id' in str(h).lower() or 'period_id' in str(h).lower())]
+        for col_idx in id_cols:
+            col_name = headers[col_idx-1]
+            non_text_types = []
+            non_at_formats = []
+            non_17_len = []
+            scientific_notation = []
+            
+            for r in range(2, ws.max_row+1):
+                cell = ws.cell(r, col_idx)
+                if cell.value is None or str(cell.value).startswith("Total"):
+                    continue
+                v_str = str(cell.value)
+                if cell.data_type != 's':
+                    non_text_types.append((r, cell.value, cell.data_type))
+                if cell.number_format != '@':
+                    non_at_formats.append((r, cell.value, cell.number_format))
+                if len(v_str) != 17:
+                    non_17_len.append((r, cell.value, len(v_str)))
+                if 'e' in v_str.lower() or '+' in v_str:
+                    scientific_notation.append((r, cell.value))
+                    
+            print(f"  [{sname}] Column '{col_name}':")
+            print(f"    Total Checked: {ws.max_row - 1}")
+            print(f"    data_type != 's': {len(non_text_types)} {non_text_types[:3]}")
+            print(f"    number_format != '@': {len(non_at_formats)} {non_at_formats[:3]}")
+            print(f"    len != 17: {len(non_17_len)} {non_17_len[:3]}")
+            print(f"    Scientific Notation: {len(scientific_notation)} {scientific_notation[:3]}")
+            
+    # 4. Check Audit sheet contents
+    ws_aud = wb['Audit']
+    print(f"\n--- AUDIT SHEET CONTENT ({label}) ---")
+    for r in range(1, ws_aud.max_row + 1):
+        vals = [ws_aud.cell(r, c).value for c in range(1, ws_aud.max_column + 1)]
+        if any(v is not None for v in vals):
+            print(f"  Row {r:2d}: {vals}")
+            
+    wb.close()
+    wb_non_data.close()
+
+audit_pass2(r'project_reports\Colour_Prediction_Dataset_v3.xlsx', 'Colour_Prediction_Dataset_v3.xlsx')
+audit_pass2(r'project_reports\Colour_Prediction_Dataset_corrected.xlsx', 'Colour_Prediction_Dataset_corrected.xlsx')

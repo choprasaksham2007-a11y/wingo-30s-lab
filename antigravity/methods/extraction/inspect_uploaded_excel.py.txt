@@ -1,0 +1,13 @@
+import openpyxl
+import pandas as pd
+
+excel_path = r"project_reports\inputs\input_9f7c60764d.xlsx"
+wb = openpyxl.load_workbook(excel_path)
+print("Sheet names:", wb.sheetnames)
+
+for sheet in wb.sheetnames:
+    ws = wb[sheet]
+    print(f"Sheet '{sheet}': {ws.max_row} rows, {ws.max_column} cols")
+    # print headers
+    headers = [cell.value for cell in ws[1]]
+    print(f"  Headers: {headers[:10]}")

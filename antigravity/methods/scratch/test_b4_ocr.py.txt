@@ -1,0 +1,17 @@
+import cv2, os, asyncio
+from PIL import Image
+import winocr
+
+batch4_dir = r"extraction\extracted_zip_batch4"
+sample_path = os.path.join(batch4_dir, "WhatsApp Image 2026-10-24 at 10.46.29.jpeg")
+
+async def test_ocr():
+    im = cv2.imread(sample_path)
+    pid_strip = im[500:1450, 20:300]
+    res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+    print("Recognized PID lines:")
+    for l in res_pid.lines:
+        txt = " ".join([w.text for w in l.words])
+        print("  ", txt)
+
+asyncio.run(test_ocr())

@@ -1,0 +1,28 @@
+import os
+import glob
+import json
+
+with open(r"extraction\scan_summary.json") as f:
+    data = json.load(f)
+
+# Analyze pages and PIDs
+print(f"Total entries: {len(data)}")
+
+# Sort entries by max_pid ascending or descending
+# Notice some might have page numbers
+by_page = {}
+no_page = []
+for d in data:
+    pg = d.get("page", "").strip()
+    if "/" in pg:
+        by_page[pg] = d
+    else:
+        no_page.append(d)
+
+print(f"Entries with detected page: {len(by_page)}")
+print(f"Entries without detected page: {len(no_page)}")
+
+# Let's inspect pages detected
+for p in sorted(by_page.keys(), key=lambda x: int(x.split("/")[0]) if x.split("/")[0].isdigit() else 999):
+    item = by_page[p]
+    print(f"Page {p:6s}: {item['file']} -> {len(item['pids'])} PIDs [{item['min_pid']} .. {item['max_pid']}]")

@@ -1,0 +1,22 @@
+import cv2, os, asyncio, winocr
+from PIL import Image
+
+batch2_dir = r"extraction\extracted_zip_batch2"
+
+for fname in ['WhatsApp Image 2026-10-23 at 22.07.02 (2).jpeg', 'WhatsApp Image 2026-10-23 at 22.07.03 (1).jpeg']:
+    im = cv2.imread(os.path.join(batch2_dir, fname))
+    pid_strip = im[550:1400, 30:290]
+    res_pid = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))))
+    for l in res_pid.lines:
+        txt = ''.join([w.text.strip() for w in l.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+        if '50708' in txt:
+            w0 = l.words[0]
+            yc = int(round(550 + w0.bounding_rect.y + w0.bounding_rect.height / 2.0))
+            # OCR size strip at yc
+            bs_crop = im[yc-20:yc+20, 440:530]
+            num_crop = im[yc-20:yc+20, 340:390]
+            res_bs = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_crop, cv2.COLOR_BGR2RGB))))
+            res_num = asyncio.run(winocr.recognize_pil(Image.fromarray(cv2.cvtColor(num_crop, cv2.COLOR_BGR2RGB))))
+            bs_txt = ' '.join([w.text for line in res_bs.lines for w in line.words])
+            num_txt = ' '.join([w.text for line in res_num.lines for w in line.words])
+            print(f"File {fname} at yc={yc}: Num OCR='{num_txt}', Size OCR='{bs_txt}'")

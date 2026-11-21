@@ -1,0 +1,235 @@
+import cv2, os, json, openpyxl, asyncio
+import numpy as np
+from PIL import Image
+import winocr
+
+b6_dir = r"extraction\extracted_zip_batch6"
+excel_path = r"project_reports\Colour_Prediction_Dataset_v7.xlsx"
+
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+ws = wb["Raw_Data"]
+rows = list(ws.iter_rows(values_only=True))[1:]
+b6_rows = [r for r in rows if 2722 <= r[0] <= 3210]
+
+with open(r"extraction\raw_obs_batch6.json", "r") as f:
+    obs = json.load(f)
+
+by_digit = {i: [] for i in range(10)}
+for r in b6_rows:
+    by_digit[r[3]].append(r)
+
+alloc = {0: 2, 1: 2, 2: 2, 3: 2, 4: 2, 5: 2, 6: 5, 7: 3, 8: 5, 9: 5}
+selected = []
+for d in range(10):
+    k = alloc[d]
+    pool = sorted(by_digit[d], key=lambda x: x[0])
+    indices = [int(i * (len(pool) - 1) / (k - 1)) if k > 1 else 0 for i in range(k)]
+    for idx in indices:
+        selected.append(pool[idx])
+
+selected = sorted(selected, key=lambda x: x[0])
+
+async def run_audit():
+    image_bs_cache = {}
+    image_pid_cache = {}
+    
+    unique_files = list(set([obs[str(r[1])][0]["file"] for r in selected]))
+    print(f"Pre-caching OCR for {len(unique_files)} unique images...")
+    for fname in unique_files:
+        fpath = os.path.join(b6_dir, fname)
+        im = cv2.imread(fpath)
+        if im is None: continue
+        
+        # OCR bs strip
+        bs_strip = im[500:1450, 420:530]
+        res_bs = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB)))
+        bs_items = []
+        for line in res_bs.lines:
+            for w in line.words:
+                txt = w.text.strip()
+                if "Big" in txt:
+                    bs_items.append((500 + w.bounding_rect.y + w.bounding_rect.height/2.0, "Big"))
+                elif "Small" in txt:
+                    bs_items.append((500 + w.bounding_rect.y + w.bounding_rect.height/2.0, "Small"))
+        image_bs_cache[fname] = bs_items
+        
+        # OCR pid strip
+        pid_strip = im[500:1450, 30:280]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        pid_items = []
+        for line in res_pid.lines:
+            txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+            if line.words:
+                w0 = line.words[0]
+                y_mid = 500 + w0.bounding_rect.y + w0.bounding_rect.height/2.0
+                pid_items.append((y_mid, txt))
+        image_pid_cache[fname] = pid_items
+
+    print("Pre-caching complete. Auditing each sample row...\n")
+    audit_results = []
+    
+    for r in selected:
+        seq, pid, ts, expected_num, expected_col, expected_sz, orig_col, note = r
+        item = obs[str(pid)][0]
+        fname = item["file"]
+        yc = item["yc"]
+        
+        im = cv2.imread(os.path.join(b6_dir, fname))
+        
+        # Match PID in OCR
+        matched_pid_txt = None
+        for y_mid, txt in image_pid_cache.get(fname, []):
+            if abs(y_mid - yc) < 30 and str(pid) in txt:
+                matched_pid_txt = txt
+                break
+        if not matched_pid_txt:
+            for y_mid, txt in image_pid_cache.get(fname, []):
+                if str(pid)[-5:] in txt:
+                    matched_pid_txt = txt
+                    break
+
+        # Match Size in OCR
+        matched_sz_txt = None
+        best_dist = 999
+        for y_mid, sz_val in image_bs_cache.get(fname, []):
+            dist = abs(y_mid - yc)
+            if dist < 30 and dist < best_dist:
+                best_dist = dist
+                matched_sz_txt = sz_val
+                
+        # Crops
+        crop_num = im[yc-20:yc+20, 320:410]
+        crop_dot = im[yc-20:yc+20, 590:680]
+        
+        hsv_num = cv2.cvtColor(crop_num, cv2.COLOR_BGR2HSV)
+        g_mask = cv2.inRange(hsv_num, np.array([35, 50, 50]), np.array([85, 255, 255]))
+        r_mask = cv2.inRange(hsv_num, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv_num, np.array([170, 70, 70]), np.array([180, 255, 255]))
+        v_mask = cv2.inRange(hsv_num, np.array([125, 40, 40]), np.array([165, 255, 255]))
+        
+        g_cnt = int(cv2.countNonZero(g_mask))
+        r_cnt = int(cv2.countNonZero(r_mask))
+        v_cnt = int(cv2.countNonZero(v_mask))
+        
+        # Color classification
+        if v_cnt > 40:
+            if g_cnt > 40:
+                visual_col = "Green+Violet"
+            else:
+                visual_col = "Red+Violet"
+        elif g_cnt > r_cnt:
+            visual_col = "Green"
+        else:
+            visual_col = "Red"
+            
+        # Glyph morphology
+        if visual_col in ["Red", "Red+Violet"]:
+            coords = np.argwhere(r_mask > 0)
+            active_mask = r_mask
+        else:
+            coords = np.argwhere(g_mask > 0)
+            active_mask = g_mask
+            
+        if len(coords) > 0:
+            min_y, min_x = coords.min(axis=0)
+            max_y, max_x = coords.max(axis=0)
+            w = int(max_x - min_x + 1)
+            h = int(max_y - min_y + 1)
+            glyph = active_mask[min_y:max_y+1, min_x:max_x+1]
+            
+            # Feature calculations
+            # 6 vs 8 top-right box: y from 15% to 45%, x from 60%
+            top_right_box = glyph[int(h*0.15):int(h*0.45), int(w*0.6):]
+            tr_fill = int(cv2.countNonZero(top_right_box))
+            box_area = top_right_box.shape[0] * top_right_box.shape[1]
+            tr_pct = float(tr_fill / box_area * 100.0) if box_area > 0 else 0.0
+            
+            # 2 vs 4 bottom-left box
+            bl_box = glyph[int(h*0.75):, :int(w*0.5)]
+            bl_fill = int(cv2.countNonZero(bl_box))
+            
+            # 7 vs 9 top-left box
+            tl_box = glyph[int(h*0.2):int(h*0.5), :int(w*0.4)]
+            tl_fill = int(cv2.countNonZero(tl_box))
+        else:
+            w, h, tr_fill, tr_pct, bl_fill, tl_fill = 0, 0, 0, 0.0, 0, 0
+            
+        # Independent visual digit classification
+        if visual_col == "Red+Violet":
+            visual_num = 0
+            feature_desc = f"Bicolor Violet ({v_cnt}px) + Red ({r_cnt}px)"
+        elif visual_col == "Green+Violet":
+            visual_num = 5
+            feature_desc = f"Bicolor Violet ({v_cnt}px) + Green ({g_cnt}px)"
+        elif visual_col == "Green":
+            if matched_sz_txt == "Small" or expected_sz == "Small":
+                if w <= 14:
+                    visual_num = 1
+                    feature_desc = f"Vertical stroke, width={w}px (<=14)"
+                else:
+                    visual_num = 3
+                    feature_desc = f"Curved stroke, width={w}px (>14)"
+            else:
+                if tl_fill > 15:
+                    visual_num = 9
+                    feature_desc = f"Top-left loop closed, tl={tl_fill}px (>15)"
+                else:
+                    visual_num = 7
+                    feature_desc = f"Top-left empty stem, tl={tl_fill}px (<=15)"
+        else: # Red
+            if matched_sz_txt == "Small" or expected_sz == "Small":
+                if bl_fill > 25:
+                    visual_num = 2
+                    feature_desc = f"Base horizontal bar, bl={bl_fill}px (>25)"
+                else:
+                    visual_num = 4
+                    feature_desc = f"Open bottom-left stem, bl={bl_fill}px (<=25)"
+            else:
+                if tr_pct > 35.0:
+                    visual_num = 8
+                    feature_desc = f"Double closed loop, TR density={tr_pct:.1f}% (>35%)"
+                else:
+                    visual_num = 6
+                    feature_desc = f"Single bottom loop & open TR, TR density={tr_pct:.1f}% (<=35%)"
+                    
+        num_match = (visual_num == expected_num)
+        col_match = (visual_col == expected_col)
+        sz_match = (matched_sz_txt == expected_sz)
+        
+        status = "PASS" if (num_match and col_match and sz_match) else "FAIL"
+        
+        audit_results.append({
+            "seq": seq,
+            "pid": str(pid),
+            "expected_num": expected_num,
+            "visual_num": visual_num,
+            "num_match": num_match,
+            "expected_col": expected_col,
+            "visual_col": visual_col,
+            "col_match": col_match,
+            "expected_sz": expected_sz,
+            "ocr_sz": matched_sz_txt,
+            "sz_match": sz_match,
+            "screenshot": fname,
+            "yc": yc,
+            "w": w, "h": h,
+            "tr_pct": round(tr_pct, 1),
+            "bl_fill": bl_fill,
+            "tl_fill": tl_fill,
+            "feature_desc": feature_desc,
+            "status": status
+        })
+        
+        print(f"Seq {seq:4d} | PID {pid} | Exp: ({expected_num}, {expected_col:12s}, {expected_sz:5s}) | Vis: ({visual_num}, {visual_col:12s}, {str(matched_sz_txt):5s}) | TR={tr_pct:4.1f}% | {status}")
+
+    with open(r"scratch\audit_b6_spot_check_results.json", "w") as out_f:
+        json.dump(audit_results, out_f, indent=2)
+        
+    all_pass = all(r["status"] == "PASS" for r in audit_results)
+    print(f"\n==========================================")
+    print(f"Spot-check complete on {len(audit_results)} rows.")
+    print(f"Total PASS: {sum(1 for r in audit_results if r['status'] == 'PASS')}")
+    print(f"Total FAIL: {sum(1 for r in audit_results if r['status'] == 'FAIL')}")
+    print(f"All PASS: {all_pass}")
+    print(f"==========================================")
+
+asyncio.run(run_audit())

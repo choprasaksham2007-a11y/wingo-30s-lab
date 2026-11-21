@@ -1,0 +1,147 @@
+import os
+import glob
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+import numpy as np
+import json
+from collections import defaultdict
+
+batch2_dir = r"extraction\extracted_zip_batch2"
+templates = np.load(r"extraction\digit_templates.npy", allow_pickle=True).item()
+
+def classify_number(num_crop):
+    best_digit = None
+    best_score = -1.0
+    for digit, tpl in templates.items():
+        res = cv2.matchTemplate(num_crop, tpl, cv2.TM_CCOEFF_NORMED)
+        _, max_val, _, _ = cv2.minMaxLoc(res)
+        if max_val > best_score:
+            best_score = max_val
+            best_digit = int(digit)
+    return best_digit, best_score
+
+def get_glyph_hsv_colors(num_crop):
+    hsv = cv2.cvtColor(num_crop, cv2.COLOR_BGR2HSV)
+    g_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255])))
+    r_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255])))
+    v_cnt = cv2.countNonZero(cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255])))
+    return g_cnt, r_cnt, v_cnt
+
+def derive_color_and_size(number: int):
+    sz = "Small" if number <= 4 else "Big"
+    if number == 0:
+        col = "Red+Violet"
+    elif number == 5:
+        col = "Green+Violet"
+    elif number in [1, 3, 7, 9]:
+        col = "Green"
+    else:
+        col = "Red"
+    return col, sz
+
+async def extract_all_batch2():
+    files = sorted(glob.glob(os.path.join(batch2_dir, "*.jpeg")))
+    obs_by_pid = defaultdict(list)
+    
+    for f in files:
+        fname = os.path.basename(f)
+        if fname in ['WhatsApp Image 2026-10-23 at 22.06.44.jpeg', 'WhatsApp Image 2026-10-23 at 22.06.45.jpeg']:
+            continue
+            
+        img = cv2.imread(f)
+        pid_strip = img[550:1400, 30:290]
+        pil_pid = Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB))
+        res_pid = await winocr.recognize_pil(pil_pid)
+        
+        # Also recognize Big/Small
+        bs_strip = img[550:1400, 450:570]
+        pil_bs = Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB))
+        res_bs = await winocr.recognize_pil(pil_bs)
+        
+        bs_lines = []
+        for l in res_bs.lines:
+            txt = " ".join([w.text.strip() for w in l.words])
+            if "Big" in txt or "Small" in txt:
+                val = "Big" if "Big" in txt else "Small"
+                y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+                bs_lines.append((y_c, val))
+                
+        for line in res_pid.lines:
+            txt = "".join([w.text.strip() for w in line.words]).replace(" ", "").replace("o", "0").replace("O", "0")
+            for i in range(len(txt) - 16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith("202610231000"):
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    y_full = 550 + y_rel
+                    yc = int(round(y_full))
+                    
+                    # Number crop
+                    num_crop = img[yc-20:yc+20, 345:385]
+                    digit, score = classify_number(num_crop)
+                    g_cnt, r_cnt, v_cnt = get_glyph_hsv_colors(num_crop)
+                    
+                    # Size match
+                    best_bs = None
+                    min_dist = 999.0
+                    for bs_y, bs_val in bs_lines:
+                        dist = abs(bs_y - y_rel)
+                        if dist < min_dist and dist < 35:
+                            min_dist = dist
+                            best_bs = bs_val
+                            
+                    obs_by_pid[chunk].append({
+                        "file": fname,
+                        "yc": yc,
+                        "digit": digit,
+                        "score": round(score, 3),
+                        "bs_ocr": best_bs,
+                        "glyph_pixels": {"g": g_cnt, "r": r_cnt, "v": v_cnt}
+                    })
+                    break
+                    
+    return obs_by_pid
+
+obs_by_pid = asyncio.run(extract_all_batch2())
+print(f"Extracted observations for {len(obs_by_pid)} distinct Period IDs.")
+
+# Verify and reconcile each Period ID
+reconciled = {}
+conflict_pids = []
+
+for pid, obs_list in sorted(obs_by_pid.items()):
+    digits = [o["digit"] for o in obs_list if o["digit"] is not None]
+    if not digits:
+        print(f"[ERROR] No valid digit for PID {pid}")
+        conflict_pids.append(pid)
+        continue
+        
+    # Check consensus
+    from collections import Counter
+    digit_counts = Counter(digits)
+    best_digit, count = digit_counts.most_common(1)[0]
+    
+    # Check if any conflict
+    if len(digit_counts) > 1:
+        print(f"[CONFLICT] PID {pid} has conflicting digits: {dict(digit_counts)} across {[o['file'] for o in obs_list]}")
+        conflict_pids.append((pid, digit_counts, obs_list))
+        
+    expected_col, expected_sz = derive_color_and_size(best_digit)
+    
+    reconciled[pid] = {
+        "period_id": pid,
+        "number": best_digit,
+        "colour": expected_col,
+        "size": expected_sz,
+        "observation_count": len(obs_list),
+        "sources": [o["file"] for o in obs_list]
+    }
+
+print(f"Successfully reconciled {len(reconciled)} Period IDs.")
+print(f"Total conflicts: {len(conflict_pids)}")
+
+# Save reconciled data
+with open(r"extraction\reconciled_batch2.json", "w") as f:
+    json.dump(reconciled, f, indent=2)

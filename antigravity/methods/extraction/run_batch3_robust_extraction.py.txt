@@ -1,0 +1,168 @@
+import os
+import glob
+import cv2
+import asyncio
+from PIL import Image
+import winocr
+import numpy as np
+import json
+from collections import defaultdict, Counter
+from datetime import datetime, timedelta
+
+batch3_dir = r"extraction\extracted_zip_batch3"
+
+def get_timestamp(pid: str) -> str:
+    # Anchor: 52278 = 2026-10-24 00:29:00
+    anchor = datetime(2026, 10, 24, 0, 29, 0)
+    suffix = int(pid[-5:])
+    diff = suffix - 52278
+    dt = anchor + timedelta(seconds=diff * 30)
+    return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+def classify_glyph_robust(im, yc, bs_val):
+    crop = im[yc-22:yc+22, 320:365]
+    hsv = cv2.cvtColor(crop, cv2.COLOR_BGR2HSV)
+    
+    g_mask = cv2.inRange(hsv, np.array([35, 50, 50]), np.array([85, 255, 255]))
+    r_mask = cv2.inRange(hsv, np.array([0, 70, 70]), np.array([10, 255, 255])) | cv2.inRange(hsv, np.array([170, 70, 70]), np.array([180, 255, 255]))
+    v_mask = cv2.inRange(hsv, np.array([125, 40, 40]), np.array([165, 255, 255]))
+    
+    g_cnt = cv2.countNonZero(g_mask)
+    r_cnt = cv2.countNonZero(r_mask)
+    v_cnt = cv2.countNonZero(v_mask)
+    
+    # 0 vs 5
+    if v_cnt > 60:
+        if g_cnt > 60:
+            return 5, "Green+Violet", "Big"
+        else:
+            return 0, "Red+Violet", "Small"
+            
+    c_mask = g_mask | r_mask
+    coords = np.argwhere(c_mask > 0)
+    if len(coords) < 30:
+        # Fallback to bs_val
+        sz = bs_val if bs_val in ["Small", "Big"] else "Small"
+        col = "Green" if g_cnt > r_cnt else "Red"
+        d = 1 if (col=="Green" and sz=="Small") else (7 if (col=="Green" and sz=="Big") else (2 if (col=="Red" and sz=="Small") else 6))
+        return d, col, sz
+        
+    min_y, min_x = coords.min(axis=0)
+    max_y, max_x = coords.max(axis=0)
+    h = max_y - min_y + 1
+    w = max_x - min_x + 1
+    aspect = w / float(h)
+    glyph_mask = c_mask[min_y:max_y+1, min_x:max_x+1]
+    
+    is_green = (g_cnt > r_cnt)
+    
+    if is_green:
+        if bs_val == "Small":
+            return (1, "Green", "Small") if aspect < 0.45 else (3, "Green", "Small")
+        elif bs_val == "Big":
+            top_left_fill = cv2.countNonZero(glyph_mask[h//6:h//2, :w//3])
+            return (9, "Green", "Big") if top_left_fill > 10 else (7, "Green", "Big")
+        else:
+            if aspect < 0.45: return 1, "Green", "Small"
+            top_left_fill = cv2.countNonZero(glyph_mask[h//6:h//2, :w//3])
+            return (9, "Green", "Big") if top_left_fill > 10 else (7, "Green", "Big")
+    else:
+        if bs_val == "Small":
+            bottom_bar = cv2.countNonZero(glyph_mask[int(h*0.8):, :w//2])
+            return (2, "Red", "Small") if bottom_bar > 12 else (4, "Red", "Small")
+        elif bs_val == "Big":
+            top_right = cv2.countNonZero(glyph_mask[h//6:h//2, int(w*0.6):])
+            return (8, "Red", "Big") if top_right > 15 else (6, "Red", "Big")
+        else:
+            bottom_bar = cv2.countNonZero(glyph_mask[int(h*0.8):, :w//2])
+            return (2, "Red", "Small") if bottom_bar > 12 else (4, "Red", "Small")
+
+async def extract_batch3_all():
+    files = sorted(glob.glob(os.path.join(batch3_dir, "*.jpeg")))
+    obs_by_pid = defaultdict(list)
+    
+    for f in files:
+        fname = os.path.basename(f)
+        im = cv2.imread(f)
+        
+        # Period strip
+        pid_strip = im[500:1450, 20:300]
+        res_pid = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(pid_strip, cv2.COLOR_BGR2RGB)))
+        
+        # Big/Small strip (centered around 420-530)
+        bs_strip = im[500:1450, 420:530]
+        res_bs = await winocr.recognize_pil(Image.fromarray(cv2.cvtColor(bs_strip, cv2.COLOR_BGR2RGB)))
+        bs_items = []
+        for l in res_bs.lines:
+            txt = " ".join([w.text.strip() for w in l.words])
+            if "Big" in txt or "Small" in txt or "sma" in txt.lower():
+                val = "Small" if ("Small" in txt or "sma" in txt.lower()) else "Big"
+                y_c = l.words[0].bounding_rect.y + l.words[0].bounding_rect.height / 2.0
+                bs_items.append((y_c, val))
+                
+        for line in res_pid.lines:
+            txt = ''.join([w.text.strip() for w in line.words]).replace(' ', '').replace('o', '0').replace('O', '0')
+            for i in range(len(txt)-16):
+                chunk = txt[i:i+17]
+                if chunk.isdigit() and chunk.startswith('202610231000'):
+                    w0 = line.words[0]
+                    y_rel = w0.bounding_rect.y + w0.bounding_rect.height / 2.0
+                    yc = int(round(500 + y_rel))
+                    
+                    best_bs = None
+                    min_d = 999.0
+                    for b_y, b_val in bs_items:
+                        dist = abs(b_y - y_rel)
+                        if dist < min_d and dist < 35:
+                            min_d = dist
+                            best_bs = b_val
+                            
+                    d, col, sz = classify_glyph_robust(im, yc, best_bs)
+                    obs_by_pid[chunk].append({
+                        "file": fname,
+                        "yc": yc,
+                        "digit": d,
+                        "col": col,
+                        "size": sz,
+                        "bs_ocr": best_bs
+                    })
+                    break
+    return obs_by_pid
+
+obs_by_pid = asyncio.run(extract_batch3_all())
+print(f"Total distinct PIDs extracted: {len(obs_by_pid)}")
+
+reconciled = {}
+digit_counter = Counter()
+
+for pid in sorted(obs_by_pid.keys()):
+    obs = obs_by_pid[pid]
+    digits = [o["digit"] for o in obs if o["digit"] is not None]
+    best_d = Counter(digits).most_common(1)[0][0]
+    digit_counter[best_d] += 1
+    
+    sz = "Small" if best_d <= 4 else "Big"
+    if best_d == 0: col = "Red+Violet"
+    elif best_d == 5: col = "Green+Violet"
+    elif best_d in [1, 3, 7, 9]: col = "Green"
+    else: col = "Red"
+    
+    ts = get_timestamp(pid)
+    reconciled[pid] = {
+        "period_id": pid,
+        "timestamp": ts,
+        "number": best_d,
+        "colour": col,
+        "size": sz,
+        "source_count": len(obs),
+        "sources": [o["file"] for o in obs]
+    }
+
+print("Batch 3 Digit Distribution after robust extraction:")
+for d in range(10):
+    print(f"  Digit {d}: {digit_counter[d]}")
+
+with open(r"extraction\reconciled_batch3.json", "w") as f:
+    json.dump(reconciled, f, indent=2)
+
+print("Saved updated reconciled_batch3.json successfully.")

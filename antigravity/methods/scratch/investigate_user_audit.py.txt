@@ -1,0 +1,64 @@
+import openpyxl, sys
+import pandas as pd
+
+sys.stdout.reconfigure(encoding='utf-8')
+
+excel_path = r"project_reports\Colour_Prediction_Dataset_v8.xlsx"
+df = pd.read_excel(excel_path, sheet_name='Raw_Data')
+
+print(f"Total rows: {len(df)}")
+
+# Check colour rules:
+# Let's see what rules might give 26 differences:
+# Possibility A:
+# If user's checker expects simple "Red" or "Green" for 0 and 5, or if user's checker expects "Red+Violet" and "Green+Violet" but something else is in `colour` or `colour_original`?
+# Let's check what is in df['colour'] and df['colour_original'] for all rows!
+print("\nUnique values in 'colour':", df['colour'].unique())
+print("Unique values in 'colour_original':", df['colour_original'].unique())
+
+# Check where colour != rule
+# Standard rule:
+# 0: Red+Violet
+# 1, 3, 7, 9: Green
+# 2, 4, 6, 8: Red
+# 5: Green+Violet
+
+rule_map_dual = {
+    0: 'Red+Violet',
+    1: 'Green', 2: 'Red', 3: 'Green', 4: 'Red',
+    5: 'Green+Violet',
+    6: 'Red', 7: 'Green', 8: 'Red', 9: 'Green'
+}
+
+rule_map_simple = {
+    0: 'Red',
+    1: 'Green', 2: 'Red', 3: 'Green', 4: 'Red',
+    5: 'Green',
+    6: 'Red', 7: 'Green', 8: 'Red', 9: 'Green'
+}
+
+diff_dual = df[df['colour'] != df['number'].map(rule_map_dual)]
+diff_simple = df[df['colour'] != df['number'].map(rule_map_simple)]
+diff_orig_dual = df[df['colour_original'] != df['number'].map(rule_map_dual)]
+diff_orig_simple = df[df['colour_original'] != df['number'].map(rule_map_simple)]
+
+print(f"\ndf['colour'] != rule_map_dual: {len(diff_dual)}")
+print(f"df['colour'] != rule_map_simple: {len(diff_simple)}")
+print(f"df['colour_original'] != rule_map_dual: {len(diff_orig_dual)}")
+print(f"df['colour_original'] != rule_map_simple: {len(diff_orig_simple)}")
+
+# Check if there are rows where colour != colour_original
+diff_cols = df[df['colour'] != df['colour_original']]
+print(f"\ndf['colour'] != df['colour_original']: {len(diff_cols)}")
+if len(diff_cols) > 0:
+    print(f"Sample rows where colour != colour_original ({len(diff_cols)} rows):")
+    for idx, row in diff_cols.iterrows():
+        print(f"  Seq {row['sequence_no']:4d} | PID {row['Period ID']} | Num: {row['number']} | Col: '{row['colour']}' | Orig: '{row['colour_original']}' | Note: '{row['fix_note']}'")
+
+# Check block sizes:
+wb = openpyxl.load_workbook(excel_path, data_only=True)
+ws_gaps = wb['Missing_Rounds']
+# Let's inspect Block 8
+print("\n--- Inspect Block sizes ---")
+# from calculate_blocks logic
+# let's find blocks

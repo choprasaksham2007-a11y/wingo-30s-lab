@@ -1,0 +1,19 @@
+import json
+
+with open(r"scratch\changelog_batch2_6_vs_8.json", "r") as f:
+    cl = json.load(f)
+
+changed = [c for c in cl if c["changed"]]
+print(f"Printing all {len(changed)} changed rows:")
+print("| Seq No | Period ID | Old | New | Confident | Top-Right Fill | Visual Morphology | Source Screenshot |")
+print("|:---:|:---:|:---:|:---:|:---:|:---:|:---|:---|")
+for c in changed:
+    s = c["sequence_no"]
+    p = c["period_id"]
+    old_n = c["old_number"]
+    new_n = c["new_number"]
+    conf = c["confident"]
+    tr = c["avg_tr"]
+    morph = c["morphology"]
+    src = c["sources"][0] if c["sources"] else "None"
+    print(f"| {s} | `{p}` | {old_n} | **{new_n}** | {conf} | {tr:.1f}px (open) | {morph} | `{src}` |")
