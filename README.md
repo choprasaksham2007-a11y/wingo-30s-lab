@@ -10,7 +10,7 @@ The model got **52%** of Big/Small calls right in its second block of 1,000 roun
 
 I started with a question you can ask after watching a few rounds: if Big has just appeared five times, does knowing that streak help you call the sixth round? I collected outcomes, turned questions like this into model inputs, and saved individual forecasts so anyone could count the hits. The final dataset covers **88,916 rounds across 31 calendar dates**. The model evaluations below identify the particular snapshot each experiment used.
 
-[Dataset guide](#inside-the-dataset) · [Forecast design](#how-the-forecasts-were-made) · [Scores](#how-did-the-model-score) · [Clock-time experiment](#does-the-same-digit-return-tomorrow) · [Run the viewer](#open-the-saved-prediction-viewer) · [Verify the data](#check-the-archive-offline)
+[Dataset guide](#inside-the-dataset) · [Forecast design](#how-the-forecasts-were-made) · [Scores](#how-did-the-model-score) · [Clock-time experiment](#does-the-same-digit-return-tomorrow) · [Generator evidence](#which-generator-does-the-research-point-to) · [Run the viewer](#open-the-saved-prediction-viewer) · [Verify the data](#check-the-archive-offline)
 
 ### Try it in two cells
 
@@ -108,7 +108,11 @@ At the worksheet time **00:00:00**, the first published premium was **71180**. I
 - **Round history.** I compared an earlier snapshot of 88,865 rounds with the final dataset. I found 51 added rounds and 49 previously incomplete premiums. Every winning digit present in both snapshots agreed. [Compare the snapshots](docs/DATA_PROVENANCE.md) · [Same-time digit repeat analysis](docs/DATA_PROVENANCE.md#did-yesterdays-result-repeat-at-the-same-clock-time) · [Earlier report](docs/evidence/chatgpt/premium_analysis_2026-11-11.md)
 - **Audit trail.** Follow the workbook revisions and image-based digit checks. My review of the original 110-dimension audit identified hardcoded verdicts and tests whose assumptions did not fit the data. [Browse the audit archive](antigravity/README.md) · [Read the corrections](docs/CLAIM_LEDGER.md)
 
-The recorded API evidence describes how results were distributed. The author's separate investigation attributes generation to a .NET cryptographic RNG. The archive lacks independent confirmation of the deployed generator, and no seed was recovered. [Infrastructure evidence](docs/INFRASTRUCTURE.md)
+## Which generator does the research point to?
+
+My investigation points to **Microsoft .NET’s `System.Security.Cryptography.RandomNumberGenerator`**, backed by the operating system’s cryptographically secure pseudorandom number generator (CSPRNG). Microsoft documents that the static methods of this .NET class draw randomness from the platform. Identifying the exact algorithm used on the WinGo server would require evidence of its deployed implementation. [Microsoft’s .NET cryptography documentation](https://learn.microsoft.com/en-us/dotnet/standard/security/cryptography-model#one-shot-apis) · [Implementation evidence](docs/INFRASTRUCTURE.md#framework-and-implementation-claims)
+
+The 88,916 rounds verify one step readers can check directly: the published winning digit equals the last digit of the premium. Several different generators could produce outputs with that property. The saved HTTP headers describe how finished results reached clients. The server’s underlying algorithm, seed and reseeding policy remain unknown. [Evidence for each claim](docs/CLAIM_LEDGER.md)
 
 ## Check the archive offline
 
