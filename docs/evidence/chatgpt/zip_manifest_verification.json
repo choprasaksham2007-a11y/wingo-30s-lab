@@ -1,0 +1,30 @@
+[
+  {
+    "file": "ASTRA_FINAL_PROMPT.md",
+    "matches": true
+  },
+  {
+    "file": "CHATGPT_RESEARCH_HANDOFF.md",
+    "matches": true
+  },
+  {
+    "file": "WinGo_Premium_Analysis_2026-11-11.md",
+    "matches": true
+  },
+  {
+    "file": "WinGo_same_time_every_day.csv",
+    "matches": true
+  },
+  {
+    "file": "compare_wingo_apis.py",
+    "matches": true
+  },
+  {
+    "file": "trace_wingo_provenance.py",
+    "matches": true
+  },
+  {
+    "file": "wingo_premium_collector.py",
+    "matches": true
+  }
+]

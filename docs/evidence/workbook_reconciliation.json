@@ -1,0 +1,166 @@
+{
+  "workbook_sha256": "a3d6bb1626070ede86985c8c47399900db8e1c044b1272c621b81cc901788bb0",
+  "workbook_bytes": 13140942,
+  "sheets": [
+    {
+      "name": "Raw_Data",
+      "rows_including_header": 88917,
+      "columns": 9,
+      "headers": [
+        "sequence_no",
+        "Period ID",
+        "timestamp",
+        "premium",
+        "number",
+        "colour",
+        "size",
+        "colour_original",
+        "fix_note"
+      ]
+    },
+    {
+      "name": "ML_Ready",
+      "rows_including_header": 88912,
+      "columns": 23,
+      "headers": [
+        "sample_sequence",
+        "Target Period ID",
+        "target_timestamp",
+        "target_premium",
+        "target_number",
+        "target_colour",
+        "target_size",
+        "prev_1_number",
+        "prev_1_colour",
+        "prev_1_size",
+        "prev_2_number",
+        "prev_2_colour",
+        "prev_2_size",
+        "prev_3_number",
+        "prev_3_colour",
+        "prev_3_size",
+        "prev_4_number",
+        "prev_4_colour",
+        "prev_4_size",
+        "prev_5_number",
+        "prev_5_colour",
+        "prev_5_size",
+        "block_id"
+      ]
+    },
+    {
+      "name": "Missing_Rounds",
+      "rows_including_header": 1,
+      "columns": 9,
+      "headers": [
+        "Gap #",
+        "Preceding Period ID",
+        "Preceding Time",
+        "Resuming Period ID",
+        "Resuming Time",
+        "Missing Rounds",
+        "Duration",
+        "Block Before",
+        "Block After"
+      ]
+    },
+    {
+      "name": "Summary",
+      "rows_including_header": 23,
+      "columns": 4,
+      "headers": [
+        "COLOUR PREDICTION DATASET SUMMARY (V19 MASTER - AUDITED)",
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "Read_Me",
+      "rows_including_header": 7,
+      "columns": 1,
+      "headers": [
+        "COLOUR PREDICTION DATASET V19 MASTER - DOCUMENTATION"
+      ]
+    },
+    {
+      "name": "Audit",
+      "rows_including_header": 11,
+      "columns": 4,
+      "headers": [
+        "Audit Dimension",
+        "Specification",
+        "Observed Result",
+        "Status"
+      ]
+    },
+    {
+      "name": "Change_Log",
+      "rows_including_header": 4,
+      "columns": 5,
+      "headers": [
+        "Version",
+        "Date",
+        "Rounds",
+        "5-Digit Premiums",
+        "Key Improvements"
+      ]
+    }
+  ],
+  "old_rows": 88916,
+  "old_unique": 88916,
+  "old_full_premiums": 88916,
+  "old_incomplete_premiums": 0,
+  "added_periods": [],
+  "removed_periods": [],
+  "changed_numbers": 0,
+  "premiums_updated": 0,
+  "formulas": 0,
+  "privacy_findings": [],
+  "raw_first": {
+    "sequence_no": "1",
+    "Period ID": "20261011100052221",
+    "timestamp": "2026-10-12 00:00:00",
+    "premium": "71180",
+    "number": "0",
+    "colour": "Red+Violet",
+    "size": "Small",
+    "colour_original": "red,violet",
+    "fix_note": "Platsaas verified 5-digit premium"
+  },
+  "raw_last": {
+    "sequence_no": "88916",
+    "Period ID": "20261111100051856",
+    "timestamp": "2026-11-11 20:57:30",
+    "premium": "14495",
+    "number": "5",
+    "colour": "Green+Violet",
+    "size": "Big",
+    "colour_original": "green,violet",
+    "fix_note": "Platsaas verified 5-digit premium"
+  },
+  "old_first": {
+    "sequence_no": "1",
+    "Period ID": "20261011100052221",
+    "timestamp": "2026-10-12 00:00:00",
+    "premium": "71180",
+    "number": "0",
+    "colour": "Red+Violet",
+    "size": "Small",
+    "colour_original": "red,violet",
+    "fix_note": "Platsaas verified 5-digit premium"
+  },
+  "old_last": {
+    "sequence_no": "88916",
+    "Period ID": "20261111100051856",
+    "timestamp": "2026-11-11 20:57:30",
+    "premium": "14495",
+    "number": "5",
+    "colour": "Green+Violet",
+    "size": "Big",
+    "colour_original": "green,violet",
+    "fix_note": "Platsaas verified 5-digit premium"
+  },
+  "ml_rows": 88911,
+  "ml_target_and_lag_errors": 0
+}

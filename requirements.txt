@@ -1,0 +1,2 @@
+# Python >= 3.11. Default offline checks use only the Python standard library.
+# Optional historical replay dependencies are in requirements-legacy.txt.

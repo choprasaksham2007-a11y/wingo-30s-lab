@@ -1,0 +1,56 @@
+{
+  "83_timestamp_seed_audit": {
+    "epoch_sec_correlation": 0.0016186805297690218,
+    "epoch_sec_p_value": 0.6293340344037055,
+    "time_of_day_correlation": -0.002462189720700088,
+    "time_of_day_p_value": 0.462835460678603,
+    "timestamp_driven_seed": false,
+    "pass": true
+  },
+  "85_static_seed_detection": {
+    "consecutive_identical_premiums": 3,
+    "expected_consecutive_dupes_in_90k": 0.9879555555555556,
+    "pass": true
+  },
+  "86_modulo_bias_check": {
+    "premium_domain_size": 90000,
+    "modulus": 10,
+    "states_per_digit": 9000,
+    "remainder": 0,
+    "theoretical_modulo_bias": 0.0,
+    "empirical_max_digit_deviation": 0.002750910972153492,
+    "pass": true
+  },
+  "91_early_vs_late_stability": {
+    "ks_stat": 0.010199999999999987,
+    "p_value": 0.95721723072851,
+    "drift_detected": false,
+    "pass": true
+  },
+  "99_timing_side_channel": {
+    "server_lockout_window_seconds": 5.0,
+    "leakage_during_lockout": false,
+    "timing_exploitable": false,
+    "pass": true
+  },
+  "104_provably_fair_verification": {
+    "pre_draw_sha256_published": false,
+    "client_seed_injection_allowed": false,
+    "provably_fair_standard_met": false,
+    "architecture_type": "Closed Server-Side PRNG"
+  },
+  "106_midnight_reset_correlation": {
+    "midnight_mean": 4.63103448275862,
+    "day_mean": 4.489800307915233,
+    "diff": 0.14123417484338763,
+    "reset_artifact_present": false,
+    "pass": true
+  },
+  "108_cross_instance_correlation": {
+    "sample_size": 10,
+    "pearson_correlation": -0.5579861673972143,
+    "p_value": 0.09370528853801642,
+    "correlated": false,
+    "pass": true
+  }
+}

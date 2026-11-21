@@ -1,0 +1,30 @@
+[
+  {
+    "host": "draw.ar-lottery01.com",
+    "capture_sha256": "96bcbef62b56e4b820d9eeb594bd10a96c097e2d1d2c8ec1448e61efdc55c14f",
+    "status_line": "HTTP/1.1 200 OK",
+    "headers": {
+      "date": "Sun, 15 Nov 2026 15:15:37 GMT",
+      "content-type": "application/octet-stream",
+      "server": "cloudflare",
+      "last-modified": "Sun, 15 Nov 2026 15:15:27 GMT",
+      "x-oss-object-type": "Normal",
+      "x-oss-storage-class": "Standard",
+      "cf-cache-status": "DYNAMIC"
+    }
+  },
+  {
+    "host": "draw.platsaas.com",
+    "capture_sha256": "d8f3499eb5f90a1ef86340e58215d7b8b98e3bda07364896b55f5ce6baee93ac",
+    "status_line": "HTTP/1.1 200 OK",
+    "headers": {
+      "date": "Sun, 15 Nov 2026 15:15:38 GMT",
+      "content-type": "application/octet-stream",
+      "server": "cloudflare",
+      "last-modified": "Sun, 15 Nov 2026 15:15:27 GMT",
+      "x-oss-object-type": "Normal",
+      "x-oss-storage-class": "Standard",
+      "cf-cache-status": "DYNAMIC"
+    }
+  }
+]

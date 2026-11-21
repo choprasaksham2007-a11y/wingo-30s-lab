@@ -1,0 +1,11 @@
+{
+  "shannon_entropy_digits": 3.3217887477271266,
+  "theoretical_max_entropy": 3.321928094887362,
+  "arithmetic_mean_digits": 4.490721579918125,
+  "expected_mean": 4.5,
+  "chi_square_stat": 17.12542174636736,
+  "serial_correlation": -0.0035753756090140675,
+  "monte_carlo_pi_estimate": 3.139322506635476,
+  "pi_actual": 3.141592653589793,
+  "pi_error_percent": 0.07226102186491015
+}

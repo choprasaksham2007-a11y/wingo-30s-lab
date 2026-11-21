@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this research archive, please cite this release and identify the dataset snapshot."
+title: "WinGo 30S: An Empirical Audit of Prediction Claims"
+type: software
+version: 1.0.0
+date-released: 2026-11-21
+authors:
+  - family-names: Chopra
+    given-names: Saksham
+license: MIT
+abstract: "A consolidated research archive of 88,916 recorded WinGo 30S rounds, preserved prediction experiments, corrected statistical interpretations, and evidence-grounded infrastructure observations."
+keywords:
+  - reproducibility
+  - randomness
+  - prediction
+  - statistical-audit
+repository-code: "https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis"
+url: "https://github.com/choprasaksham2007-a11y/wingo-prng-cryptanalysis"

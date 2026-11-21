@@ -1,0 +1,179 @@
+{
+  "model_id": "patterns_20261108T022525921491Z",
+  "training_rows": 6348,
+  "selection_rows": 2116,
+  "test_rows": 2116,
+  "usable_rows": 10580,
+  "test_start": "20261030100052122",
+  "test_end": "20261108100050289",
+  "data_sha256": "2260b0fe1f383735f498a44f4fe0fef832242b4ebe59c1d7a08b49e8a08e9927",
+  "configuration": {
+    "version": "adaptive-patterns-v1",
+    "strength": 64.0,
+    "rate": 0.02,
+    "experts": 32
+  },
+  "selection_candidates": [
+    {
+      "version": "adaptive-patterns-v1",
+      "strength": 16.0,
+      "rate": 0.02
+    },
+    {
+      "version": "adaptive-patterns-v1",
+      "strength": 16.0,
+      "rate": 0.1
+    },
+    {
+      "version": "adaptive-patterns-v1",
+      "strength": 64.0,
+      "rate": 0.02
+    },
+    {
+      "version": "adaptive-patterns-v1",
+      "strength": 64.0,
+      "rate": 0.1
+    },
+    {
+      "version": "hierarchical-patterns-v2",
+      "strength": 16.0,
+      "rate": 0.02
+    },
+    {
+      "version": "hierarchical-patterns-v2",
+      "strength": 16.0,
+      "rate": 0.1
+    },
+    {
+      "version": "hierarchical-patterns-v2",
+      "strength": 64.0,
+      "rate": 0.02
+    },
+    {
+      "version": "hierarchical-patterns-v2",
+      "strength": 64.0,
+      "rate": 0.1
+    }
+  ],
+  "selection_losses": [
+    1.0006678908403606,
+    1.0005709850519833,
+    1.000337987894817,
+    1.0003431948270063,
+    1.0007772858954496,
+    1.000586802468096,
+    1.000823839016047,
+    1.0006200645876389
+  ],
+  "adaptive": {
+    "digit": {
+      "accuracy": 0.10680529300567108,
+      "log_loss": 2.3033949680691004,
+      "accuracy_95_range": [
+        0.09435033959150353,
+        0.12068529758972553
+      ]
+    },
+    "size": {
+      "accuracy": 0.4910207939508507,
+      "log_loss": 0.6937479386104622,
+      "accuracy_95_range": [
+        0.46975584714416324,
+        0.5123182839933889
+      ]
+    },
+    "primary": {
+      "accuracy": 0.4976370510396975,
+      "log_loss": 0.6931099609744533,
+      "accuracy_95_range": [
+        0.4763569256235443,
+        0.5189257404652853
+      ]
+    },
+    "colour": {
+      "accuracy": 0.4111531190926276,
+      "log_loss": 1.2005186474242109,
+      "accuracy_95_range": [
+        0.3903675864013854,
+        0.4322606585386038
+      ]
+    }
+  },
+  "neural_comparator": {
+    "size": {
+      "accuracy": 0.5023629489603024,
+      "log_loss": 0.6931686261905107,
+      "accuracy_95_range": [
+        0.48107425953471483,
+        0.5236430743764557
+      ]
+    },
+    "colour": {
+      "accuracy": 0.40784499054820417,
+      "log_loss": 1.2146715260092216,
+      "accuracy_95_range": [
+        0.38709132267557483,
+        0.4289326547887757
+      ]
+    },
+    "digit": {
+      "accuracy": 0.10633270321361059,
+      "log_loss": 2.3024982416287765,
+      "accuracy_95_range": [
+        0.09390417304874019,
+        0.12018799735025476
+      ]
+    },
+    "primary": {
+      "accuracy": 0.5099243856332704,
+      "log_loss": 0.6963019069018966,
+      "accuracy_95_range": [
+        0.48862594214410565,
+        0.5311868602828105
+      ]
+    }
+  },
+  "recent_100": {
+    "digit": {
+      "accuracy": 0.10396975425330812,
+      "log_loss": 2.3522627824746705,
+      "accuracy_95_range": [
+        0.0916745594449569,
+        0.11770027704286756
+      ]
+    },
+    "size": {
+      "accuracy": 0.525047258979206,
+      "log_loss": 0.6969350349714274,
+      "accuracy_95_range": [
+        0.5037438998598823,
+        0.5462598395985249
+      ]
+    },
+    "primary": {
+      "accuracy": 0.5075614366729678,
+      "log_loss": 0.6981052924556846,
+      "accuracy_95_range": [
+        0.48626551922059796,
+        0.5288299492951476
+      ]
+    },
+    "colour": {
+      "accuracy": 0.41446124763705106,
+      "log_loss": 1.2143529352721902,
+      "accuracy_95_range": [
+        0.39364482595165307,
+        0.43558768646397483
+      ]
+    }
+  },
+  "big_small_majority_accuracy": 0.4867674858223062,
+  "big_small_p_vs_majority": 0.41962112880907176,
+  "test_quarters_big_small": [
+    0.499054820415879,
+    0.4839319470699433,
+    0.48582230623818523,
+    0.4952741020793951
+  ],
+  "note": "Historical data has been explored repeatedly. This is exploratory evidence. Adaptive and recent-history predictors update on earlier observed test rounds, never the current target. No guaranteed advantage or automatic promotion based on this report."
+}

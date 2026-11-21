@@ -1,0 +1,7 @@
+# Compatibility ranges, not a reconstruction of the original environment.
+# Used only for explicit archived-script replay; never installed by default.
+numpy>=1.26,<3
+pandas>=2.1,<3
+scipy>=1.11,<2
+scikit-learn>=1.3,<2
+requests>=2.31,<3

@@ -1,0 +1,154 @@
+{
+  "26_monobit": {
+    "s_obs": 808.3055162190243,
+    "p_value": 0.0,
+    "pass": false
+  },
+  "27_block_frequency": {
+    "chi_sq": 663545.28125,
+    "p_value": 0.0,
+    "pass": false
+  },
+  "28_runs": {
+    "v_obs": 817168,
+    "p_value": 0.0,
+    "pass": false
+  },
+  "29_longest_run_ones": {
+    "sample_blocks": 10000,
+    "counts": {
+      "0": 4040,
+      "1": 2084,
+      "2": 1824,
+      "3": 1170,
+      "4": 505,
+      "5": 215,
+      "6": 92,
+      "7": 54,
+      "8": 16
+    },
+    "mean_longest": 1.3395,
+    "pass": true
+  },
+  "30_chi_square": {
+    "chi2_stat": 17.12542174636736,
+    "p_value": 0.04678773005259631,
+    "pass": true
+  },
+  "31_kolmogorov_smirnov": {
+    "ks_stat": 0.002821869329854343,
+    "p_value": 0.4775440683468696,
+    "pass": true
+  },
+  "32_anderson_darling": {
+    "statistic": 0.46901487689137866,
+    "critical_value_95": 2.492,
+    "pass": true
+  },
+  "33_coupon_collector": {
+    "total_cycles": 2979,
+    "mean_cycle_length": 29.842228935884524,
+    "theoretical_mean": 29.28968,
+    "deviation": 0.5525489358845235,
+    "pass": false
+  },
+  "34_gap_test": {
+    "mean_gaps": {
+      "0": 9.884256170780521,
+      "1": 9.963565022421525,
+      "2": 10.282211427249596,
+      "3": 9.88820912124583,
+      "4": 10.01893171061528,
+      "5": 9.796165711767298,
+      "6": 9.934182590233545,
+      "7": 10.025938874478403,
+      "8": 10.009235274242595,
+      "9": 10.204568935828263
+    },
+    "theoretical_expected_gap": 10.0,
+    "pass": true
+  },
+  "35_poker_test": {
+    "total_hands": 17783,
+    "distinct_digit_distribution": {
+      "1_distinct": 2,
+      "2_distinct": 222,
+      "3_distinct": 3160,
+      "4_distinct": 9056,
+      "5_distinct": 5343
+    },
+    "pass": true
+  },
+  "36_birthday_spacings": {
+    "chunks_tested": 100,
+    "duplicate_spacings": 21861,
+    "pass": true
+  },
+  "37_collision_test": {
+    "pairs_tested": 44458,
+    "unique_buckets": 100,
+    "pass": true
+  },
+  "38_permutation_test": {
+    "permutations_count": 21326,
+    "p_value": 0.4720609726187065,
+    "pass": true
+  },
+  "39_serial_test": {
+    "chi2_stat": 124.45003655176292,
+    "p_value": 0.042726011790875734,
+    "pass": true
+  },
+  "40_approximate_entropy": {
+    "sample_size": 2000,
+    "apen": 0.8352843036597033,
+    "pass": true
+  },
+  "41_cumulative_sums": {
+    "max_excursion": 9470606.0,
+    "expected_bound_99": 627.6642812841909,
+    "pass": false
+  },
+  "42_random_excursions": {
+    "zero_crossings": 0,
+    "pass": true
+  },
+  "43_random_excursions_variant": {
+    "states_visited": 9470351,
+    "pass": true
+  },
+  "44_maurer_universal": {
+    "fn": 4.678096087460055,
+    "expected_L7": 6.19625,
+    "diff": 1.5181539125399448,
+    "pass": false
+  },
+  "45_minimum_distance": {
+    "min_distance_sample": 0.00036784323016106655,
+    "pass": true
+  },
+  "46_random_spheres": {
+    "mean_nearest_dist": 0.005303905666425421,
+    "pass": true
+  },
+  "47_squeeze_test": {
+    "mean_iterations_to_squeeze": 20.904,
+    "pass": true
+  },
+  "48_overlapping_sums": {
+    "norm_stat": 2.2120123152586224,
+    "p_value": 0.33087779948088275,
+    "pass": true
+  },
+  "49_craps_test": {
+    "games_simulated": 10000,
+    "win_rate": 0.4781,
+    "theoretical_rate": 0.49293,
+    "diff": 0.014829999999999954,
+    "pass": true
+  },
+  "50_parking_lot": {
+    "simulated_density": 0.7482,
+    "pass": true
+  }
+}

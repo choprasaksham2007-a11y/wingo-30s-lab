@@ -1,0 +1,37 @@
+# Local downloads and release staging
+.release-assets/
+data/colour_raw_data_v19.csv
+data/colour_ml_ready_v19.csv
+data/Colour_Prediction_Dataset_v19.xlsx
+data/WinGo_same_time_every_day_legacy.csv
+outputs/
+collected_data/
+**/collected_data/
+wingo_api_comparison/
+# Model weights, credentials and raw captures
+*.joblib
+*.pkl
+*.pickle
+*.pt
+*.pth
+*.onnx
+*.h5
+*.keras
+.env
+.env.*
+*.pem
+*.key
+*.har
+*.log
+credentials*
+private*/
+# Local environments
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

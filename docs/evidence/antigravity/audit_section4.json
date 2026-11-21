@@ -1,0 +1,79 @@
+{
+  "66_berlekamp_massey": {
+    "sequence_length": 1000,
+    "linear_complexity": 499,
+    "theoretical_ideal": 500,
+    "pass": true
+  },
+  "67_lattice_reduction_lcg": {
+    "exact_lcg_match": false,
+    "residual_variance": 1383610865.057053,
+    "pass": true
+  },
+  "68_sat_smt_inversion": {
+    "observed_bits_per_state": 3.32,
+    "state_size_bits": 19937,
+    "information_theoretic_deficit": "Severe (only ~10% bits observed per cycle)",
+    "algebraic_inversion_feasible": false,
+    "pass": true
+  },
+  "69_algebraic_grobner_attack": {
+    "estimated_algebraic_degree": "> 16 (high non-linearity)",
+    "pass": true
+  },
+  "70_strict_avalanche_criterion": {
+    "bit0_correlation": 0.9999999999999962,
+    "pass": true
+  },
+  "71_bit_independence_criterion": {
+    "bic_b0_b1_corr": 0.003984561233288298,
+    "bic_b1_b2_corr": 0.1664921158044373,
+    "pass": false
+  },
+  "72_next_bit_unpredictability": {
+    "classifier": "Logistic Regression (Lag-5)",
+    "out_of_sample_accuracy": 0.505595231400776,
+    "theoretical_random_baseline": 0.5,
+    "edge": 0.005595231400776002,
+    "pass": true
+  },
+  "73_cycle_detection_floyd": {
+    "total_rounds_scanned": 88916,
+    "distinct_10_grams": 88905,
+    "cycle_detected": false,
+    "pass": true
+  },
+  "74_time_memory_tradeoff": {
+    "state_space_bound": ">= 2^64 states",
+    "rainbow_table_feasible": false,
+    "pass": true
+  },
+  "75_forward_secrecy": {
+    "lag_1000_autocorr": 0.0018679234579784545,
+    "pass": true
+  },
+  "76_prediction_resistance": {
+    "resilience": "High",
+    "pass": true
+  },
+  "77_differential_cryptanalysis": {
+    "delta_distribution_chi2": 22.556205364674128,
+    "p_value": 0.00727381282410958,
+    "pass": false
+  },
+  "78_linear_cryptanalysis": {
+    "linear_bias_epsilon": 0.0016982320392280315,
+    "pass": true
+  },
+  "79_cube_attacks": {
+    "algebraic_degree": "Maximal",
+    "pass": true
+  },
+  "80_random_forest_ml_modeling": {
+    "model": "Random Forest (Lag-5 features, 30 trees)",
+    "out_of_sample_digit_accuracy": 0.0969,
+    "theoretical_random_baseline": 0.1,
+    "edge": 0.0031000000000000055,
+    "pass": true
+  }
+}

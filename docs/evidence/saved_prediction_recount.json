@@ -1,0 +1,11 @@
+{
+  "rows": 5000,
+  "correct": {
+    "digit": 438,
+    "size": 2413,
+    "primary": 2476,
+    "colour": 1951
+  },
+  "matches_saved_report": true,
+  "scope": "Recount of stored predictions only; forecasts were not regenerated"
+}

@@ -1,0 +1,37 @@
+{
+  "data": {
+    "rows": 88916,
+    "unique_periods": 88916,
+    "sha256": "055b076b0abbd2b74d06ed7c8172608062a8fca19255a988c90f57ab998ffb65",
+    "first_period": "20261011100052221",
+    "last_period": "20261111100051856",
+    "first_timestamp": "2026-10-12 00:00:00",
+    "last_timestamp": "2026-11-11 20:57:30",
+    "errors": {
+      "colour_mismatch": 0,
+      "duplicate_periods": 0,
+      "missing_periods": 0,
+      "missing_required_values": 0,
+      "nonincreasing_periods": 0,
+      "premium_digit_mismatch": 0,
+      "size_mismatch": 0,
+      "timestamp_steps_not_30s": 0
+    },
+    "valid": true,
+    "scope": "Offline integrity checks; not a randomness or generator certification"
+  },
+  "ml": {
+    "rows": 88911,
+    "errors": 0,
+    "valid": true,
+    "sha256": "a6994563dc71e5787762c8695e4e083161ae6e310bd26766589f89157fed7c6b"
+  },
+  "historical_artifacts": {
+    "artifacts": 28,
+    "mismatches": [],
+    "valid": true
+  },
+  "model_training_performed": false,
+  "model_deserialization_performed": false,
+  "game_network_requests_performed": false
+}

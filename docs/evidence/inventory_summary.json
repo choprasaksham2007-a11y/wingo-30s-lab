@@ -1,0 +1,19 @@
+{
+  "files": 1213,
+  "models": 12,
+  "byte_duplicate_groups": 21,
+  "identical_ast_groups": 0,
+  "excluded_directories": [
+    ".git",
+    ".system_generated",
+    ".venv",
+    "__pycache__",
+    "node_modules",
+    "venv"
+  ],
+  "additional_exclusions": [
+    "unrelated scratch projects: guard-dispatch, pikzels-saksham, sentinel_ai"
+  ],
+  "inventory_errors": [],
+  "serialized_extraction_data_files": 3
+}

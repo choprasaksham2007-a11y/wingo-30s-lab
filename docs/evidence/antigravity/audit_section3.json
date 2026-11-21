@@ -1,0 +1,113 @@
+{
+  "51_discrete_fourier_transform": {
+    "N_observed_below_T": 42307,
+    "N_expected": 42235.1,
+    "d_stat": 2.2126978947443785,
+    "p_value": 0.026918480641450016,
+    "pass": true
+  },
+  "52_2d_lag_correlation": {
+    "pearson_r": -0.0035753756090140675,
+    "p_value": 0.28637119583271253,
+    "pass": true
+  },
+  "53_3d_hyperplane_marsaglia": {
+    "plane_fit_r2": 5.638886899639317e-07,
+    "rank": 3,
+    "pass": true
+  },
+  "54_bitmap_spatial_autocorrelation": {
+    "row_corr": -0.007923545688321942,
+    "col_corr": -0.0030907335071600466,
+    "pass": true
+  },
+  "55_hamming_weight": {
+    "mean_weight": 8.032907463223717,
+    "expected_for_17_bit": 8.5,
+    "std_weight": 1.9619327890112368,
+    "pass": true
+  },
+  "56_hamming_distance": {
+    "mean_hd": 8.361480065230838,
+    "expected_for_17_bit": 8.5,
+    "pass": true
+  },
+  "57_autocorrelation_acf": {
+    "acf_lags": {
+      "lag_1": -0.0035753756090140675,
+      "lag_2": 0.003471412478529975,
+      "lag_3": 0.005834469974047167,
+      "lag_5": -0.0006742079404800319,
+      "lag_10": -0.0059176058062810274,
+      "lag_20": 0.0007544355492128064,
+      "lag_30": 0.0013496428343440778,
+      "lag_50": -0.0034714306053032235
+    },
+    "max_abs_acf": 0.0059176058062810274,
+    "pass": true
+  },
+  "58_bit_slice_independence": {
+    "slice_pvals": {
+      "bit_0": 0.0,
+      "bit_1": 0.0,
+      "bit_2": 1.7827796896139684e-166,
+      "bit_3": 6.18427212802703e-162,
+      "bit_4": 0.893289004936735,
+      "bit_5": 0.056800943937861684,
+      "bit_6": 0.09490193220781429,
+      "bit_7": 0.9305178210642917,
+      "bit_8": 0.893289004936735,
+      "bit_9": 0.029770782854973626,
+      "bit_10": 0.3723634022708957,
+      "bit_11": 0.6726218521093983,
+      "bit_12": 0.767905289477603,
+      "bit_13": 0.7576788223734695,
+      "bit_14": 0.15700540163550147,
+      "bit_15": 0.5196471611781333,
+      "bit_16": 0.45657578934959675
+    },
+    "pass": true
+  },
+  "59_compression_ratio": {
+    "orig_bytes": 88916,
+    "zlib_compressed": 43005,
+    "bz2_compressed": 38282,
+    "lzma_compressed": 38892,
+    "zlib_ratio": 0.4836587340861037,
+    "bz2_ratio": 0.4305411849385937,
+    "pass": true
+  },
+  "60_shannon_entropy": {
+    "observed_entropy_bits": 3.3217887477271266,
+    "theoretical_max_bits": 3.321928094887362,
+    "efficiency": 0.9999580523249585,
+    "pass": true
+  },
+  "61_min_entropy": {
+    "max_probability": 0.10208511404021774,
+    "min_entropy_bits": 3.2921555858320684,
+    "theoretical_max_min_entropy": 3.321928094887362,
+    "pass": true
+  },
+  "62_binary_matrix_rank": {
+    "matrices_tested": 1000,
+    "full_rank_32_count": 310,
+    "rank_31_count": 557,
+    "rank_30_or_less": 133,
+    "pass": true
+  },
+  "63_z_score_outliers": {
+    "outliers_above_3_sigma": 0,
+    "expected_for_uniform": 0,
+    "pass": true
+  },
+  "64_walsh_hadamard": {
+    "normalized_max_spectral_peak": 3.53125,
+    "pass": true
+  },
+  "65_lempel_ziv_complexity": {
+    "sample_length": 5000,
+    "lz_complexity": 1479,
+    "pass": true
+  }
+}

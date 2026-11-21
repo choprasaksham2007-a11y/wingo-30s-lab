@@ -1,0 +1,132 @@
+{
+  "model_id": "patterns_20261108T021752866861Z",
+  "training_rows": 6339,
+  "selection_rows": 2113,
+  "test_rows": 2113,
+  "usable_rows": 10565,
+  "test_start": "20261030100052110",
+  "test_end": "20261108100050274",
+  "data_sha256": "b55cfbc1d6308f86627ed5bff5c781233adc729052fba9e954b05143f2f17a51",
+  "configuration": {
+    "strength": 64.0,
+    "rate": 0.02,
+    "experts": 32
+  },
+  "selection_losses": [
+    1.0005867943786169,
+    1.0004993741352364,
+    1.000274935350139,
+    1.0002837251426326
+  ],
+  "adaptive": {
+    "digit": {
+      "accuracy": 0.10553715097018457,
+      "log_loss": 2.3036068499071547,
+      "accuracy_95_range": [
+        0.09314499067618039,
+        0.11936098465146823
+      ]
+    },
+    "size": {
+      "accuracy": 0.4898248935163275,
+      "log_loss": 0.6937676181200022,
+      "accuracy_95_range": [
+        0.4685480396013991,
+        0.5111386772186902
+      ]
+    },
+    "primary": {
+      "accuracy": 0.49645054424988166,
+      "log_loss": 0.6930919216009737,
+      "accuracy_95_range": [
+        0.47515779952021275,
+        0.5177561714635394
+      ]
+    },
+    "colour": {
+      "accuracy": 0.4131566493137719,
+      "log_loss": 1.1977526055815666,
+      "accuracy_95_range": [
+        0.39233766665693676,
+        0.43429082341219755
+      ]
+    }
+  },
+  "neural_comparator": {
+    "size": {
+      "accuracy": 0.4907714150496924,
+      "log_loss": 0.6932090568718162,
+      "accuracy_95_range": [
+        0.4694920623610101,
+        0.5120842621967453
+      ]
+    },
+    "colour": {
+      "accuracy": 0.39990534784666354,
+      "log_loss": 1.2151139185293,
+      "accuracy_95_range": [
+        0.3792176438918992,
+        0.42095633784990966
+      ]
+    },
+    "digit": {
+      "accuracy": 0.1069569332702319,
+      "log_loss": 2.302493441674681,
+      "accuracy_95_range": [
+        0.09448516751204905,
+        0.12085521942209873
+      ]
+    },
+    "primary": {
+      "accuracy": 0.5120681495504023,
+      "log_loss": 0.6983729342716546,
+      "accuracy_95_range": [
+        0.4907527214629066,
+        0.5333397771923363
+      ]
+    }
+  },
+  "recent_100": {
+    "digit": {
+      "accuracy": 0.10269758637008992,
+      "log_loss": 2.3522277987395297,
+      "accuracy_95_range": [
+        0.09046685695685025,
+        0.11637029515780004
+      ]
+    },
+    "size": {
+      "accuracy": 0.5253194510175107,
+      "log_loss": 0.6969086777343618,
+      "accuracy_95_range": [
+        0.5040010591205769,
+        0.5465459478619915
+      ]
+    },
+    "primary": {
+      "accuracy": 0.5078088026502603,
+      "log_loss": 0.6980627256701504,
+      "accuracy_95_range": [
+        0.48649750326571944,
+        0.5290917605700259
+      ]
+    },
+    "colour": {
+      "accuracy": 0.41457643161381924,
+      "log_loss": 1.2120407949482834,
+      "accuracy_95_range": [
+        0.3937443147743417,
+        0.4357185869012917
+      ]
+    }
+  },
+  "big_small_majority_accuracy": 0.48698532891623286,
+  "big_small_p_vs_majority": 0.4494403588310854,
+  "test_quarters_big_small": [
+    0.4933837429111531,
+    0.49053030303030304,
+    0.48295454545454547,
+    0.49242424242424243
+  ],
+  "note": "Historical data has been explored repeatedly. This is exploratory evidence. Adaptive and recent-history predictors update on earlier observed test rounds, never the current target. No guaranteed advantage or automatic promotion based on this report."
+}
