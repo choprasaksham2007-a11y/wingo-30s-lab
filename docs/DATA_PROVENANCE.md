@@ -39,6 +39,12 @@ Thus `88,865 + 51 = 88,916`, and `88,816 + 49 + 51 = 88,916` complete premiums. 
 
 Machine-readable evidence: [snapshot comparison](evidence/archive_reconciliation.json), [workbook comparison](evidence/workbook_reconciliation.json), and [ZIP verification](evidence/chatgpt/zip_manifest_verification.json). In the workbook comparison JSON, `old_*` denotes the workbook-side variable in the validation helper; **it is the current v19 workbook**, not the older ChatGPT snapshot. Both current copies agree.
 
+## Did yesterday’s result repeat at the same clock time?
+
+The November 17 ChatGPT research handoff recorded this question from the *PRNG Seed Prediction* investigation. Recounting its original date-by-clock-time matrix gives **8,700 matching digits in 85,985 pairs (10.12%)**. Guessing yesterday’s digit at the same time would have been right about once in ten on this snapshot. Among the **85,936 pairs** where both premiums had five digits, the entire premium repeated **three times**.
+
+To reproduce the count, take each clock-time row and compare adjacent calendar-date columns. Skip a pair if either cell is empty. Compare the digit in parentheses for the first count and the five-digit string in both cells for the second. A missing day breaks the pair. The CSV in the chat handoff and the existing release asset have the same SHA-256 digest. [Download the original matrix](https://github.com/choprasaksham2007-a11y/wingo-30s-lab/releases/download/v1.0.0/WinGo_same_time_every_day_legacy.csv) · [File checksums](../data/SHA256SUMS.txt)
+
 ## Hashes take precedence over stale prose
 
 | Canonical file | SHA-256 |
