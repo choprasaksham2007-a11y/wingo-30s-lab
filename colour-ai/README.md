@@ -32,6 +32,8 @@ The collector writes completed rounds to `wingo_investigation/collected_data/win
 
 ## What the download contains
 
+On November 22, 2026 the working project contained **173 inventoried files** after excluding the virtual environment, caches and Git metadata. All 173 paths matched the manifest. Of those, **96** appear in both Git and the release ZIP, **65** are distributed through the ZIP alone, and **12** are marked local only. All 161 distributed files matched their original-file hashes in the working project and their published hashes in the ZIP. The ZIP itself matched the SHA-256 digest recorded by GitHub. [Inspect the file-by-file manifest](WORKSPACE_FILES.csv)
+
 The ZIP preserves the project's directory layout, source, tests, launchers, training reports, saved models, raw workbook, processed data, historical exports, prediction scores and finalized collector database. [WORKSPACE_FILES.csv](WORKSPACE_FILES.csv) identifies the location, distribution status, and checksum for each inventoried project file. Its entries include the specific files kept local.
 
 The virtual environment and Python caches can be rebuilt. Process locks, worker IDs, two raw HTTP capture files and a pending raw-response row were left out. Machine-specific paths were made relative. Three model copies had an embedded workstation directory replaced with an equal-length relative path prefix. The remaining bytes of those models and all bytes of the other nine models were preserved. No model was retrained.

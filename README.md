@@ -104,6 +104,8 @@ At the worksheet time **00:00:00**, the first published premium was **71180**. I
 
 ## Explore the research
 
+Did the digit at the top of the game panel actually win? I matched three saved rankings to completed rounds by period ID. The winners ranked **third, ninth and fifth**. [Inspect all three comparisons and the underlying panel entries](docs/ROUND_PANEL_OBSERVATIONS.md)
+
 - **Models and forecasts.** Explore the training code, collectors and live viewer, or inspect the checkpoints behind the saved forecasts. [Browse the app](colour-ai/) · [Model inventory](models/README.md)
 - **Round history.** I compared an earlier snapshot of 88,865 rounds with the final dataset. I found 51 added rounds and 49 previously incomplete premiums. Every winning digit present in both snapshots agreed. [Compare the snapshots](docs/DATA_PROVENANCE.md) · [Same-time digit repeat analysis](docs/DATA_PROVENANCE.md#did-yesterdays-result-repeat-at-the-same-clock-time) · [Earlier report](docs/evidence/chatgpt/premium_analysis_2026-11-11.md)
 - **Audit trail.** Follow the workbook revisions and image-based digit checks. My review of the original 110-dimension audit identified hardcoded verdicts and tests whose assumptions did not fit the data. [Browse the audit archive](antigravity/README.md) · [Read the corrections](docs/CLAIM_LEDGER.md)
